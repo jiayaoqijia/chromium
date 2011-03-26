@@ -124,6 +124,7 @@
           ],
           'libraries': [
             '<!@(<(pkg-config) --libs-only-l nss | sed -e "s/-lssl3//")',
+            '-lnssdbm3',
           ],
         }],
         [ 'OS == "mac" or OS == "win"', {

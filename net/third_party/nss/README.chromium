@@ -51,5 +51,9 @@ Patches:
     patches/dheclientauth.patch
     https://bugzilla.mozilla.org/show_bug.cgi?id=616757
 
+  * Add TLS-SRP support
+    patches/tls-srp.patch
+    http://trustedhttp.org/wiki/TLS-SRP_in_Chrome
+
 The ssl/bodge directory contains files taken from the NSS repo that we required
 for building libssl outside of its usual build environment.
