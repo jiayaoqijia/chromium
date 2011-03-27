@@ -91,6 +91,10 @@ struct SSLConfig {
   bool ssl3_fallback;  // True if we are falling back to SSL 3.0 (one still
                        // needs to clear tls1_enabled).
 
+  bool use_tls_auth;
+  std::string tls_username;
+  std::string tls_password;
+
   // The list of application level protocols supported. If set, this will
   // enable Next Protocol Negotiation (if supported). This is a list of 8-bit
   // length prefixed strings. The order of the protocols doesn't matter expect

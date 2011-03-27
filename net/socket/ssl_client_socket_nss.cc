@@ -1029,6 +1029,37 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
     return ERR_UNEXPECTED;
   }
 
+  // TODO(sqs): add #ifdef guards
+  if (ssl_config_.use_tls_auth) {
+    LOG(WARNING) << "Using TLS auth in SSLClientSocketNSS: " <<
+        ssl_config_.tls_username << " / " << ssl_config_.tls_password;
+
+    // TODO(sqs): add other SRP cipher suites
+    uint16 srpCipher1 = 0xc01d;
+    rv = SSL_CipherPrefSet(nss_fd_, srpCipher1, PR_TRUE);
+    if (rv != SECSuccess) {
+      LogFailedNSSFunction(net_log_, "SSL_CipherPrefSet", "");
+      return ERR_UNEXPECTED;
+    }
+
+    // rv = SSL_UserPasswdHook(nss_fd_, TLSAuthCallback, this);
+    // if (rv != SECSuccess) {
+    //   LogFailedNSSFunction(net_log_, "SSL_UserPasswdHook", "");
+    //   return ERR_UNEXPECTED;
+    // }
+    // TODO(sqs): will tls_username and tls_password stick around?
+    // ssl_config_ is private, so nobody else can change it, so this should
+    // be ok
+    rv = SSL_SetUserLogin(
+        nss_fd_,
+        const_cast<char *>(ssl_config_.tls_username.c_str()), 
+        const_cast<char *>(ssl_config_.tls_password.c_str()));
+    if (rv != SECSuccess) {
+      LogFailedNSSFunction(net_log_, "SSL_SetUserLogin", "");
+      return ERR_UNEXPECTED;
+    }
+  }
+
   rv = SSL_HandshakeCallback(nss_fd_, HandshakeCallback, this);
   if (rv != SECSuccess) {
     LogFailedNSSFunction(net_log_, "SSL_HandshakeCallback", "");
@@ -1640,6 +1671,12 @@ int SSLClientSocketNSS::DoVerifyDNSSECComplete(int result) {
 }
 
 int SSLClientSocketNSS::DoVerifyCert(int result) {
+  /* TODO(sqs): cleanest way to bypass cert verification? */
+  if (ssl_config_.use_tls_auth) {
+    GotoState(STATE_VERIFY_CERT_COMPLETE);
+    return OK;
+  }
+  
   DCHECK(server_cert_);
 
   GotoState(STATE_VERIFY_CERT_COMPLETE);
@@ -1808,6 +1845,11 @@ int SSLClientSocketNSS::DoPayloadWrite() {
 }
 
 void SSLClientSocketNSS::LogConnectionTypeMetrics() const {
+  // If we're using no server cert (e.g., TLS-SRP)
+  // TODO(sqs): log some metrics here anyway, about SRP
+  if (!server_cert_verify_result_)
+    return;
+
   UpdateConnectionTypeHistograms(CONNECTION_SSL);
   if (server_cert_verify_result_->has_md5)
     UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5);
@@ -2483,6 +2525,31 @@ SECStatus SSLClientSocketNSS::ClientAuthHandler(
   return SECWouldBlock;
 }
 #endif  // NSS_PLATFORM_CLIENT_AUTH
+
+// static
+// NSS calls this to get a password for the TLS-SRP login interactively.
+SECStatus SSLClientSocketNSS::TLSAuthCallback(
+    PRFileDesc *socket, 
+    SECItem *pw,
+    void *arg) {
+  SSLClientSocketNSS *that = reinterpret_cast<SSLClientSocketNSS*>(arg);
+
+  if (that->tls_auth_callback_called_) {
+    LOG(WARNING) << "TLSAuthCallback called twice";
+    return SECFailure;
+  }
+  that->tls_auth_callback_called_ = true;
+
+  // TODO(sqs): when do we free pw? or does it get freed by NSS?
+  SECITEM_AllocItem(NULL, pw, PORT_Strlen("aaaa"));
+  if (!pw->data) {
+    LOG(WARNING) << "Couldn't SECITEM_AllocItem for password";
+    return SECFailure;
+  }
+  PORT_Memcpy(pw->data, "aaaa", pw->len);
+
+  return SECSuccess;
+}
 
 // static
 // NSS calls this when handshake is completed.

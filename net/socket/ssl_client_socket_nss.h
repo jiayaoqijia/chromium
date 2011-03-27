@@ -161,6 +161,10 @@ class SSLClientSocketNSS : public SSLClientSocket {
                                      CERTCertificate** result_certificate,
                                      SECKEYPrivateKey** result_private_key);
 #endif
+  
+  // NSS calls this when password authentication is requested (for TLS-SRP).
+  static SECStatus TLSAuthCallback(PRFileDesc *socket, SECItem *pw, void *arg);
+
   // NSS calls this when handshake is completed.  We pass 'this' as the second
   // argument.
   static void HandshakeCallback(PRFileDesc* socket, void* arg);
@@ -213,6 +217,9 @@ class SSLClientSocketNSS : public SSLClientSocket {
 
   CertVerifier* const cert_verifier_;
   scoped_ptr<SingleRequestCertVerifier> verifier_;
+
+  // True if NSS has called TLSAuthCallback.
+  bool tls_auth_callback_called_;
 
   // True if NSS has called HandshakeCallback.
   bool handshake_callback_called_;
