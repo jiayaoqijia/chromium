@@ -283,7 +283,7 @@ deps_os = {
       (Var("googlecode_url") % "linux-syscall-support") + "/trunk/lss@3",
 
     "src/third_party/openssl":
-      "/trunk/deps/third_party/openssl@69192",
+      "ssh://localhost/home/sqs/src/openssl-cr-dep@966dbb",
   },
 }
 
