@@ -25,6 +25,18 @@
       'product_name': 'ssl',
       'type': '<(library)',
       'sources': [
+        #'ssl/mpi.h',
+        #'ssl/srp_groups.h',
+        #'ssl/logtab.h',
+        #'ssl/mpi-config.h',
+        #'ssl/mpi-priv.h',
+        'ssl/mpi/mpi.c',
+        'ssl/srp.c',
+        'ssl/mpi/mpmontg.c',
+        'ssl/mpi/mplogic.c',
+        'ssl/mpi/mpcpucache.c',
+        #'ssl/secmpi.h',        
+
         'ssl/authcert.c',
         'ssl/cmpcert.c',
         'ssl/derive.c',
@@ -124,7 +136,7 @@
           ],
           'libraries': [
             '<!@(<(pkg-config) --libs-only-l nss | sed -e "s/-lssl3//")',
-            '-lnssdbm3',
+            '-lnssdbm3', # TODO(sqs): still needed?
           ],
         }],
         [ 'OS == "mac" or OS == "win"', {
