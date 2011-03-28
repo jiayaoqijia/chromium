@@ -1042,11 +1042,14 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
       return ERR_UNEXPECTED;
     }
 
+    // TODO(sqs): we're not using SSL_UserPasswdHook because we already know
+    // the TLS username and password
     // rv = SSL_UserPasswdHook(nss_fd_, TLSAuthCallback, this);
     // if (rv != SECSuccess) {
     //   LogFailedNSSFunction(net_log_, "SSL_UserPasswdHook", "");
     //   return ERR_UNEXPECTED;
     // }
+
     // TODO(sqs): will tls_username and tls_password stick around?
     // ssl_config_ is private, so nobody else can change it, so this should
     // be ok
@@ -2528,12 +2531,13 @@ SECStatus SSLClientSocketNSS::ClientAuthHandler(
 
 // static
 // NSS calls this to get a password for the TLS-SRP login interactively.
+// TODO(sqs): this callback function is currently unused
 SECStatus SSLClientSocketNSS::TLSAuthCallback(
     PRFileDesc *socket, 
     SECItem *pw,
     void *arg) {
-  SSLClientSocketNSS *that = reinterpret_cast<SSLClientSocketNSS*>(arg);
-
+  //SSLClientSocketNSS *that = reinterpret_cast<SSLClientSocketNSS*>(arg);
+  // TODO(sqs): unused that
 
   // TODO(sqs): when do we free pw? or does it get freed by NSS?
   SECITEM_AllocItem(NULL, pw, PORT_Strlen("aaaa"));
@@ -2541,7 +2545,7 @@ SECStatus SSLClientSocketNSS::TLSAuthCallback(
     LOG(WARNING) << "Couldn't SECITEM_AllocItem for password";
     return SECFailure;
   }
-  PORT_Memcpy(pw->data, "aaaa", pw->len);
+  PORT_Memcpy(pw->data, "1234", pw->len);
 
   return SECSuccess;
 }
