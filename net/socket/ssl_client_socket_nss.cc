@@ -2534,11 +2534,6 @@ SECStatus SSLClientSocketNSS::TLSAuthCallback(
     void *arg) {
   SSLClientSocketNSS *that = reinterpret_cast<SSLClientSocketNSS*>(arg);
 
-  if (that->tls_auth_callback_called_) {
-    LOG(WARNING) << "TLSAuthCallback called twice";
-    return SECFailure;
-  }
-  that->tls_auth_callback_called_ = true;
 
   // TODO(sqs): when do we free pw? or does it get freed by NSS?
   SECITEM_AllocItem(NULL, pw, PORT_Strlen("aaaa"));

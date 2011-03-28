@@ -218,9 +218,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
   CertVerifier* const cert_verifier_;
   scoped_ptr<SingleRequestCertVerifier> verifier_;
 
-  // True if NSS has called TLSAuthCallback.
-  bool tls_auth_callback_called_;
-
   // True if NSS has called HandshakeCallback.
   bool handshake_callback_called_;
 
