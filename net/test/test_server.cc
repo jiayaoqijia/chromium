@@ -62,13 +62,15 @@ std::string GetHostname(TestServer::Type type,
 TestServer::HTTPSOptions::HTTPSOptions()
     : server_certificate(CERT_OK),
       request_client_certificate(false),
-      bulk_ciphers(HTTPSOptions::BULK_CIPHER_ANY) {}
+      bulk_ciphers(HTTPSOptions::BULK_CIPHER_ANY),
+      use_tls_srp(0), only_tls_srp(0) {}
 
 TestServer::HTTPSOptions::HTTPSOptions(
     TestServer::HTTPSOptions::ServerCertificate cert)
     : server_certificate(cert),
       request_client_certificate(false),
-      bulk_ciphers(HTTPSOptions::BULK_CIPHER_ANY) {}
+      bulk_ciphers(HTTPSOptions::BULK_CIPHER_ANY),
+      use_tls_srp(0), only_tls_srp(0) {}
 
 TestServer::HTTPSOptions::~HTTPSOptions() {}
 
@@ -399,6 +401,11 @@ bool TestServer::AddCommandLineArguments(CommandLine* command_line) const {
       command_line->AppendSwitchASCII(kBulkCipherSwitch, "aes256");
     if (https_options_.bulk_ciphers & HTTPSOptions::BULK_CIPHER_3DES)
       command_line->AppendSwitchASCII(kBulkCipherSwitch, "3des");
+
+    if (https_options_.use_tls_srp)
+      command_line->AppendSwitch("use-tls-srp");
+    if (https_options_.only_tls_srp)
+      command_line->AppendSwitch("only-tls-srp");
   }
 
   return true;

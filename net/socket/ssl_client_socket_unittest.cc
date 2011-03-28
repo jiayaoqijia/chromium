@@ -283,6 +283,49 @@ TEST_F(SSLClientSocketTest, ConnectClientAuthSendNullCert) {
   EXPECT_FALSE(sock->IsConnected());
 }
 
+// Connect using a certificate to a server that has TLS-SRP enabled.
+TEST_F(SSLClientSocketTest, ConnectUsingCertWithSRPEnabled) {
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
+
+  net::AddressList addr;
+  ASSERT_TRUE(test_server.GetAddressList(&addr));
+
+  TestCompletionCallback callback;
+  net::CapturingNetLog log(net::CapturingNetLog::kUnbounded);
+  net::ClientSocket* transport = new net::TCPClientSocket(
+      addr, &log, net::NetLog::Source());
+  int rv = transport->Connect(&callback);
+  if (rv == net::ERR_IO_PENDING)
+    rv = callback.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  scoped_ptr<net::SSLClientSocket> sock(
+      socket_factory_->CreateSSLClientSocket(
+          transport, test_server.host_port_pair(), kDefaultSSLConfig,
+          NULL, cert_verifier_.get()));
+
+  EXPECT_FALSE(sock->IsConnected());
+
+  rv = sock->Connect(&callback);
+
+  net::CapturingNetLog::EntryList entries;
+  log.GetEntries(&entries);
+  EXPECT_TRUE(net::LogContainsBeginEvent(
+      entries, 5, net::NetLog::TYPE_SSL_CONNECT));
+  if (rv == net::ERR_IO_PENDING)
+    rv = callback.WaitForResult();
+  EXPECT_EQ(net::OK, rv); // TODO(sqs): check that we did in fact use the cert
+  EXPECT_TRUE(sock->IsConnected());
+  log.GetEntries(&entries);
+  EXPECT_TRUE(LogContainsSSLConnectEndEvent(entries, -1));
+
+  sock->Disconnect();
+  EXPECT_FALSE(sock->IsConnected());
+}
+
 // TODO(wtc): Add unit tests for IsConnectedAndIdle:
 //   - Server closes an SSL connection (with a close_notify alert message).
 //   - Server closes the underlying TCP connection directly.

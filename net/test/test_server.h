@@ -98,6 +98,12 @@ class TestServer {
     // HTTPS server, or BULK_CIPHER_ANY to indicate that all implemented
     // ciphers are acceptable.
     int bulk_ciphers;
+
+    // True if TLS-SRP should be enabled.
+    bool use_tls_srp;
+
+    // True if only connections authenticated with TLS-SRP should be allowed.
+    bool only_tls_srp;
   };
 
   TestServer(Type type, const FilePath& document_root);
