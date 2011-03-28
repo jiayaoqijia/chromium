@@ -73,7 +73,8 @@ class HTTPSServer(tlslite.api.TLSSocketServerMixIn, StoppableHTTPServer):
   """This is a specialization of StoppableHTTPerver that add https support."""
 
   def __init__(self, server_address, request_hander_class, cert_path,
-               ssl_client_auth, ssl_client_cas, ssl_bulk_ciphers):
+               ssl_client_auth, ssl_client_cas, ssl_bulk_ciphers,
+               use_tls_srp, only_tls_srp):
     s = open(cert_path).read()
     x509 = tlslite.api.X509()
     x509.parse(s)
@@ -90,6 +91,14 @@ class HTTPSServer(tlslite.api.TLSSocketServerMixIn, StoppableHTTPServer):
     self.ssl_handshake_settings = tlslite.api.HandshakeSettings()
     if ssl_bulk_ciphers is not None:
       self.ssl_handshake_settings.cipherNames = ssl_bulk_ciphers
+    self.only_tls_srp = only_tls_srp
+    self.srp_verifier_db = None
+    if use_tls_srp:
+      # Make dummy SRP verifier database
+      self.srp_verifier_db = tlslite.api.VerifierDB()
+      self.srp_verifier_db.create()
+      entry = tlslite.api.VerifierDB.makeVerifier('jsmith', 'asdf', 1536)
+      self.srp_verifier_db['jsmith'] = entry
 
     self.session_cache = tlslite.api.SessionCache()
     StoppableHTTPServer.__init__(self, server_address, request_hander_class)
@@ -97,13 +106,18 @@ class HTTPSServer(tlslite.api.TLSSocketServerMixIn, StoppableHTTPServer):
   def handshake(self, tlsConnection):
     """Creates the SSL connection."""
     try:
-      tlsConnection.handshakeServer(certChain=self.cert_chain,
-                                    privateKey=self.private_key,
-                                    sessionCache=self.session_cache,
-                                    reqCert=self.ssl_client_auth,
-                                    settings=self.ssl_handshake_settings,
-                                    reqCAs=self.ssl_client_cas)
+      if not self.only_tls_srp:
+        tlsConnection.handshakeServer(certChain=self.cert_chain,
+                                      privateKey=self.private_key,
+                                      sessionCache=self.session_cache,
+                                      reqCert=self.ssl_client_auth,
+                                      settings=self.ssl_handshake_settings,
+                                      reqCAs=self.ssl_client_cas,
+                                      verifierDB=self.srp_verifier_db)
+      else:
+        tlsConnection.handshakeServer(verifierDB=self.srp_verifier_db)
       tlsConnection.ignoreAbruptClose = True
+      self.tlsConnection = tlsConnection
       return True
     except tlslite.api.TLSAbruptCloseError:
       # Ignore abrupt close.
@@ -211,11 +225,14 @@ class SyncHTTPServer(StoppableHTTPServer):
 class BasePageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
   def __init__(self, request, client_address, socket_server,
-               connect_handlers, get_handlers, post_handlers, put_handlers):
+               connect_handlers, get_handlers, get_with_socket_handlers,
+               post_handlers, put_handlers):
     self._connect_handlers = connect_handlers
     self._get_handlers = get_handlers
+    self._get_with_socket_handlers = get_with_socket_handlers
     self._post_handlers = post_handlers
     self._put_handlers = put_handlers
+    self._socket_server = socket_server
     BaseHTTPServer.BaseHTTPRequestHandler.__init__(
       self, request, client_address, socket_server)
 
@@ -239,6 +256,9 @@ class BasePageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         return
 
   def do_GET(self):
+    for handler in self._get_with_socket_handlers:
+      if handler(self._socket_server):
+        return
     for handler in self._get_handlers:
       if handler():
         return
@@ -292,6 +312,8 @@ class TestPageHandler(BasePageHandler):
       self.ClientRedirectHandler,
       self.MultipartHandler,
       self.DefaultResponseHandler]
+    get_with_socket_handlers = [
+      self.TLSLoginInfoHandler]
     post_handlers = [
       self.EchoTitleHandler,
       self.EchoAllHandler,
@@ -314,7 +336,8 @@ class TestPageHandler(BasePageHandler):
     self._default_mime_type = 'text/html'
 
     BasePageHandler.__init__(self, request, client_address, socket_server,
-                             connect_handlers, get_handlers, post_handlers,
+                             connect_handlers, get_handlers,
+                             get_with_socket_handlers, post_handlers,
                              put_handlers)
 
   def GetMIMETypeFromName(self, file_name):
@@ -612,6 +635,23 @@ class TestPageHandler(BasePageHandler):
       body += self.rfile.read(length)
       self.rfile.read(2)
     return body
+
+  def TLSLoginInfoHandler(self, socket_server):
+    """This handler echoes back the username used to log in via TLS."""
+
+    if not self._ShouldHandleRequest("/tlslogininfo"):
+      return False
+
+    self.send_response(200)
+    self.send_header('Content-type', 'text/html')
+    self.end_headers()
+    
+    srp_user = socket_server.tlsConnection.session.srpUsername
+    if srp_user:
+      self.wfile.write('username: ' + srp_user)
+    else:
+      self.wfile.write('not using TLS-SRP')
+    return True
 
   def EchoHandler(self):
     """This handler just echoes back the payload of the request, for testing
@@ -1413,7 +1453,8 @@ def main(options, args):
           return
       server = HTTPSServer(('127.0.0.1', port), TestPageHandler, options.cert,
                            options.ssl_client_auth, options.ssl_client_ca,
-                           options.ssl_bulk_cipher)
+                           options.ssl_bulk_cipher, options.use_tls_srp,
+                           options.only_tls_srp)
       print 'HTTPS server started on port %d...' % server.server_port
     else:
       server = StoppableHTTPServer(('127.0.0.1', port), TestPageHandler)
@@ -1522,6 +1563,11 @@ if __name__ == '__main__':
                            'omitted, all algorithms will be used. This '
                            'option may appear multiple times, indicating '
                            'multiple algorithms should be enabled.');
+  option_parser.add_option('', '--use-tls-srp', action='store_true',
+                           help='Allow TLS authentication using TLS-SRP'
+                           ' (user jsmith, password asdf)')
+  option_parser.add_option('', '--only-tls-srp', action='store_true',
+                           help='Only allow connections using TLS-SRP')
   option_parser.add_option('', '--file-root-url', default='/files/',
                            help='Specify a root URL for files served.')
   option_parser.add_option('', '--startup-pipe', type='int',
