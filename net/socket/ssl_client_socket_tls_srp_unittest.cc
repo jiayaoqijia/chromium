@@ -77,7 +77,9 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
   SSLClientSocketTLSSRPTest()
       : child_(base::kNullProcessHandle),
         socket_factory_(ClientSocketFactory::GetDefaultFactory()),
-        log_(CapturingNetLog::kUnbounded) {
+        log_(CapturingNetLog::kUnbounded),
+        expected_exit_code_(0)
+  {
     TestSSLHostInfo::Reset();
   }
 
