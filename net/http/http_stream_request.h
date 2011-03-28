@@ -65,6 +65,9 @@ class HttpStreamRequest : public StreamRequest {
 
   // StreamRequest interface
   virtual int RestartWithCertificate(X509Certificate* client_cert);
+  virtual int RestartWithLoginCredentials(std::string& username,
+                                          std::string& password);
+                                          // TODO(sqs): make 'const string16&'?
   virtual int RestartTunnelWithProxyAuth(const string16& username,
                                          const string16& password);
   virtual LoadState GetLoadState() const;
@@ -171,6 +174,9 @@ class HttpStreamRequest : public StreamRequest {
 
   // Called to handle a client certificate request.
   int HandleCertificateRequest(int error);
+
+  // Called to handle a TLS client login credentials request.
+  int HandleLoginCredentialsRequest(int error);
 
   // Moves this stream request into SPDY mode.
   void SwitchToSpdyMode();

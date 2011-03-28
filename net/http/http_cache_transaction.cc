@@ -293,6 +293,26 @@ int HttpCache::Transaction::RestartWithCertificate(
   return rv;
 }
 
+int HttpCache::Transaction::RestartWithLoginCredentials(
+    std::string& username,
+    std::string& password,
+    CompletionCallback* callback) {
+  DCHECK(callback);
+
+  // Ensure that we only have one asynchronous call at a time.
+  DCHECK(!callback_);
+
+  if (!cache_)
+    return ERR_UNEXPECTED;
+
+  int rv = RestartNetworkRequestWithLoginCredentials(username, password);
+
+  if (rv == ERR_IO_PENDING)
+    callback_ = callback;
+
+  return rv;
+}
+
 int HttpCache::Transaction::RestartWithAuth(
     const string16& username,
     const string16& password,
@@ -1566,6 +1586,21 @@ int HttpCache::Transaction::RestartNetworkRequestWithCertificate(
 
   next_state_ = STATE_SEND_REQUEST_COMPLETE;
   int rv = network_trans_->RestartWithCertificate(client_cert, &io_callback_);
+  if (rv != ERR_IO_PENDING)
+    return DoLoop(rv);
+  return rv;
+}
+
+int HttpCache::Transaction::RestartNetworkRequestWithLoginCredentials(
+    std::string& username,
+    std::string& password) {
+  DCHECK(mode_ & WRITE || mode_ == NONE);
+  DCHECK(network_trans_.get());
+  DCHECK_EQ(STATE_NONE, next_state_);
+
+  next_state_ = STATE_SEND_REQUEST_COMPLETE;
+  int rv = network_trans_->RestartWithLoginCredentials(username, password,
+                                                       &io_callback_);
   if (rv != ERR_IO_PENDING)
     return DoLoop(rv);
   return rv;

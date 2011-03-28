@@ -127,6 +127,19 @@ int HttpStreamRequest::RestartWithCertificate(X509Certificate* client_cert) {
   return RunLoop(OK);
 }
 
+int HttpStreamRequest::RestartWithLoginCredentials(std::string& username,
+                                                   std::string& password) {
+  ssl_config()->tls_username = username;
+  ssl_config()->tls_password = password;
+  ssl_config()->use_tls_auth = true;
+  ssl_config()->ssl3_enabled = false;
+  next_state_ = STATE_INIT_CONNECTION;
+  // Reset the other member variables.
+  // Note: this is necessary only with SSL renegotiation.
+  stream_.reset();
+  return RunLoop(OK);  
+}
+
 int HttpStreamRequest::RestartTunnelWithProxyAuth(const string16& username,
                                                   const string16& password) {
   DCHECK(establishing_tunnel_);

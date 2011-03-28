@@ -22,6 +22,7 @@
 #include "net/base/net_util.h"
 #include "net/base/sdch_manager.h"
 #include "net/base/ssl_cert_request_info.h"
+#include "net/base/ssl_login_request_info.h"
 #include "net/http/http_request_headers.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_response_info.h"
@@ -567,6 +568,9 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
   } else if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
     request_->delegate()->OnCertificateRequested(
         request_, transaction_->GetResponseInfo()->cert_request_info);
+  } else if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
+      request_->delegate()->OnLoginCredentialsRequested(
+        request_, transaction_->GetResponseInfo()->login_request_info);
   } else {
     NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, result));
   }
@@ -865,6 +869,30 @@ void URLRequestHttpJob::ContinueWithCertificate(
   SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
 
   int rv = transaction_->RestartWithCertificate(client_cert, &start_callback_);
+  if (rv == ERR_IO_PENDING)
+    return;
+
+  // The transaction started synchronously, but we need to notify the
+  // URLRequest delegate via the message loop.
+  MessageLoop::current()->PostTask(
+      FROM_HERE,
+      method_factory_.NewRunnableMethod(
+          &URLRequestHttpJob::OnStartCompleted, rv));
+}
+
+void URLRequestHttpJob::ContinueWithLoginCredentials(
+    std::string& username,
+    std::string& password) {
+  DCHECK(transaction_.get());
+  
+  DCHECK(!response_info_) << "should not have a response yet";
+
+  // No matter what, we want to report our status as IO pending since we will
+  // be notifying our consumer asynchronously via OnStartCompleted.
+  SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
+
+  int rv = transaction_->RestartWithLoginCredentials(username, password,
+                                                     &start_callback_);
   if (rv == ERR_IO_PENDING)
     return;
 

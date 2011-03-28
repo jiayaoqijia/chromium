@@ -40,6 +40,7 @@ namespace net {
 class CookieOptions;
 class IOBuffer;
 class SSLCertRequestInfo;
+class SSLLoginRequestInfo;
 class UploadData;
 class URLRequestContext;
 class URLRequestJob;
@@ -122,6 +123,8 @@ class URLRequest : public base::NonThreadSafe {
   //      requests a client certificate for authentication)
   //    - OnSSLCertificateError* (zero or one call, if the SSL server's
   //      certificate has an error)
+  //    - OnSSLAuthRequired* (zero or one call, if the SSL server requests
+  //      client login credentials for authentication)
   //    - OnReceivedRedirect* (zero or more calls, for the number of redirects)
   //    - OnAuthRequired* (zero or more calls, for the number of
   //      authentication failures)
@@ -185,6 +188,17 @@ class URLRequest : public base::NonThreadSafe {
     virtual void OnSSLCertificateError(URLRequest* request,
                                        int cert_error,
                                        net::X509Certificate* cert);
+
+    // Called when using TLS with TLS-SRP when the server requests that the
+    // user provide a username and password for authentication. The delegate
+    // should call request->ContinueWithLoginCredentials() with the
+    // credentials provided by the client, or
+    // request->ContinueWithLoginCredentials("", "") to continue the SSL
+    // handshake without providing login credentials.
+    virtual void OnLoginCredentialsRequested(
+        URLRequest* request,
+        net::SSLLoginRequestInfo* login_request_info);
+                                   
 
     // Called when reading cookies. |blocked_by_policy| is true if access to
     // cookies was denied due to content settings. This method will never be
@@ -525,6 +539,12 @@ class URLRequest : public base::NonThreadSafe {
   // instruct this URLRequest to continue with the request with the
   // certificate.  Pass NULL if the user doesn't have a client certificate.
   void ContinueWithCertificate(net::X509Certificate* client_cert);
+
+  // This method can be called after the user enters login credentials to
+  // instruct this URLRequest to continue with the request with the
+  // credentials.  Pass NULL if the user doesn't enter login credentials.
+  void ContinueWithLoginCredentials(std::string& username, 
+                                    std::string& password);
 
   // This method can be called after some error notifications to instruct this
   // URLRequest to ignore the current error and continue with the request.  To

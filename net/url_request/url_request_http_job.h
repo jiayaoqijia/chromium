@@ -82,6 +82,8 @@ class URLRequestHttpJob : public URLRequestJob {
                        const string16& password);
   virtual void CancelAuth();
   virtual void ContinueWithCertificate(X509Certificate* client_cert);
+  virtual void ContinueWithLoginCredentials(std::string& username,
+                                            std::string& password);
   virtual void ContinueDespiteLastError();
   virtual bool ReadRawData(IOBuffer* buf, int buf_size, int *bytes_read);
   virtual void StopCaching();

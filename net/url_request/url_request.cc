@@ -82,6 +82,13 @@ void URLRequest::Delegate::OnSSLCertificateError(URLRequest* request,
   request->Cancel();
 }
 
+void URLRequest::Delegate::OnLoginCredentialsRequested(
+    URLRequest* request,
+    net::SSLLoginRequestInfo* login_request_info) {
+  string empty = ""; // TODO(sqs): this is kind of ugly
+  request->ContinueWithLoginCredentials(empty, empty);
+}
+
 void URLRequest::Delegate::OnGetCookies(URLRequest* request,
                                         bool blocked_by_policy) {
 }
@@ -502,6 +509,13 @@ void URLRequest::ContinueWithCertificate(net::X509Certificate* client_cert) {
   DCHECK(job_);
 
   job_->ContinueWithCertificate(client_cert);
+}
+
+void URLRequest::ContinueWithLoginCredentials(std::string& username, 
+                                              std::string& password) {
+  DCHECK(job_);
+
+  job_->ContinueWithLoginCredentials(username, password);
 }
 
 void URLRequest::ContinueDespiteLastError() {

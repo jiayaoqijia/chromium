@@ -190,6 +190,12 @@ void URLRequestJob::ContinueWithCertificate(
   NOTREACHED();
 }
 
+void URLRequestJob::ContinueWithLoginCredentials(std::string& username,
+                                  std::string& password) {
+  // The derived class should implement this!
+  NOTREACHED();
+}
+
 void URLRequestJob::ContinueDespiteLastError() {
   // Implementations should know how to recover from errors they generate.
   // If this code was reached, we are trying to recover from an error that

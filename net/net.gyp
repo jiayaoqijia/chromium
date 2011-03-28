@@ -162,6 +162,8 @@
         'base/sdch_manager.h',
         'base/ssl_cert_request_info.cc',
         'base/ssl_cert_request_info.h',
+        'base/ssl_login_request_info.cc',
+        'base/ssl_login_request_info.h',
         'base/ssl_cipher_suite_names.cc',
         'base/ssl_cipher_suite_names.h',
         'base/ssl_client_auth_cache.cc',

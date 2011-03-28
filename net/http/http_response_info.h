@@ -18,6 +18,7 @@ class AuthChallengeInfo;
 class HttpResponseHeaders;
 class IOBufferWithSize;
 class SSLCertRequestInfo;
+class SSLLoginRequestInfo;
 
 class HttpResponseInfo {
  public:
@@ -77,6 +78,11 @@ class HttpResponseInfo {
   // because it is similar to |auth_challenge|, but unlike HTTP authentication
   // challenge, client certificate request is not part of an HTTP response.
   scoped_refptr<SSLCertRequestInfo> cert_request_info;
+
+  // The SSL client login request info.
+  // TODO(sqs): same question as the TODO for cert_request_info: does this
+  // belongs in HttpResponseInfo?
+  scoped_refptr<SSLLoginRequestInfo> login_request_info;
 
   // The SSL connection info (if HTTPS).
   SSLInfo ssl_info;

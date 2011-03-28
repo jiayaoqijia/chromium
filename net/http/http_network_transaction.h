@@ -46,6 +46,9 @@ class HttpNetworkTransaction : public HttpTransaction,
   virtual int RestartIgnoringLastError(CompletionCallback* callback);
   virtual int RestartWithCertificate(X509Certificate* client_cert,
                                      CompletionCallback* callback);
+  virtual int RestartWithLoginCredentials(std::string& username, 
+                                          std::string& password,
+                                          CompletionCallback* callback);
   virtual int RestartWithAuth(const string16& username,
                               const string16& password,
                               CompletionCallback* callback);
@@ -136,6 +139,9 @@ class HttpNetworkTransaction : public HttpTransaction,
 
   // Called to handle a client certificate request.
   int HandleCertificateRequest(int error);
+
+  // Called to handle a TLS client login credentials request.
+  int HandleLoginCredentialsRequest(int error);
 
   // Called to possibly recover from an SSL handshake error.  Sets next_state_
   // and returns OK if recovering from the error.  Otherwise, the same error

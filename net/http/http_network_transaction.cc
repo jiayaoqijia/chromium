@@ -197,6 +197,33 @@ int HttpNetworkTransaction::RestartWithCertificate(
   return rv;
 }
 
+int HttpNetworkTransaction::RestartWithLoginCredentials(
+    std::string& username,
+    std::string& password,
+    CompletionCallback* callback) {
+  // In Handle(), we always tear down existing stream
+  // requests to force a new connection.  So we shouldn't have one here.
+  DCHECK(!stream_request_.get());
+  DCHECK(!stream_.get());
+  DCHECK_EQ(STATE_NONE, next_state_);
+
+  ssl_config_.tls_username = username;
+  ssl_config_.tls_password = password;
+  // TODO(sqs): implement TLS login cache
+  // session_->ssl_client_auth_cache()->Add(
+  //     response_.cert_request_info->host_and_port, client_cert);
+  ssl_config_.use_tls_auth = true;
+  ssl_config_.ssl3_enabled = false;
+  // Reset the other member variables.
+  // Note: this is necessary only with SSL renegotiation.
+  ResetStateForRestart();
+  next_state_ = STATE_CREATE_STREAM;
+  int rv = DoLoop(OK);
+  if (rv == ERR_IO_PENDING)
+    user_callback_ = callback;
+  return rv;
+}
+
 int HttpNetworkTransaction::RestartWithAuth(
     const string16& username,
     const string16& password,
@@ -1023,6 +1050,79 @@ int HttpNetworkTransaction::HandleCertificateRequest(int error) {
   // Note: this is necessary only with SSL renegotiation.
   ResetStateForRestart();
   return OK;
+}
+
+int HttpNetworkTransaction::HandleLoginCredentialsRequest(int error) {
+  // There are two paths through which the server can request login credentials
+  // from us.  The first is during the initial handshake, the second is during
+  // SSL renegotiation.
+  //
+  // In both cases, we want to close the connection before proceeding.
+  // We do this for two reasons:
+  //   First, we don't want to keep the connection to the server hung for a
+  //   long time while the user enters login credentials.
+  //   Second, even if we did keep the connection open, NSS has a bug where
+  //   restarting the handshake for ClientAuth is currently broken.
+  //     TODO(sqs): second point might not apply to TLS-SRP
+  DCHECK_EQ(error, ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED);
+
+  if (stream_.get()) {
+    // Since we already have a stream, we're being called as part of SSL
+    // renegotiation.
+    DCHECK(!stream_request_.get());
+    stream_->Close(true);
+    stream_.reset();
+  }
+
+  // The server is asking for a client certificate during the initial
+  // handshake.
+  // TODO(sqs): how does this apply to TLS-SRP?
+  stream_request_.reset();
+
+  // If the user selected one of the certificates in client_certs or declined
+  // to provide one for this server before, use the past decision
+  // automatically.
+  // TODO(sqs): implement TLS login cache
+  // scoped_refptr<X509Certificate> client_cert;
+  // bool found_cached_cert = session_->ssl_client_auth_cache()->Lookup(
+  //     response_.cert_request_info->host_and_port, &client_cert);
+  // if (!found_cached_cert)
+  //   return error;
+
+  // // Check that the certificate selected is still a certificate the server
+  // // is likely to accept, based on the criteria supplied in the
+  // // CertificateRequest message.
+  // if (client_cert) {
+  //   const std::vector<scoped_refptr<X509Certificate> >& client_certs =
+  //       response_.cert_request_info->client_certs;
+  //   bool cert_still_valid = false;
+  //   for (size_t i = 0; i < client_certs.size(); ++i) {
+  //     if (client_cert->Equals(client_certs[i])) {
+  //       cert_still_valid = true;
+  //       break;
+  //     }
+  //   }
+  //
+  //   if (!cert_still_valid)
+  //     return error;
+  // }
+
+  // // TODO(davidben): Add a unit test which covers this path; we need to be
+  // // able to send a legitimate certificate and also bypass/clear the
+  // // SSL session cache.
+  // ssl_config_.client_cert = client_cert;
+  // ssl_config_.send_client_cert = true;
+  // next_state_ = STATE_CREATE_STREAM;
+  // // Reset the other member variables.
+  // // Note: this is necessary only with SSL renegotiation.
+  // ResetStateForRestart();
+  // return OK;
+
+  // TODO(sqs): this whole method only seems to handle the case where it can
+  // automatically choose a certificate. so, just return error, and I think
+  // this should force it to prompt the user. another TODO(sqs): is to add a
+  // login cache.
+  return error;
 }
 
 // TODO(rch): This does not correctly handle errors when an SSL proxy is
