@@ -1031,6 +1031,9 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
 
   // TODO(sqs): add #ifdef guards
   if (ssl_config_.use_tls_auth) {
+    DCHECK(!ssl_config_.tls_username.empty());
+    DCHECK(!ssl_config_.tls_password.empty());
+    
     LOG(WARNING) << "Using TLS auth in SSLClientSocketNSS: " <<
         ssl_config_.tls_username << " / " << ssl_config_.tls_password;
 
