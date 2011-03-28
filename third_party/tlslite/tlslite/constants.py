@@ -30,6 +30,9 @@ class ContentType:
     application_data = 23
     all = (20,21,22,23)
 
+class ClientHelloExtension:
+    srp = 12
+
 class AlertLevel:
     warning = 1
     fatal = 2
