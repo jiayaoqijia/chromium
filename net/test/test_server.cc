@@ -107,8 +107,10 @@ TestServer::~TestServer() {
 
 bool TestServer::Start() {
   if (type_ == TYPE_HTTPS) {
-    if (!LoadTestRootCert())
+    if (!LoadTestRootCert()) {
+      LOG(ERROR) << "Failed to load test root cert";
       return false;
+    }
   }
 
   // Get path to python server script
@@ -123,14 +125,19 @@ bool TestServer::Start() {
       .Append(FILE_PATH_LITERAL("testserver"))
       .Append(FILE_PATH_LITERAL("testserver.py"));
 
-  if (!SetPythonPath())
+  if (!SetPythonPath()) {
+    LOG(ERROR) << "Failed to set Python path";
     return false;
+  }
 
-  if (!LaunchPython(testserver_path))
+  if (!LaunchPython(testserver_path)) {
+    LOG(ERROR) << "Failed to launch Python test server";
     return false;
+  }
 
   if (!WaitToStart()) {
     Stop();
+    LOG(ERROR) << "Failed in WaitToStart()";
     return false;
   }
 
