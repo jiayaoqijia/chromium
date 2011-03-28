@@ -198,8 +198,8 @@ int HttpNetworkTransaction::RestartWithCertificate(
 }
 
 int HttpNetworkTransaction::RestartWithLoginCredentials(
-    std::string& username,
-    std::string& password,
+    std::string username,
+    std::string password,
     CompletionCallback* callback) {
   // In Handle(), we always tear down existing stream
   // requests to force a new connection.  So we shouldn't have one here.

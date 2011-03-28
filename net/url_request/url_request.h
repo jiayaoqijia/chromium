@@ -543,8 +543,8 @@ class URLRequest : public base::NonThreadSafe {
   // This method can be called after the user enters login credentials to
   // instruct this URLRequest to continue with the request with the
   // credentials.  Pass NULL if the user doesn't enter login credentials.
-  void ContinueWithLoginCredentials(std::string& username, 
-                                    std::string& password);
+  void ContinueWithLoginCredentials(std::string username, 
+                                    std::string password);
 
   // This method can be called after some error notifications to instruct this
   // URLRequest to ignore the current error and continue with the request.  To

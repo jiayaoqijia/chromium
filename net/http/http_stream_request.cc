@@ -127,8 +127,8 @@ int HttpStreamRequest::RestartWithCertificate(X509Certificate* client_cert) {
   return RunLoop(OK);
 }
 
-int HttpStreamRequest::RestartWithLoginCredentials(std::string& username,
-                                                   std::string& password) {
+int HttpStreamRequest::RestartWithLoginCredentials(std::string username,
+                                                   std::string password) {
   ssl_config()->tls_username = username;
   ssl_config()->tls_password = password;
   ssl_config()->use_tls_auth = true;

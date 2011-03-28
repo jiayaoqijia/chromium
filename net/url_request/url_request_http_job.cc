@@ -881,8 +881,8 @@ void URLRequestHttpJob::ContinueWithCertificate(
 }
 
 void URLRequestHttpJob::ContinueWithLoginCredentials(
-    std::string& username,
-    std::string& password) {
+    std::string username,
+    std::string password) {
   DCHECK(transaction_.get());
   
   DCHECK(!response_info_) << "should not have a response yet";

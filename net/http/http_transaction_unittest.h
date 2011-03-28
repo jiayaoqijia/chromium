@@ -165,8 +165,8 @@ class MockNetworkTransaction : public net::HttpTransaction {
   virtual int RestartWithCertificate(net::X509Certificate* client_cert,
                                      net::CompletionCallback* callback);
 
-  virtual int RestartWithLoginCredentials(std::string& username,
-                                          std::string& password,
+  virtual int RestartWithLoginCredentials(std::string username,
+                                          std::string password,
                                           net::CompletionCallback* callback);
   
   virtual int RestartWithAuth(const string16& username,

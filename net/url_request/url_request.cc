@@ -511,8 +511,8 @@ void URLRequest::ContinueWithCertificate(net::X509Certificate* client_cert) {
   job_->ContinueWithCertificate(client_cert);
 }
 
-void URLRequest::ContinueWithLoginCredentials(std::string& username, 
-                                              std::string& password) {
+void URLRequest::ContinueWithLoginCredentials(std::string username, 
+                                              std::string password) {
   DCHECK(job_);
 
   job_->ContinueWithLoginCredentials(username, password);

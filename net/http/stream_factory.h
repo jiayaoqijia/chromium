@@ -91,8 +91,8 @@ class StreamRequest {
   virtual int RestartWithCertificate(X509Certificate* client_cert) = 0;
 
   // TODO(sqs): document
-  virtual int RestartWithLoginCredentials(std::string& username, 
-                                          std::string& password) = 0;
+  virtual int RestartWithLoginCredentials(std::string username, 
+                                          std::string password) = 0;
 
   // When a HttpStream creation process is stalled due to necessity
   // of Proxy authentication credentials, the delegate OnNeedsProxyAuth

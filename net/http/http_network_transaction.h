@@ -46,8 +46,8 @@ class HttpNetworkTransaction : public HttpTransaction,
   virtual int RestartIgnoringLastError(CompletionCallback* callback);
   virtual int RestartWithCertificate(X509Certificate* client_cert,
                                      CompletionCallback* callback);
-  virtual int RestartWithLoginCredentials(std::string& username, 
-                                          std::string& password,
+  virtual int RestartWithLoginCredentials(std::string username, 
+                                          std::string password,
                                           CompletionCallback* callback);
   virtual int RestartWithAuth(const string16& username,
                               const string16& password,

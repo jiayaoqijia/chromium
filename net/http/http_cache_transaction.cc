@@ -294,8 +294,8 @@ int HttpCache::Transaction::RestartWithCertificate(
 }
 
 int HttpCache::Transaction::RestartWithLoginCredentials(
-    std::string& username,
-    std::string& password,
+    std::string username,
+    std::string password,
     CompletionCallback* callback) {
   DCHECK(callback);
 
@@ -1592,8 +1592,8 @@ int HttpCache::Transaction::RestartNetworkRequestWithCertificate(
 }
 
 int HttpCache::Transaction::RestartNetworkRequestWithLoginCredentials(
-    std::string& username,
-    std::string& password) {
+    std::string username,
+    std::string password) {
   DCHECK(mode_ & WRITE || mode_ == NONE);
   DCHECK(network_trans_.get());
   DCHECK_EQ(STATE_NONE, next_state_);

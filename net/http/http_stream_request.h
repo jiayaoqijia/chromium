@@ -65,8 +65,8 @@ class HttpStreamRequest : public StreamRequest {
 
   // StreamRequest interface
   virtual int RestartWithCertificate(X509Certificate* client_cert);
-  virtual int RestartWithLoginCredentials(std::string& username,
-                                          std::string& password);
+  virtual int RestartWithLoginCredentials(std::string username,
+                                          std::string password);
                                           // TODO(sqs): make 'const string16&'?
   virtual int RestartTunnelWithProxyAuth(const string16& username,
                                          const string16& password);

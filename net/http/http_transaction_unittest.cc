@@ -269,8 +269,8 @@ int MockNetworkTransaction::RestartWithCertificate(
 }
 
 int MockNetworkTransaction::RestartWithLoginCredentials(
-    std::string& username,
-    std::string& password,
+    std::string username,
+    std::string password,
     net::CompletionCallback* callback) {
   return net::ERR_FAILED;
 }

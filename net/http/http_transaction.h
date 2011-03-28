@@ -62,8 +62,8 @@ class HttpTransaction {
                                      CompletionCallback* callback) = 0;
 
   // Restarts the HTTP transaction with TLS client login credentials.
-  virtual int RestartWithLoginCredentials(std::string& username, 
-                                          std::string& password,
+  virtual int RestartWithLoginCredentials(std::string username, 
+                                          std::string password,
                                           CompletionCallback* callback) = 0;
 
   // Restarts the HTTP transaction with authentication credentials.
