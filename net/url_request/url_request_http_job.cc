@@ -569,7 +569,7 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
     request_->delegate()->OnCertificateRequested(
         request_, transaction_->GetResponseInfo()->cert_request_info);
   } else if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
-      request_->delegate()->OnLoginCredentialsRequested(
+      request_->delegate()->OnTLSLoginRequested(
         request_, transaction_->GetResponseInfo()->login_request_info);
   } else {
     NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, result));
@@ -880,7 +880,7 @@ void URLRequestHttpJob::ContinueWithCertificate(
           &URLRequestHttpJob::OnStartCompleted, rv));
 }
 
-void URLRequestHttpJob::ContinueWithLoginCredentials(
+void URLRequestHttpJob::ContinueWithTLSLogin(
     std::string username,
     std::string password) {
   DCHECK(transaction_.get());
@@ -891,8 +891,8 @@ void URLRequestHttpJob::ContinueWithLoginCredentials(
   // be notifying our consumer asynchronously via OnStartCompleted.
   SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
 
-  int rv = transaction_->RestartWithLoginCredentials(username, password,
-                                                     &start_callback_);
+  int rv = transaction_->RestartWithTLSLogin(username, password,
+                                             &start_callback_);
   if (rv == ERR_IO_PENDING)
     return;
 

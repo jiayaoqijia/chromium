@@ -191,11 +191,11 @@ class URLRequest : public base::NonThreadSafe {
 
     // Called when using TLS with TLS-SRP when the server requests that the
     // user provide a username and password for authentication. The delegate
-    // should call request->ContinueWithLoginCredentials() with the
+    // should call request->ContinueWithTLSLogin() with the
     // credentials provided by the client, or
-    // request->ContinueWithLoginCredentials("", "") to continue the SSL
+    // request->ContinueWithTLSLogin("", "") to continue the SSL
     // handshake without providing login credentials.
-    virtual void OnLoginCredentialsRequested(
+    virtual void OnTLSLoginRequested(
         URLRequest* request,
         net::SSLLoginRequestInfo* login_request_info);
                                    
@@ -543,8 +543,8 @@ class URLRequest : public base::NonThreadSafe {
   // This method can be called after the user enters login credentials to
   // instruct this URLRequest to continue with the request with the
   // credentials.  Pass NULL if the user doesn't enter login credentials.
-  void ContinueWithLoginCredentials(std::string username, 
-                                    std::string password);
+  void ContinueWithTLSLogin(std::string username, 
+                            std::string password);
 
   // This method can be called after some error notifications to instruct this
   // URLRequest to ignore the current error and continue with the request.  To

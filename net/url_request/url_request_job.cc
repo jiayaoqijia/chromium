@@ -190,8 +190,8 @@ void URLRequestJob::ContinueWithCertificate(
   NOTREACHED();
 }
 
-void URLRequestJob::ContinueWithLoginCredentials(std::string username,
-                                                 std::string password) {
+void URLRequestJob::ContinueWithTLSLogin(std::string username,
+                                         std::string password) {
   // The derived class should implement this!
   NOTREACHED();
 }

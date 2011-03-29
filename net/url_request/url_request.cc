@@ -82,11 +82,11 @@ void URLRequest::Delegate::OnSSLCertificateError(URLRequest* request,
   request->Cancel();
 }
 
-void URLRequest::Delegate::OnLoginCredentialsRequested(
+void URLRequest::Delegate::OnTLSLoginRequested(
     URLRequest* request,
     net::SSLLoginRequestInfo* login_request_info) {
   string empty = ""; // TODO(sqs): this is kind of ugly
-  request->ContinueWithLoginCredentials(empty, empty);
+  request->ContinueWithTLSLogin("", "");
 }
 
 void URLRequest::Delegate::OnGetCookies(URLRequest* request,
@@ -511,11 +511,11 @@ void URLRequest::ContinueWithCertificate(net::X509Certificate* client_cert) {
   job_->ContinueWithCertificate(client_cert);
 }
 
-void URLRequest::ContinueWithLoginCredentials(std::string username, 
-                                              std::string password) {
+void URLRequest::ContinueWithTLSLogin(std::string username, 
+                                      std::string password) {
   DCHECK(job_);
 
-  job_->ContinueWithLoginCredentials(username, password);
+  job_->ContinueWithTLSLogin(username, password);
 }
 
 void URLRequest::ContinueDespiteLastError() {

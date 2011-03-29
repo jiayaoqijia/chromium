@@ -197,7 +197,7 @@ int HttpNetworkTransaction::RestartWithCertificate(
   return rv;
 }
 
-int HttpNetworkTransaction::RestartWithLoginCredentials(
+int HttpNetworkTransaction::RestartWithTLSLogin(
     std::string username,
     std::string password,
     CompletionCallback* callback) {
@@ -1052,7 +1052,7 @@ int HttpNetworkTransaction::HandleCertificateRequest(int error) {
   return OK;
 }
 
-int HttpNetworkTransaction::HandleLoginCredentialsRequest(int error) {
+int HttpNetworkTransaction::HandleTLSLoginRequest(int error) {
   // There are two paths through which the server can request login credentials
   // from us.  The first is during the initial handshake, the second is during
   // SSL renegotiation.

@@ -170,8 +170,8 @@ class URLRequestJob : public base::RefCounted<URLRequestJob>,
 
   virtual void ContinueWithCertificate(net::X509Certificate* client_cert);
 
-  virtual void ContinueWithLoginCredentials(std::string username,
-                                            std::string password);
+  virtual void ContinueWithTLSLogin(std::string username,
+                                    std::string password);
 
   // Continue processing the request ignoring the last error.
   virtual void ContinueDespiteLastError();

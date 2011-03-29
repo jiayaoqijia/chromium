@@ -293,7 +293,7 @@ int HttpCache::Transaction::RestartWithCertificate(
   return rv;
 }
 
-int HttpCache::Transaction::RestartWithLoginCredentials(
+int HttpCache::Transaction::RestartWithTLSLogin(
     std::string username,
     std::string password,
     CompletionCallback* callback) {
@@ -305,7 +305,7 @@ int HttpCache::Transaction::RestartWithLoginCredentials(
   if (!cache_)
     return ERR_UNEXPECTED;
 
-  int rv = RestartNetworkRequestWithLoginCredentials(username, password);
+  int rv = RestartNetworkRequestWithTLSLogin(username, password);
 
   if (rv == ERR_IO_PENDING)
     callback_ = callback;
@@ -1591,7 +1591,7 @@ int HttpCache::Transaction::RestartNetworkRequestWithCertificate(
   return rv;
 }
 
-int HttpCache::Transaction::RestartNetworkRequestWithLoginCredentials(
+int HttpCache::Transaction::RestartNetworkRequestWithTLSLogin(
     std::string username,
     std::string password) {
   DCHECK(mode_ & WRITE || mode_ == NONE);
@@ -1599,8 +1599,8 @@ int HttpCache::Transaction::RestartNetworkRequestWithLoginCredentials(
   DCHECK_EQ(STATE_NONE, next_state_);
 
   next_state_ = STATE_SEND_REQUEST_COMPLETE;
-  int rv = network_trans_->RestartWithLoginCredentials(username, password,
-                                                       &io_callback_);
+  int rv = network_trans_->RestartWithTLSLogin(username, password,
+                                               &io_callback_);
   if (rv != ERR_IO_PENDING)
     return DoLoop(rv);
   return rv;

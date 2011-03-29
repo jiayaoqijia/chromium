@@ -268,7 +268,7 @@ int MockNetworkTransaction::RestartWithCertificate(
   return net::ERR_FAILED;
 }
 
-int MockNetworkTransaction::RestartWithLoginCredentials(
+int MockNetworkTransaction::RestartWithTLSLogin(
     std::string username,
     std::string password,
     net::CompletionCallback* callback) {
