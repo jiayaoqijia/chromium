@@ -18,6 +18,7 @@
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "net/base/auth.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
@@ -402,7 +403,8 @@ const HttpResponseInfo* HttpCache::Transaction::GetResponseInfo() const {
   if (auth_response_.headers)
     return &auth_response_;
   return (response_.headers || response_.ssl_info.cert ||
-          response_.cert_request_info) ? &response_ : NULL;
+          response_.cert_request_info || response_.login_request_info) ?
+      &response_ : NULL;
 }
 
 LoadState HttpCache::Transaction::GetLoadState() const {
@@ -686,6 +688,11 @@ int HttpCache::Transaction::DoSendRequestComplete(int result) {
     const HttpResponseInfo* response = network_trans_->GetResponseInfo();
     DCHECK(response);
     response_.cert_request_info = response->cert_request_info;
+  }
+  if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
+    const HttpResponseInfo* response = network_trans_->GetResponseInfo();
+    DCHECK(response);
+    response_.login_request_info = response->login_request_info;
   }
   return result;
 }

@@ -110,6 +110,7 @@ class HttpStreamRequest : public StreamRequest {
   void OnNeedsProxyAuthCallback(const HttpResponseInfo& response_info,
                                 HttpAuthController* auth_controller);
   void OnNeedsClientAuthCallback(SSLCertRequestInfo* cert_info);
+  void OnNeedsTLSLoginCallback(AuthChallengeInfo* login_request_info);
   void OnHttpsProxyTunnelResponseCallback(const HttpResponseInfo& response_info,
                                           HttpStream* stream);
   void OnPreconnectsComplete(int result);

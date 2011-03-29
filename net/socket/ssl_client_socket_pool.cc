@@ -338,6 +338,11 @@ int SSLConnectJob::DoSSLConnectComplete(int result) {
     ssl_socket_->GetSSLCertRequestInfo(error_response_info_.cert_request_info);
   }
 
+  if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
+    error_response_info_.login_request_info = new AuthChallengeInfo;
+    ssl_socket_->GetTLSLoginRequestInfo(error_response_info_.login_request_info);
+  }
+
   return result;
 }
 

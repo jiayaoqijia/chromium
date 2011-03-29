@@ -40,7 +40,6 @@ namespace net {
 class CookieOptions;
 class IOBuffer;
 class SSLCertRequestInfo;
-class SSLLoginRequestInfo;
 class UploadData;
 class URLRequestContext;
 class URLRequestJob;
@@ -197,8 +196,8 @@ class URLRequest : public base::NonThreadSafe {
     // handshake without providing login credentials.
     virtual void OnTLSLoginRequested(
         URLRequest* request,
-        net::SSLLoginRequestInfo* login_request_info);
-                                   
+        net::AuthChallengeInfo* login_request_info);
+
 
     // Called when reading cookies. |blocked_by_policy| is true if access to
     // cookies was denied due to content settings. This method will never be

@@ -219,6 +219,11 @@ void HttpStreamRequest::OnNeedsClientAuthCallback(
   delegate_->OnNeedsClientAuth(cert_info);
 }
 
+void HttpStreamRequest::OnNeedsTLSLoginCallback(
+    AuthChallengeInfo* login_request_info) {
+  delegate_->OnNeedsTLSLogin(login_request_info);
+}
+
 void HttpStreamRequest::OnHttpsProxyTunnelResponseCallback(
     const HttpResponseInfo& response_info,
     HttpStream* stream) {
@@ -290,6 +295,14 @@ int HttpStreamRequest::RunLoop(int result) {
           method_factory_.NewRunnableMethod(
               &HttpStreamRequest::OnNeedsClientAuthCallback,
               connection_->ssl_error_response_info().cert_request_info));
+      return ERR_IO_PENDING;
+
+    case ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED:
+      MessageLoop::current()->PostTask(
+          FROM_HERE,
+          method_factory_.NewRunnableMethod(
+              &HttpStreamRequest::OnNeedsTLSLoginCallback,
+              connection_->ssl_error_response_info().login_request_info));
       return ERR_IO_PENDING;
 
     case ERR_HTTPS_PROXY_TUNNEL_RESPONSE:

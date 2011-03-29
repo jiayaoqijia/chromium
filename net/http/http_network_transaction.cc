@@ -357,7 +357,8 @@ int HttpNetworkTransaction::Read(IOBuffer* buf, int buf_len,
 
 const HttpResponseInfo* HttpNetworkTransaction::GetResponseInfo() const {
   return ((headers_valid_ && response_.headers) || response_.ssl_info.cert ||
-          response_.cert_request_info) ? &response_ : NULL;
+          response_.cert_request_info || response_.login_request_info) ?
+      &response_ : NULL;
 }
 
 LoadState HttpNetworkTransaction::GetLoadState() const {
@@ -450,6 +451,14 @@ void HttpNetworkTransaction::OnNeedsClientAuth(
 
   response_.cert_request_info = cert_info;
   OnIOComplete(ERR_SSL_CLIENT_AUTH_CERT_NEEDED);
+}
+
+void HttpNetworkTransaction::OnNeedsTLSLogin(
+    AuthChallengeInfo* login_info) {
+  DCHECK_EQ(STATE_CREATE_STREAM_COMPLETE, next_state_);
+
+  response_.login_request_info = login_info;
+  OnIOComplete(ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED);
 }
 
 void HttpNetworkTransaction::OnHttpsProxyTunnelResponse(
@@ -741,6 +750,15 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
     result = HandleCertificateRequest(result);
     if (result == OK)
       return result;
+  } else if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
+    // TODO(sqs): Need a test case for this code path!
+    DCHECK(stream_.get());
+    DCHECK(is_https_request());
+    response_.login_request_info = new AuthChallengeInfo;
+    stream_->GetTLSLoginRequestInfo(response_.login_request_info);
+    result = HandleTLSLoginRequest(result);
+    if (result == OK)
+      return result;    
   }
 
   if (result < 0 && result != ERR_CONNECTION_CLOSED)

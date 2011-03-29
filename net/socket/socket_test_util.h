@@ -247,13 +247,15 @@ struct SSLSocketDataProvider {
       : connect(async, result),
         next_proto_status(SSLClientSocket::kNextProtoUnsupported),
         was_npn_negotiated(false),
-        cert_request_info(NULL) { }
+        cert_request_info(NULL),
+        login_request_info(NULL) { }
 
   MockConnect connect;
   SSLClientSocket::NextProtoStatus next_proto_status;
   std::string next_proto;
   bool was_npn_negotiated;
   net::SSLCertRequestInfo* cert_request_info;
+  net::AuthChallengeInfo* login_request_info;
 };
 
 // A DataProvider where the client must write a request before the reads (e.g.

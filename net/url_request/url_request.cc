@@ -84,9 +84,10 @@ void URLRequest::Delegate::OnSSLCertificateError(URLRequest* request,
 
 void URLRequest::Delegate::OnTLSLoginRequested(
     URLRequest* request,
-    net::SSLLoginRequestInfo* login_request_info) {
-  string empty = ""; // TODO(sqs): this is kind of ugly
+    net::AuthChallengeInfo* login_request_info) {
   request->ContinueWithTLSLogin("", "");
+  LOG(WARNING) << "maybe need to call request->CancelAuth() here";//sqs
+  // TODO(sqs): maybe needs to be request->CancelAuth()?
 }
 
 void URLRequest::Delegate::OnGetCookies(URLRequest* request,

@@ -11,7 +11,6 @@
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_cert_request_info.h"
-#include "net/base/ssl_login_request_info.h"
 #include "net/base/x509_certificate.h"
 #include "net/http/http_response_headers.h"
 
@@ -59,6 +58,8 @@ enum {
 
   // TODO(darin): Add other bits to indicate alternate request methods.
   // For now, we don't support storing those.
+
+  // TODO(sqs): add stuff here for TLS-SRP?
 };
 
 HttpResponseInfo::HttpResponseInfo()
@@ -79,6 +80,7 @@ HttpResponseInfo::HttpResponseInfo(const HttpResponseInfo& rhs)
       response_time(rhs.response_time),
       auth_challenge(rhs.auth_challenge),
       cert_request_info(rhs.cert_request_info),
+      login_request_info(rhs.login_request_info),
       ssl_info(rhs.ssl_info),
       headers(rhs.headers),
       vary_data(rhs.vary_data),
@@ -98,6 +100,7 @@ HttpResponseInfo& HttpResponseInfo::operator=(const HttpResponseInfo& rhs) {
   response_time = rhs.response_time;
   auth_challenge = rhs.auth_challenge;
   cert_request_info = rhs.cert_request_info;
+  login_request_info = rhs.login_request_info;
   ssl_info = rhs.ssl_info;
   headers = rhs.headers;
   vary_data = rhs.vary_data;

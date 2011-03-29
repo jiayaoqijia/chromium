@@ -106,7 +106,8 @@ LoadState HttpProxyConnectJob::GetLoadState() const {
 }
 
 void HttpProxyConnectJob::GetAdditionalErrorState(ClientSocketHandle * handle) {
-  if (error_response_info_.cert_request_info) {
+  if (error_response_info_.cert_request_info ||
+      error_response_info_.login_request_info) {
     handle->set_ssl_error_response_info(error_response_info_);
     handle->set_is_ssl_error(true);
   }
@@ -209,6 +210,11 @@ int HttpProxyConnectJob::DoSSLConnectComplete(int result) {
   if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
     error_response_info_ = transport_socket_handle_->ssl_error_response_info();
     DCHECK(error_response_info_.cert_request_info.get());
+    return result;
+  }
+  if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
+    error_response_info_ = transport_socket_handle_->ssl_error_response_info();
+    DCHECK(error_response_info_.login_request_info.get());
     return result;
   }
   if (IsCertificateError(result)) {

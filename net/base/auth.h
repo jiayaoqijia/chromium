@@ -63,5 +63,5 @@ class AuthData : public base::RefCountedThreadSafe<AuthData> {
 };
 
 }  // namespace net
-
+// TODO(sqs): use these instead of passing around strings for TLS auth
 #endif  // NET_BASE_AUTH_H__

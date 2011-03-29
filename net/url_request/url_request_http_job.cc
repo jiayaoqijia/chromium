@@ -22,7 +22,6 @@
 #include "net/base/net_util.h"
 #include "net/base/sdch_manager.h"
 #include "net/base/ssl_cert_request_info.h"
-#include "net/base/ssl_login_request_info.h"
 #include "net/http/http_request_headers.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_response_info.h"
