@@ -20,6 +20,8 @@ class AuthChallengeInfo :
  public:
   AuthChallengeInfo();
 
+  void Reset();
+
   bool operator==(const AuthChallengeInfo& that) const;
 
   bool operator!=(const AuthChallengeInfo& that) const {

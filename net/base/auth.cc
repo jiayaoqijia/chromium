@@ -16,6 +16,13 @@ bool AuthChallengeInfo::operator==(const AuthChallengeInfo& that) const {
           this->realm == that.realm);
 }
 
+void AuthChallengeInfo::Reset() {
+  is_proxy = false;
+  host_and_port.clear();
+  scheme.clear();
+  realm.clear();
+}
+
 AuthChallengeInfo::~AuthChallengeInfo() {
 }
 
