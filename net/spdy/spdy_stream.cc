@@ -395,6 +395,10 @@ bool SpdyStream::GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info) {
   return session_->GetSSLCertRequestInfo(cert_request_info);
 }
 
+bool SpdyStream::GetTLSLoginRequestInfo(AuthChallengeInfo* login_request_info) {
+  return session_->GetTLSLoginRequestInfo(login_request_info);
+}
+
 bool SpdyStream::HasUrl() const {
   if (pushed_)
     return response_received();

@@ -18,6 +18,7 @@
 
 #include "base/basictypes.h"
 #include "net/base/completion_callback.h"
+#include "net/base/auth.h"
 
 namespace net {
 
@@ -125,6 +126,12 @@ class HttpStream {
   // This should only be called for streams over SSL sockets, otherwise the
   // behavior is undefined.
   virtual void GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info) = 0;
+
+  // Get the AuthChallengeInfo associated with this stream's TLS connection.
+  // This should only be called for streams over SSL sockets; otherwise, the
+  // behavior is undefined. // TODO(sqs): check this doc - just copied it over
+  virtual void GetTLSLoginRequestInfo(
+      AuthChallengeInfo* login_request_info) = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(HttpStream);

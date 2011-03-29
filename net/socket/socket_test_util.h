@@ -589,6 +589,8 @@ class MockClientSocket : public net::SSLClientSocket {
   virtual void GetSSLInfo(net::SSLInfo* ssl_info);
   virtual void GetSSLCertRequestInfo(
       net::SSLCertRequestInfo* cert_request_info);
+  virtual void GetTLSLoginRequestInfo(
+      net::AuthChallengeInfo* login_request_info);
   virtual NextProtoStatus GetNextProto(std::string* proto);
 
  protected:
@@ -722,6 +724,8 @@ class MockSSLClientSocket : public MockClientSocket {
   virtual void GetSSLInfo(net::SSLInfo* ssl_info);
   virtual void GetSSLCertRequestInfo(
       net::SSLCertRequestInfo* cert_request_info);
+  virtual void GetTLSLoginRequestInfo(
+      net::AuthChallengeInfo* login_request_info);
   virtual NextProtoStatus GetNextProto(std::string* proto);
   virtual bool was_npn_negotiated() const;
   virtual bool set_was_npn_negotiated(bool negotiated);

@@ -9,6 +9,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "net/base/auth.h"
 #include "net/base/completion_callback.h"
 #include "net/base/net_log.h"
 #include "net/base/upload_data_stream.h"
@@ -70,6 +71,8 @@ class HttpStreamParser  : public ChunkCallback {
   void GetSSLInfo(SSLInfo* ssl_info);
 
   void GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info);
+
+  void GetTLSLoginRequestInfo(AuthChallengeInfo* login_request_info);
 
   // ChunkCallback methods.
   virtual void OnChunkAvailable();

@@ -660,4 +660,13 @@ void HttpStreamParser::GetSSLCertRequestInfo(
   }
 }
 
+void HttpStreamParser::GetTLSLoginRequestInfo(
+    AuthChallengeInfo* login_request_info) {
+  if (request_->url.SchemeIs("https") && connection_->socket()) {
+    SSLClientSocket* ssl_socket =
+        static_cast<SSLClientSocket*>(connection_->socket());
+    ssl_socket->GetTLSLoginRequestInfo(login_request_info);
+  }
+}
+
 }  // namespace net

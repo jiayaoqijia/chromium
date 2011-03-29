@@ -75,6 +75,7 @@
 #include "base/string_util.h"
 #include "base/stringprintf.h"
 #include "base/threading/thread_restrictions.h"
+#include "base/utf_string_conversions.h"
 #include "base/values.h"
 #include "net/base/address_list.h"
 #include "net/base/cert_status_flags.h"
@@ -530,6 +531,15 @@ void SSLClientSocketNSS::GetSSLCertRequestInfo(
   cert_request_info->host_and_port = host_and_port_.ToString();
   cert_request_info->client_certs = client_certs_;
   LeaveFunction(cert_request_info->client_certs.size());
+}
+
+void SSLClientSocketNSS::GetTLSLoginRequestInfo(
+    AuthChallengeInfo* login_request_info) {
+  EnterFunction("");
+  // TODO(sqs): switch AuthChallengeInfo.host_and_port to a HostPortPair - or
+  // at least make both std::strings (authchal is wstring)
+  login_request_info->host_and_port = UTF8ToWide(host_and_port_.ToString());
+  LeaveFunction("");
 }
 
 SSLClientSocket::NextProtoStatus
