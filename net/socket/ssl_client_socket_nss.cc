@@ -1047,7 +1047,7 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
         ssl_config_.tls_username << " / " << ssl_config_.tls_password;
 
     // TODO(sqs): add other SRP cipher suites
-    uint16 srpCipher1 = 0xc01d;
+    uint16 srpCipher1 = TLS_SRP_SHA_WITH_AES_128_CBC_SHA;
     rv = SSL_CipherPrefSet(nss_fd_, srpCipher1, PR_TRUE);
     if (rv != SECSuccess) {
       LogFailedNSSFunction(net_log_, "SSL_CipherPrefSet", "");
