@@ -1073,6 +1073,10 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
       LogFailedNSSFunction(net_log_, "SSL_SetUserLogin", "");
       return ERR_UNEXPECTED;
     }
+  } else {
+    // Disable all SRP ciphers.
+    SSL_CipherPrefSet(nss_fd_, TLS_SRP_SHA_WITH_AES_128_CBC_SHA, PR_FALSE);
+    // TODO(sqs): update this when the list of SRP ciphers is updated
   }
 
   rv = SSL_HandshakeCallback(nss_fd_, HandshakeCallback, this);
