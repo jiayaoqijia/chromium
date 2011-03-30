@@ -97,8 +97,8 @@ class HTTPSServer(tlslite.api.TLSSocketServerMixIn, StoppableHTTPServer):
       # Make dummy SRP verifier database
       self.srp_verifier_db = tlslite.api.VerifierDB()
       self.srp_verifier_db.create()
-      entry = tlslite.api.VerifierDB.makeVerifier('jsmith', 'asdf', 1536)
-      self.srp_verifier_db['jsmith'] = entry
+      entry = tlslite.api.VerifierDB.makeVerifier('user', 'secret', 1536)
+      self.srp_verifier_db['user'] = entry
 
     self.session_cache = tlslite.api.SessionCache()
     StoppableHTTPServer.__init__(self, server_address, request_hander_class)
