@@ -132,10 +132,6 @@ class SpdySession : public base::RefCounted<SpdySession>,
   // true when SSL is in use.
   bool GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info);
 
-  // Fills TLS Login Request info |login_request_info| and returns
-  // true when SSL is in use.
-  bool GetTLSLoginRequestInfo(AuthChallengeInfo* login_request_info);
-
   // Enable or disable SSL.
   static void SetSSLMode(bool enable) { use_ssl_ = enable; }
   static bool SSLMode() { return use_ssl_; }

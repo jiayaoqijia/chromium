@@ -13,6 +13,7 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
+#include "net/base/auth.h"
 #include "net/base/net_log.h"
 #include "net/base/request_priority.h"
 #include "net/base/ssl_config_service.h"
@@ -46,9 +47,7 @@ class HttpNetworkTransaction : public HttpTransaction,
   virtual int RestartIgnoringLastError(CompletionCallback* callback);
   virtual int RestartWithCertificate(X509Certificate* client_cert,
                                      CompletionCallback* callback);
-  virtual int RestartWithTLSLogin(std::string username, 
-                                  std::string password,
-                                  CompletionCallback* callback);
+  virtual void SetTLSLoginAuthData(AuthData* auth_data);
   virtual int RestartWithAuth(const string16& username,
                               const string16& password,
                               CompletionCallback* callback);
@@ -68,7 +67,6 @@ class HttpNetworkTransaction : public HttpTransaction,
       const HttpResponseInfo& response_info,
       HttpAuthController* auth_controller);
   virtual void OnNeedsClientAuth(SSLCertRequestInfo* cert_info);
-  virtual void OnNeedsTLSLogin(AuthChallengeInfo* login_info);
   virtual void OnHttpsProxyTunnelResponse(const HttpResponseInfo& response_info,
                                           HttpStream* stream);
 
@@ -140,9 +138,6 @@ class HttpNetworkTransaction : public HttpTransaction,
 
   // Called to handle a client certificate request.
   int HandleCertificateRequest(int error);
-
-  // Called to handle a TLS client login credentials request.
-  int HandleTLSLoginRequest(int error);
 
   // Called to possibly recover from an SSL handshake error.  Sets next_state_
   // and returns OK if recovering from the error.  Otherwise, the same error
@@ -236,6 +231,7 @@ class HttpNetworkTransaction : public HttpTransaction,
   bool logged_response_time_;
 
   SSLConfig ssl_config_;
+  AuthData* auth_data_;
 
   HttpRequestHeaders request_headers_;
 

@@ -120,9 +120,7 @@ class ClientSocketHandle {
   }
   // On an ERR_PROXY_AUTH_REQUESTED error, the |headers| and |auth_challenge|
   // fields are filled in. On an ERR_SSL_CLIENT_AUTH_CERT_NEEDED error,
-  // the |cert_request_info| field is set. On an
-  // ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED error, the |login_request_info| field is
-  // set.
+  // the |cert_request_info| field is set.
   const HttpResponseInfo& ssl_error_response_info() const {
     return ssl_error_response_info_;
   }

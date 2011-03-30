@@ -95,7 +95,6 @@ class MockHttpStream : public HttpStream {
   virtual void SetConnectionReused() {}
   virtual void GetSSLInfo(SSLInfo* ssl_info) {}
   virtual void GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info) {}
-  virtual void GetTLSLoginRequestInfo(AuthChallengeInfo* login_request_info) {}
 
   // Mocked API
   virtual int ReadResponseBody(IOBuffer* buf, int buf_len,

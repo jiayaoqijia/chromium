@@ -113,7 +113,8 @@ URLRequest::URLRequest(const GURL& url, Delegate* delegate)
       enable_profiling_(false),
       redirect_limit_(kMaxRedirects),
       final_upload_progress_(0),
-      priority_(net::LOWEST) {
+      priority_(net::LOWEST),
+      tls_login_auth_data_(new AuthData()) {
   SIMPLE_STATS_COUNTER("URLRequestCount");
 
   // Sanity check out environment.
@@ -512,11 +513,15 @@ void URLRequest::ContinueWithCertificate(net::X509Certificate* client_cert) {
   job_->ContinueWithCertificate(client_cert);
 }
 
-void URLRequest::ContinueWithTLSLogin(std::string username, 
-                                      std::string password) {
-  DCHECK(job_);
+void URLRequest::SetTLSLogin(const string16& username,
+                             const string16& password) {
+  tls_login_auth_data_->username = username;
+  tls_login_auth_data_->password = password;
+  tls_login_auth_data_->state = AUTH_STATE_HAVE_AUTH;
+}
 
-  job_->ContinueWithTLSLogin(username, password);
+AuthData* URLRequest::GetTLSLoginAuthData() {
+  return tls_login_auth_data_.get();
 }
 
 void URLRequest::ContinueDespiteLastError() {

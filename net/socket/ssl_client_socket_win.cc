@@ -533,12 +533,6 @@ void SSLClientSocketWin::GetSSLCertRequestInfo(
   DCHECK(ok);
 }
 
-void SSLClientSocketWin::GetTLSLoginRequestInfo(
-    AuthChallengeInfo* login_request_info) {
-  login_request_info.host_and_port = host_and_port_.ToString();
-} /* TODO(sqs): can consolidate these in base class? since
-   * GetTLSLoginRequestInfo doesnt change across platforms */
-
 SSLClientSocket::NextProtoStatus
 SSLClientSocketWin::GetNextProto(std::string* proto) {
   proto->clear();

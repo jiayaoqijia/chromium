@@ -43,7 +43,6 @@ class SSLClientSocketMac : public SSLClientSocket {
   // SSLClientSocket methods:
   virtual void GetSSLInfo(SSLInfo* ssl_info);
   virtual void GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info);
-  virtual void GetTLSLoginRequestInfo(AuthChallengeInfo* login_request_info);
   virtual NextProtoStatus GetNextProto(std::string* proto);
 
   // ClientSocket methods:

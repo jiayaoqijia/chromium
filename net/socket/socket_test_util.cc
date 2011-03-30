@@ -647,10 +647,6 @@ void MockClientSocket::GetSSLCertRequestInfo(
     net::SSLCertRequestInfo* cert_request_info) {
 }
 
-void MockClientSocket::GetTLSLoginRequestInfo(
-    net::AuthChallengeInfo* login_request_info) {
-}
-
 SSLClientSocket::NextProtoStatus
 MockClientSocket::GetNextProto(std::string* proto) {
   proto->clear();
@@ -1073,17 +1069,6 @@ void MockSSLClientSocket::GetSSLCertRequestInfo(
     cert_request_info->client_certs = data_->cert_request_info->client_certs;
   } else {
     cert_request_info->Reset();
-  }
-}
-
-void MockSSLClientSocket::GetTLSLoginRequestInfo(
-    net::AuthChallengeInfo* login_request_info) {
-  DCHECK(login_request_info);
-  if (data_->login_request_info) {
-    login_request_info->host_and_port =
-        data_->login_request_info->host_and_port;
-  } else {
-    login_request_info->Reset();
   }
 }
 

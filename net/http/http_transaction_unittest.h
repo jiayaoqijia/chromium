@@ -24,6 +24,7 @@
 #include "net/http/http_response_info.h"
 
 namespace net {
+class AuthData;
 class IOBuffer;
 }
 
@@ -165,9 +166,7 @@ class MockNetworkTransaction : public net::HttpTransaction {
   virtual int RestartWithCertificate(net::X509Certificate* client_cert,
                                      net::CompletionCallback* callback);
 
-  virtual int RestartWithTLSLogin(std::string username,
-                                  std::string password,
-                                  net::CompletionCallback* callback);
+  virtual void SetTLSLoginAuthData(net::AuthData* auth_data);
   
   virtual int RestartWithAuth(const string16& username,
                               const string16& password,

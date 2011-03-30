@@ -111,9 +111,4 @@ void HttpBasicStream::GetSSLCertRequestInfo(
   parser_->GetSSLCertRequestInfo(cert_request_info);
 }
 
-void HttpBasicStream::GetTLSLoginRequestInfo(
-    AuthChallengeInfo* login_request_info) {
-  parser_->GetTLSLoginRequestInfo(login_request_info);
-}
-
 }  // namespace net

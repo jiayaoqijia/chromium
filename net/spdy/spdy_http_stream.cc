@@ -433,10 +433,4 @@ void SpdyHttpStream::GetSSLCertRequestInfo(
   stream_->GetSSLCertRequestInfo(cert_request_info);
 }
 
-void SpdyHttpStream::GetTLSLoginRequestInfo(
-    AuthChallengeInfo* login_request_info) {
-  DCHECK(stream_);
-  stream_->GetTLSLoginRequestInfo(login_request_info);
-}
-
 }  // namespace net

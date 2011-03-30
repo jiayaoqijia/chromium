@@ -592,11 +592,6 @@ void SSLClientSocketOpenSSL::GetSSLCertRequestInfo(
   cert_request_info->client_certs = client_certs_;
 }
 
-void SSLClientSocketOpenSSL::GetTLSLoginRequestInfo(
-    AuthChallengeInfo* login_request_info) {
-  login_request_info->host_and_port = host_and_port_.ToString();
-}
-
 SSLClientSocket::NextProtoStatus SSLClientSocketOpenSSL::GetNextProto(
     std::string* proto) {
   *proto = npn_proto_;

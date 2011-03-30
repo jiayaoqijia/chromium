@@ -72,8 +72,6 @@ class HttpStreamParser  : public ChunkCallback {
 
   void GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info);
 
-  void GetTLSLoginRequestInfo(AuthChallengeInfo* login_request_info);
-
   // ChunkCallback methods.
   virtual void OnChunkAvailable();
 

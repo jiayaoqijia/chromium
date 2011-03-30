@@ -965,17 +965,6 @@ bool SpdySession::GetSSLCertRequestInfo(
   return false;
 }
 
-bool SpdySession::GetTLSLoginRequestInfo(
-    AuthChallengeInfo* login_request_info) {
-  if (is_secure_) {
-    SSLClientSocket* ssl_socket =
-        reinterpret_cast<SSLClientSocket*>(connection_->socket());
-    ssl_socket->GetTLSLoginRequestInfo(login_request_info);
-    return true;
-  }
-  return false;
-}
-
 void SpdySession::OnError(spdy::SpdyFramer* framer) {
   CloseSessionOnError(net::ERR_SPDY_PROTOCOL_ERROR, true);
 }

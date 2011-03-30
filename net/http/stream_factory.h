@@ -69,12 +69,6 @@ class StreamRequest {
     // may take a reference if it needs the cert_info beyond the lifetime of
     // this callback.
     virtual void OnNeedsClientAuth(SSLCertRequestInfo* cert_info) = 0;
-
-    // This is the failure for TLS login authentication
-    // Ownership of |login_info| is retained by the StreamRequest.  The delegate
-    // may take a reference if it needs the login_info beyond the lifetime of
-    // this callback.
-    virtual void OnNeedsTLSLogin(AuthChallengeInfo* login_info) = 0;
     
     // This is the failure of the CONNECT request through an HTTPS proxy.
     // Headers can be read from |response_info|, while the body can be read
@@ -95,10 +89,6 @@ class StreamRequest {
   // delegate can take a reference if needed beyond the lifetime of this
   // call.
   virtual int RestartWithCertificate(X509Certificate* client_cert) = 0;
-
-  // TODO(sqs): document
-  virtual int RestartWithTLSLogin(std::string username, 
-                                  std::string password) = 0;
 
   // When a HttpStream creation process is stalled due to necessity
   // of Proxy authentication credentials, the delegate OnNeedsProxyAuth

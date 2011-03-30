@@ -12,6 +12,7 @@
 
 namespace net {
 
+class AuthData;
 class BoundNetLog;
 struct HttpRequestInfo;
 class HttpResponseInfo;
@@ -61,10 +62,8 @@ class HttpTransaction {
   virtual int RestartWithCertificate(X509Certificate* client_cert,
                                      CompletionCallback* callback) = 0;
 
-  // Restarts the HTTP transaction with TLS client login credentials.
-  virtual int RestartWithTLSLogin(std::string username, 
-                                  std::string password,
-                                  CompletionCallback* callback) = 0;
+  // Sets TLS login credentials for the HTTPS transaction.
+  virtual void SetTLSLoginAuthData(AuthData* auth_data) = 0;
 
   // Restarts the HTTP transaction with authentication credentials.
   virtual int RestartWithAuth(const string16& username,

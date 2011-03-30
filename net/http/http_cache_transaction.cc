@@ -106,6 +106,7 @@ HttpCache::Transaction::Transaction(HttpCache* cache)
       new_entry_(NULL),
       network_trans_(NULL),
       callback_(NULL),
+      tls_login_auth_data_(NULL),
       new_response_(NULL),
       mode_(NONE),
       target_state_(STATE_NONE),
@@ -294,24 +295,10 @@ int HttpCache::Transaction::RestartWithCertificate(
   return rv;
 }
 
-int HttpCache::Transaction::RestartWithTLSLogin(
-    std::string username,
-    std::string password,
-    CompletionCallback* callback) {
-  DCHECK(callback);
+void HttpCache::Transaction::SetTLSLoginAuthData(AuthData* auth_data) {
+  DCHECK(!network_trans_.get());
 
-  // Ensure that we only have one asynchronous call at a time.
-  DCHECK(!callback_);
-
-  if (!cache_)
-    return ERR_UNEXPECTED;
-
-  int rv = RestartNetworkRequestWithTLSLogin(username, password);
-
-  if (rv == ERR_IO_PENDING)
-    callback_ = callback;
-
-  return rv;
+  tls_login_auth_data_ = auth_data;
 }
 
 int HttpCache::Transaction::RestartWithAuth(
@@ -664,6 +651,11 @@ int HttpCache::Transaction::DoSendRequest() {
   if (rv != OK)
     return rv;
 
+  // TODO(sqs): better place to put this?
+  if (tls_login_auth_data_ &&
+      tls_login_auth_data_->state == AUTH_STATE_HAVE_AUTH)
+    network_trans_->SetTLSLoginAuthData(tls_login_auth_data_);
+
   next_state_ = STATE_SEND_REQUEST_COMPLETE;
   rv = network_trans_->Start(request_, &io_callback_, net_log_);
   return rv;
@@ -688,11 +680,6 @@ int HttpCache::Transaction::DoSendRequestComplete(int result) {
     const HttpResponseInfo* response = network_trans_->GetResponseInfo();
     DCHECK(response);
     response_.cert_request_info = response->cert_request_info;
-  }
-  if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
-    const HttpResponseInfo* response = network_trans_->GetResponseInfo();
-    DCHECK(response);
-    response_.login_request_info = response->login_request_info;
   }
   return result;
 }
@@ -1593,21 +1580,6 @@ int HttpCache::Transaction::RestartNetworkRequestWithCertificate(
 
   next_state_ = STATE_SEND_REQUEST_COMPLETE;
   int rv = network_trans_->RestartWithCertificate(client_cert, &io_callback_);
-  if (rv != ERR_IO_PENDING)
-    return DoLoop(rv);
-  return rv;
-}
-
-int HttpCache::Transaction::RestartNetworkRequestWithTLSLogin(
-    std::string username,
-    std::string password) {
-  DCHECK(mode_ & WRITE || mode_ == NONE);
-  DCHECK(network_trans_.get());
-  DCHECK_EQ(STATE_NONE, next_state_);
-
-  next_state_ = STATE_SEND_REQUEST_COMPLETE;
-  int rv = network_trans_->RestartWithTLSLogin(username, password,
-                                               &io_callback_);
   if (rv != ERR_IO_PENDING)
     return DoLoop(rv);
   return rv;

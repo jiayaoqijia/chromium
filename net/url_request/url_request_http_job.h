@@ -82,8 +82,6 @@ class URLRequestHttpJob : public URLRequestJob {
                        const string16& password);
   virtual void CancelAuth();
   virtual void ContinueWithCertificate(X509Certificate* client_cert);
-  virtual void ContinueWithTLSLogin(std::string username,
-                                    std::string password);
   virtual void ContinueDespiteLastError();
   virtual bool ReadRawData(IOBuffer* buf, int buf_size, int *bytes_read);
   virtual void StopCaching();
@@ -101,6 +99,8 @@ class URLRequestHttpJob : public URLRequestJob {
   // Auth states for proxy and origin server.
   AuthState proxy_auth_state_;
   AuthState server_auth_state_;
+
+  AuthData* tls_login_auth_data_;
 
   string16 username_;
   string16 password_;

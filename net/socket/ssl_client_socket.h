@@ -78,11 +78,6 @@ class SSLClientSocket : public ClientSocket {
   virtual void GetSSLCertRequestInfo(
       SSLCertRequestInfo* cert_request_info) = 0;
 
-  // Gets the SSL CertificateRequest info of the socket after Connect failed
-  // with ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED.
-  virtual void GetTLSLoginRequestInfo(
-      AuthChallengeInfo* login_request_info) = 0;
-  
   // Get the application level protocol that we negotiated with the server.
   // *proto is set to the resulting protocol (n.b. that the string may have
   // embedded NULs).

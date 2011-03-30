@@ -212,11 +212,6 @@ int HttpProxyConnectJob::DoSSLConnectComplete(int result) {
     DCHECK(error_response_info_.cert_request_info.get());
     return result;
   }
-  if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
-    error_response_info_ = transport_socket_handle_->ssl_error_response_info();
-    DCHECK(error_response_info_.login_request_info.get());
-    return result;
-  }
   if (IsCertificateError(result)) {
     if (params_->ssl_params()->load_flags() & LOAD_IGNORE_ALL_CERT_ERRORS)
       result = OK;

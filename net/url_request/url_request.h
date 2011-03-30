@@ -539,11 +539,9 @@ class URLRequest : public base::NonThreadSafe {
   // certificate.  Pass NULL if the user doesn't have a client certificate.
   void ContinueWithCertificate(net::X509Certificate* client_cert);
 
-  // This method can be called after the user enters login credentials to
-  // instruct this URLRequest to continue with the request with the
-  // credentials.  Pass NULL if the user doesn't enter login credentials.
-  void ContinueWithTLSLogin(std::string username, 
-                            std::string password);
+  void SetTLSLogin(const string16& username,
+                               const string16& password);
+  AuthData* GetTLSLoginAuthData();
 
   // This method can be called after some error notifications to instruct this
   // URLRequest to ignore the current error and continue with the request.  To
@@ -670,6 +668,9 @@ class URLRequest : public base::NonThreadSafe {
   // The priority level for this request.  Objects like ClientSocketPool use
   // this to determine which URLRequest to allocate sockets to first.
   net::RequestPriority priority_;
+
+  // TLS login data.
+  scoped_refptr<net::AuthData> tls_login_auth_data_;
 
   base::debug::LeakTracker<URLRequest> leak_tracker_;
 

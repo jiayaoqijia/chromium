@@ -127,19 +127,6 @@ int HttpStreamRequest::RestartWithCertificate(X509Certificate* client_cert) {
   return RunLoop(OK);
 }
 
-int HttpStreamRequest::RestartWithTLSLogin(std::string username,
-                                           std::string password) {
-  ssl_config()->tls_username = username;
-  ssl_config()->tls_password = password;
-  ssl_config()->use_tls_auth = true;
-  ssl_config()->ssl3_enabled = false;
-  next_state_ = STATE_INIT_CONNECTION;
-  // Reset the other member variables.
-  // Note: this is necessary only with SSL renegotiation.
-  stream_.reset();
-  return RunLoop(OK);  
-}
-
 int HttpStreamRequest::RestartTunnelWithProxyAuth(const string16& username,
                                                   const string16& password) {
   DCHECK(establishing_tunnel_);
@@ -219,11 +206,6 @@ void HttpStreamRequest::OnNeedsClientAuthCallback(
   delegate_->OnNeedsClientAuth(cert_info);
 }
 
-void HttpStreamRequest::OnNeedsTLSLoginCallback(
-    AuthChallengeInfo* login_request_info) {
-  delegate_->OnNeedsTLSLogin(login_request_info);
-}
-
 void HttpStreamRequest::OnHttpsProxyTunnelResponseCallback(
     const HttpResponseInfo& response_info,
     HttpStream* stream) {
@@ -295,14 +277,6 @@ int HttpStreamRequest::RunLoop(int result) {
           method_factory_.NewRunnableMethod(
               &HttpStreamRequest::OnNeedsClientAuthCallback,
               connection_->ssl_error_response_info().cert_request_info));
-      return ERR_IO_PENDING;
-
-    case ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED:
-      MessageLoop::current()->PostTask(
-          FROM_HERE,
-          method_factory_.NewRunnableMethod(
-              &HttpStreamRequest::OnNeedsTLSLoginCallback,
-              connection_->ssl_error_response_info().login_request_info));
       return ERR_IO_PENDING;
 
     case ERR_HTTPS_PROXY_TUNNEL_RESPONSE:

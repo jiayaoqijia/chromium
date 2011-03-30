@@ -759,11 +759,6 @@ void SSLClientSocketMac::GetSSLCertRequestInfo(
           << cert_request_info->client_certs.size() << " client certs...";
 }
 
-void SSLClientSocketMac::GetTLSLoginRequestInfo(
-    AuthChallengeInfo* login_request_info) {
-  login_request_info.host_and_port = host_and_port_.ToString();
-}
-
 SSLClientSocket::NextProtoStatus
 SSLClientSocketMac::GetNextProto(std::string* proto) {
   proto->clear();

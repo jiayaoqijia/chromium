@@ -121,6 +121,8 @@ class TestDelegate : public net::URLRequest::Delegate {
   }
   void set_username(const string16& u) { username_ = u; }
   void set_password(const string16& p) { password_ = p; }
+  void set_tls_username(const string16& u) { tls_username_ = u; }
+  void set_tls_password(const string16& p) { tls_password_ = p; }
 
   // query state
   const std::string& data_received() const { return data_received_; }
@@ -170,6 +172,8 @@ class TestDelegate : public net::URLRequest::Delegate {
 
   string16 username_;
   string16 password_;
+  string16 tls_username_;
+  string16 tls_password_;
 
   // tracks status of callbacks
   int response_started_count_;

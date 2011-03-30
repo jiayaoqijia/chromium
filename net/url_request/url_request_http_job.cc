@@ -124,6 +124,7 @@ URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
       response_cookies_save_index_(0),
       proxy_auth_state_(AUTH_STATE_DONT_NEED_AUTH),
       server_auth_state_(AUTH_STATE_DONT_NEED_AUTH),
+      tls_login_auth_data_(request->GetTLSLoginAuthData()),
       ALLOW_THIS_IN_INITIALIZER_LIST(can_get_cookies_callback_(
           this, &URLRequestHttpJob::OnCanGetCookiesCompleted)),
       ALLOW_THIS_IN_INITIALIZER_LIST(can_set_cookie_callback_(
@@ -219,6 +220,7 @@ void URLRequestHttpJob::StartTransaction() {
     rv = request_->context()->http_transaction_factory()->CreateTransaction(
         &transaction_);
     if (rv == OK) {
+      transaction_->SetTLSLoginAuthData(tls_login_auth_data_);
       rv = transaction_->Start(
           &request_info_, &start_callback_, request_->net_log());
       // Make sure the context is alive for the duration of the
@@ -567,9 +569,6 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
   } else if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
     request_->delegate()->OnCertificateRequested(
         request_, transaction_->GetResponseInfo()->cert_request_info);
-  } else if (result == ERR_SSL_CLIENT_AUTH_LOGIN_NEEDED) {
-      request_->delegate()->OnTLSLoginRequested(
-        request_, transaction_->GetResponseInfo()->login_request_info);
   } else {
     NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, result));
   }
@@ -868,30 +867,6 @@ void URLRequestHttpJob::ContinueWithCertificate(
   SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
 
   int rv = transaction_->RestartWithCertificate(client_cert, &start_callback_);
-  if (rv == ERR_IO_PENDING)
-    return;
-
-  // The transaction started synchronously, but we need to notify the
-  // URLRequest delegate via the message loop.
-  MessageLoop::current()->PostTask(
-      FROM_HERE,
-      method_factory_.NewRunnableMethod(
-          &URLRequestHttpJob::OnStartCompleted, rv));
-}
-
-void URLRequestHttpJob::ContinueWithTLSLogin(
-    std::string username,
-    std::string password) {
-  DCHECK(transaction_.get());
-  
-  DCHECK(!response_info_) << "should not have a response yet";
-
-  // No matter what, we want to report our status as IO pending since we will
-  // be notifying our consumer asynchronously via OnStartCompleted.
-  SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
-
-  int rv = transaction_->RestartWithTLSLogin(username, password,
-                                             &start_callback_);
   if (rv == ERR_IO_PENDING)
     return;
 
