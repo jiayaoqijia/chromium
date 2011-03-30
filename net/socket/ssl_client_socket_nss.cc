@@ -541,15 +541,6 @@ void SSLClientSocketNSS::GetSSLCertRequestInfo(
   LeaveFunction(cert_request_info->client_certs.size());
 }
 
-void SSLClientSocketNSS::GetTLSLoginRequestInfo(
-    AuthChallengeInfo* login_request_info) {
-  EnterFunction("");
-  // TODO(sqs): switch AuthChallengeInfo.host_and_port to a HostPortPair - or
-  // at least make both std::strings (authchal is wstring)
-  login_request_info->host_and_port = UTF8ToWide(host_and_port_.ToString());
-  LeaveFunction("");
-}
-
 SSLClientSocket::NextProtoStatus
 SSLClientSocketNSS::GetNextProto(std::string* proto) {
 #if defined(SSL_NEXT_PROTO_NEGOTIATED)
