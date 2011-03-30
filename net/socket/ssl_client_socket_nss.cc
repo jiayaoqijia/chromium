@@ -1042,8 +1042,8 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
   if (ssl_config_.use_tls_auth) {
     DCHECK(!ssl_config_.tls_username.empty());
     DCHECK(!ssl_config_.tls_password.empty());
-    
-    LOG(WARNING) << "Using TLS auth in SSLClientSocketNSS: " <<
+
+    LOG(WARNING) << "Using TLS-SRP: " <<
         ssl_config_.tls_username << " / " << ssl_config_.tls_password;
 
     // TODO(sqs): add other SRP cipher suites
