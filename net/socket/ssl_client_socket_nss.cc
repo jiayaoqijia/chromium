@@ -499,15 +499,23 @@ void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
   EnterFunction("");
   ssl_info->Reset();
 
-  if (!server_cert_) {
-    LOG(DFATAL) << "!server_cert_";
+  if (!server_cert_ && !ssl_config_.use_tls_auth) {
+    LOG(DFATAL) << "!server_cert_ && !ssl_config_.use_tls_auth";
     return;
   }
 
-  ssl_info->cert_status = server_cert_verify_result_->cert_status;
-  DCHECK(server_cert_ != NULL);
-  ssl_info->cert = server_cert_;
-  ssl_info->connection_status = ssl_connection_status_;
+  if (server_cert_verify_result_) {
+    ssl_info->cert_status = server_cert_verify_result_->cert_status;
+  }
+  if (server_cert_ != NULL) {
+    ssl_info->cert = server_cert_;
+    ssl_info->connection_status = ssl_connection_status_;
+  }
+  if (ssl_config_.use_tls_auth) {
+    ssl_info->tls_username = UTF8ToUTF16(ssl_config_.tls_username);
+  }
+  // TODO(sqs): make sure this only sets the username and bypasses cert
+  // checking if TLS-SRP auth did succeed!
 
   PRUint16 cipher_suite =
       SSLConnectionStatusToCipherSuite(ssl_connection_status_);

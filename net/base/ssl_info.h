@@ -6,6 +6,7 @@
 #define NET_BASE_SSL_INFO_H_
 #pragma once
 
+#include "base/string16.h"
 #include "base/ref_counted.h"
 
 namespace net {
@@ -30,6 +31,9 @@ class SSLInfo {
 
   // The SSL certificate.
   scoped_refptr<X509Certificate> cert;
+
+  // The TLS username, or the empty string "" if TLS login auth wasn't used.
+  string16 tls_username;
 
   // Bitmask of status info of |cert|, representing, for example, known errors
   // and extended validation (EV) status.
