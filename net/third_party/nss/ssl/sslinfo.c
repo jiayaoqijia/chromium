@@ -141,6 +141,7 @@ SSL_GetChannelInfo(PRFileDesc *fd, SSLChannelInfo *info, PRUintn len)
 #define K_KEA	"KEA", kt_kea
 #define K_ECDH	"ECDH", kt_ecdh
 #define K_ECDHE	"ECDHE", kt_ecdh
+#define K_SRP   "SRP", kt_srp
 
 #define C_SEED 	"SEED", calg_seed
 #define C_CAMELLIA	"CAMELLIA", calg_camellia
@@ -200,6 +201,9 @@ static const SSLCipherSuiteInfo suiteInfo[] = {
 {0,CS(SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5),    S_RSA, K_RSA, C_RC2, B_40,  M_MD5, 0, 1, 0, },
 {0,CS(SSL_RSA_WITH_NULL_SHA),                 S_RSA, K_RSA, C_NULL,B_0,   M_SHA, 0, 1, 0, },
 {0,CS(SSL_RSA_WITH_NULL_MD5),                 S_RSA, K_RSA, C_NULL,B_0,   M_MD5, 0, 1, 0, },
+
+{0,CS(TLS_SRP_SHA_WITH_AES_128_CBC_SHA),      S_KEA, K_SRP, C_AES, B_128, M_SHA, 0, 0, 0, },
+// TODO(sqs) TODO(nss): is this correct? and add values for the rest of the SRP cipher suite
 
 #ifdef NSS_ENABLE_ECC
 /* ECC cipher suites */
