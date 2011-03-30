@@ -464,6 +464,30 @@ TEST_F(HTTPSRequestTest, ClientAuthTest) {
   }
 }
 
+TEST_F(HTTPSRequestTest, ClientSRPLoginTest) {
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = true;
+  net::TestServer test_server(https_options,
+                              FilePath(FILE_PATH_LITERAL("net/data/ssl")));
+  ASSERT_TRUE(test_server.Start());
+
+  TestDelegate d;
+  {
+    TestURLRequest r(test_server.GetURL("tlslogininfo"), &d);
+    r.SetTLSLogin(kUser, kSecret);
+    
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
+  }
+}
+
 TEST_F(URLRequestTestHTTP, CancelTest) {
   TestDelegate d;
   {
