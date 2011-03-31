@@ -563,6 +563,7 @@ bool ShouldSniffMimeType(const GURL& url, const std::string& mime_type) {
   bool sniffable_scheme = url.is_empty() ||
                           url.SchemeIs("http") ||
                           url.SchemeIs("https") ||
+                          url.SchemeIs("httpsv") ||
                           url.SchemeIs("ftp") ||
                           url.SchemeIsFile();
   if (!sniffable_scheme) {

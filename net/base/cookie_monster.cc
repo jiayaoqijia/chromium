@@ -163,7 +163,7 @@ struct CookieSignature {
 // (minus any leading period).
 std::string GetEffectiveDomain(const std::string& scheme,
                                const std::string& host) {
-  if (scheme == "http" || scheme == "https")
+  if (scheme == "http" || scheme == "https" || scheme == "httpsv")
     return RegistryControlledDomainService::GetDomainAndRegistry(host);
 
   if (!CookieMonster::DomainIsHostOnly(host))
@@ -981,8 +981,9 @@ int CookieMonster::TrimDuplicateCookiesForKey(
 
 void CookieMonster::SetDefaultCookieableSchemes() {
   // Note: file must be the last scheme.
-  static const char* kDefaultCookieableSchemes[] = { "http", "https", "file" };
-  int num_schemes = enable_file_scheme_ ? 3 : 2;
+  static const char* kDefaultCookieableSchemes[] =
+      { "http", "https", "httpsv", "file" };
+  int num_schemes = enable_file_scheme_ ? 4 : 3;
   SetCookieableSchemes(kDefaultCookieableSchemes, num_schemes);
 }
 

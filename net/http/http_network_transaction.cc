@@ -455,7 +455,7 @@ void HttpNetworkTransaction::OnHttpsProxyTunnelResponse(
 }
 
 bool HttpNetworkTransaction::is_https_request() const {
-  return request_->url.SchemeIs("https");
+  return request_->url.SchemeIs("https") || request_->url.SchemeIs("httpsv");
 }
 
 void HttpNetworkTransaction::DoCallback(int rv) {

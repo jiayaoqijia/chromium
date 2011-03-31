@@ -82,7 +82,7 @@ class HTTPSProberDelegateImpl : public HTTPSProberDelegate {
 // static
 URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
                                           const std::string& scheme) {
-  DCHECK(scheme == "http" || scheme == "https");
+  DCHECK(scheme == "http" || scheme == "https" || scheme == "httpsv");
 
   int port = request->url().IntPort();
   if (!IsPortAllowedByDefault(port) && !IsPortAllowedByOverride(port))
@@ -767,6 +767,7 @@ bool URLRequestHttpJob::IsSafeRedirect(const GURL& location) {
   static const char* kSafeSchemes[] = {
     "http",
     "https",
+    "httpsv",
     "ftp"
   };
 

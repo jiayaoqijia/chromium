@@ -37,6 +37,7 @@ const char* kTopLevelDomainPlus2Secure = "https://www.math.harvard.edu";
 const char* kTopLevelDomainPlus3 =
     "http://www.bourbaki.math.harvard.edu";
 const char* kOtherDomain = "http://www.mit.edu";
+const char* kHTTPSVDomain = "httpsv://stanford.edu";
 
 void PopulateCmForDeleteAllForHost(scoped_refptr<net::CookieMonster> cm) {
   GURL url_top_level_domain_plus_1(kTopLevelDomainPlus1);
@@ -44,6 +45,7 @@ void PopulateCmForDeleteAllForHost(scoped_refptr<net::CookieMonster> cm) {
   GURL url_top_level_domain_plus_2_secure(kTopLevelDomainPlus2Secure);
   GURL url_top_level_domain_plus_3(kTopLevelDomainPlus3);
   GURL url_other(kOtherDomain);
+  GURL url_httpsv(kHTTPSVDomain);
 
   cm->DeleteAll(true);
 
@@ -89,6 +91,9 @@ void PopulateCmForDeleteAllForHost(scoped_refptr<net::CookieMonster> cm) {
                                        "/", base::Time(), true, false));
   EXPECT_TRUE(cm->SetCookieWithDetails(url_top_level_domain_plus_2_secure,
                                        "sec_host", "X", "", "/",
+                                       base::Time(), true, false));
+  EXPECT_TRUE(cm->SetCookieWithDetails(url_httpsv,
+                                       "httpsv_host", "X", "", "/",
                                        base::Time(), true, false));
 
   // Domain path cookies

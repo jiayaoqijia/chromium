@@ -33,6 +33,7 @@ namespace net {
 static const SchemeToFactory kBuiltinFactories[] = {
   { "http", URLRequestHttpJob::Factory },
   { "https", URLRequestHttpJob::Factory },
+  { "httpsv", URLRequestHttpJob::Factory },
   { "file", URLRequestFileJob::Factory },
   { "ftp", URLRequestFtpJob::Factory },
   { "about", URLRequestAboutJob::Factory },
