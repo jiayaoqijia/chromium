@@ -180,6 +180,12 @@ void TestDelegate::OnAuthRequired(net::URLRequest* request,
   }
 }
 
+void TestDelegate::OnTLSLoginRequired(
+    net::URLRequest* request,
+    net::AuthChallengeInfo* login_request_info) {
+  // TODO(sqs): make this fill from member fields of TestDelegate?
+}
+
 void TestDelegate::OnSSLCertificateError(net::URLRequest* request,
                                          int cert_error,
                                          net::X509Certificate* cert) {

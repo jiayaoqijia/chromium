@@ -104,6 +104,7 @@ class HttpCache::Transaction : public HttpTransaction {
   virtual int RestartWithCertificate(X509Certificate* client_cert,
                                      CompletionCallback* callback);
   virtual void SetTLSLoginAuthData(AuthData* auth_data);
+  virtual int RestartWithTLSLogin(CompletionCallback *callback);
   virtual int RestartWithAuth(const string16& username,
                               const string16& password,
                               CompletionCallback* callback);
@@ -255,6 +256,8 @@ class HttpCache::Transaction : public HttpTransaction {
   // Called to restart a network transaction with a client certificate.
   // Returns network error code.
   int RestartNetworkRequestWithCertificate(X509Certificate* client_cert);
+
+  int RestartNetworkRequestWithTLSLogin();
 
   // Called to restart a network transaction with authentication credentials.
   // Returns network error code.

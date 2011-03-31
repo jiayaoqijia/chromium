@@ -10,6 +10,7 @@
 #include <windows.h>
 #elif defined(USE_NSS)
 #include "base/nss_util.h"
+#include <sslproto.h>
 #endif
 
 #include <algorithm>
@@ -424,6 +425,28 @@ class SSLClientAuthTestDelegate : public TestDelegate {
   int on_certificate_requested_count_;
 };
 
+class HTTPSVClientSRPLoginTestDelegate : public TestDelegate {
+ public:
+  HTTPSVClientSRPLoginTestDelegate() : on_tls_login_required_count_(0) {
+  }
+  virtual void OnTLSLoginRequired(
+      net::URLRequest* request,
+      net::AuthChallengeInfo* login_request_info) {
+    on_tls_login_required_count_++;
+    last_login_request_info_ = login_request_info;
+    MessageLoop::current()->Quit();
+  }
+  int on_tls_login_required_count() {
+    return on_tls_login_required_count_;
+  };
+  net::AuthChallengeInfo* last_login_request_info() {
+    return last_login_request_info_;
+  }
+ private:
+  int on_tls_login_required_count_;
+  net::AuthChallengeInfo* last_login_request_info_;
+};
+
 }  // namespace
 
 // TODO(davidben): Test the rest of the code. Specifically,
@@ -485,6 +508,52 @@ TEST_F(HTTPSRequestTest, ClientSRPLoginTest) {
     EXPECT_NE(0, d.bytes_received());
     EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
     EXPECT_FALSE(d.received_data_before_response());
+  }
+}
+
+TEST_F(HTTPSRequestTest, HTTPVSClientSRPLoginTest) {//TODO(sqs): make HTTPSVRequestTest
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = true;//TODO(sqs): try removing this "only" option
+  net::TestServer test_server(https_options,
+                              FilePath());
+  ASSERT_TRUE(test_server.Start());
+
+  HTTPSVClientSRPLoginTestDelegate d;
+  {
+    GURL https_url = test_server.GetURL("tlslogininfo");
+    GURL::Replacements replacements;
+    replacements.SetSchemeStr("httpsv");
+    GURL httpsv_url = https_url.ReplaceComponents(replacements);
+
+    TestURLRequest r(httpsv_url, &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(1, d.on_tls_login_required_count());
+    EXPECT_EQ("TLS-SRP", WideToUTF8(d.last_login_request_info()->scheme));
+    std::string host_and_port = WideToUTF8(d.last_login_request_info()->host_and_port);
+    EXPECT_TRUE(host_and_port.find(httpsv_url.host()) != std::string::npos);
+    EXPECT_TRUE(host_and_port.find(httpsv_url.port()) != std::string::npos);
+    EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
+
+    r.SetTLSLogin(kUser, kSecret);
+    r.ContinueWithTLSLogin();
+    MessageLoop::current()->Run();
+
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
+
+    // EXPECT_EQ(kUser, r.ssl_info().tls_username);
+    // int cipher_suite = net::SSLConnectionStatusToCipherSuite(
+    //     r.ssl_info().connection_status);
+    // EXPECT_EQ(TLS_SRP_SHA_WITH_AES_128_CBC_SHA, cipher_suite);
   }
 }
 

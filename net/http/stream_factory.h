@@ -69,6 +69,9 @@ class StreamRequest {
     // may take a reference if it needs the cert_info beyond the lifetime of
     // this callback.
     virtual void OnNeedsClientAuth(SSLCertRequestInfo* cert_info) = 0;
+
+    // TODO(sqs): doc
+    virtual void OnNeedsTLSLogin(AuthChallengeInfo* login_info) = 0;
     
     // This is the failure of the CONNECT request through an HTTPS proxy.
     // Headers can be read from |response_info|, while the body can be read

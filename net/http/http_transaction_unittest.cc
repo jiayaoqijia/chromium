@@ -272,6 +272,10 @@ void MockNetworkTransaction::SetTLSLoginAuthData(net::AuthData* auth_data) {
   //TODO(sqs): should put stuff here?
 }
 
+int MockNetworkTransaction::RestartWithTLSLogin(net::CompletionCallback* callback) {
+  return net::ERR_FAILED;
+}
+
 int MockNetworkTransaction::RestartWithAuth(const string16& username,
                                             const string16& password,
                                             net::CompletionCallback* callback) {

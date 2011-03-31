@@ -213,6 +213,29 @@ void HttpNetworkTransaction::SetTLSLoginAuthData(AuthData* auth_data) {
   ssl_config_.tls1_enabled = true;
 }
 
+int HttpNetworkTransaction::RestartWithTLSLogin(CompletionCallback* callback) {
+  // TODO(sqs): not sure if these 3 DCHECKS are correct to have - just copied
+  // them from the cert code above
+  DCHECK(!stream_request_.get());
+  DCHECK(!stream_.get());
+  DCHECK_EQ(STATE_NONE, next_state_);
+
+  DCHECK(!ssl_config_.tls_username.empty());
+  DCHECK(!ssl_config_.tls_password.empty());
+  DCHECK(ssl_config_.use_tls_auth);
+  DCHECK(ssl_config_.tls1_enabled);
+  DCHECK(!ssl_config_.ssl3_enabled);
+
+  // Reset the other member variables.
+  // Note: this is necessary only with SSL renegotiation.
+  ResetStateForRestart();
+  next_state_ = STATE_CREATE_STREAM;
+  int rv = DoLoop(OK);
+  if (rv == ERR_IO_PENDING)
+    user_callback_ = callback;
+  return rv;
+}
+
 int HttpNetworkTransaction::RestartWithAuth(
     const string16& username,
     const string16& password,
@@ -442,6 +465,14 @@ void HttpNetworkTransaction::OnNeedsClientAuth(
   OnIOComplete(ERR_SSL_CLIENT_AUTH_CERT_NEEDED);
 }
 
+void HttpNetworkTransaction::OnNeedsTLSLogin(
+    AuthChallengeInfo* login_info) {
+  DCHECK_EQ(STATE_CREATE_STREAM_COMPLETE, next_state_);
+
+  response_.login_request_info = login_info;
+  OnIOComplete(ERR_TLS_CLIENT_LOGIN_NEEDED);
+}
+
 void HttpNetworkTransaction::OnHttpsProxyTunnelResponse(
     const HttpResponseInfo& response_info,
     HttpStream* stream) {
@@ -559,6 +590,15 @@ int HttpNetworkTransaction::DoLoop(int result) {
 }
 
 int HttpNetworkTransaction::DoCreateStream() {
+  DCHECK(request_);
+  if (request_->url.SchemeIs("httpsv") && ssl_config_.tls_username.empty()) {
+    response_.login_request_info = new AuthChallengeInfo;
+    response_.login_request_info->host_and_port =
+        UTF8ToWide(request_->url.host() + request_->url.port());
+    response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
+    return ERR_TLS_CLIENT_LOGIN_NEEDED;
+  }
+
   next_state_ = STATE_CREATE_STREAM_COMPLETE;
 
   stream_request_.reset(
@@ -1064,6 +1104,7 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
         // This could be a TLS-intolerant server, an SSL 3.0 server that
         // chose a TLS-only cipher suite or a server with buggy DEFLATE
         // support. Turn off TLS 1.0, DEFLATE support and retry.
+        LOG(WARNING) << "Set server TLS intolerant: " << request_->url;
         session_->http_stream_factory()->AddTLSIntolerantServer(request_->url);
         ResetConnectionAndRequestForResend();
         error = OK;

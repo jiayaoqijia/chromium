@@ -229,6 +229,9 @@ NET_ERROR(HTTPS_PROXY_TUNNEL_RESPONSE, -140)
 // valid, or the CSP won't allow arbitrary data to be signed.
 NET_ERROR(SSL_CLIENT_AUTH_SIGNATURE_FAILED, -141)
 
+// The server requested TLS client authentication using a username and password.
+NET_ERROR(TLS_CLIENT_LOGIN_NEEDED, -142)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.

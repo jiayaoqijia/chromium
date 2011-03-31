@@ -167,6 +167,8 @@ class MockNetworkTransaction : public net::HttpTransaction {
                                      net::CompletionCallback* callback);
 
   virtual void SetTLSLoginAuthData(net::AuthData* auth_data);
+
+  virtual int RestartWithTLSLogin(net::CompletionCallback* callback);
   
   virtual int RestartWithAuth(const string16& username,
                               const string16& password,

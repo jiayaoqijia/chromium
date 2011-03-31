@@ -48,6 +48,7 @@ class HttpNetworkTransaction : public HttpTransaction,
   virtual int RestartWithCertificate(X509Certificate* client_cert,
                                      CompletionCallback* callback);
   virtual void SetTLSLoginAuthData(AuthData* auth_data);
+  virtual int RestartWithTLSLogin(CompletionCallback* callback);
   virtual int RestartWithAuth(const string16& username,
                               const string16& password,
                               CompletionCallback* callback);
@@ -67,6 +68,7 @@ class HttpNetworkTransaction : public HttpTransaction,
       const HttpResponseInfo& response_info,
       HttpAuthController* auth_controller);
   virtual void OnNeedsClientAuth(SSLCertRequestInfo* cert_info);
+  virtual void OnNeedsTLSLogin(AuthChallengeInfo* login_info);
   virtual void OnHttpsProxyTunnelResponse(const HttpResponseInfo& response_info,
                                           HttpStream* stream);
 

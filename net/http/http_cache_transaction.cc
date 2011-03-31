@@ -18,6 +18,7 @@
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "base/utf_string_conversions.h"
 #include "net/base/auth.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/io_buffer.h"
@@ -296,9 +297,34 @@ int HttpCache::Transaction::RestartWithCertificate(
 }
 
 void HttpCache::Transaction::SetTLSLoginAuthData(AuthData* auth_data) {
-  DCHECK(!network_trans_.get());
-
+  if (network_trans_.get())
+    network_trans_->SetTLSLoginAuthData(auth_data);
   tls_login_auth_data_ = auth_data;
+}
+
+int HttpCache::Transaction::RestartWithTLSLogin(CompletionCallback *callback) {
+  DCHECK(callback);
+
+  // Ensure that we only have one asynchronous call at a time.
+  DCHECK(!callback_);
+
+  if (!cache_)
+    return ERR_UNEXPECTED;
+
+  int rv;
+
+  if (network_trans_.get()) {
+    rv = RestartNetworkRequestWithTLSLogin();
+  } else {
+    // Start the transaction.
+    next_state_ = STATE_SEND_REQUEST;
+    rv = DoLoop(OK);
+  }
+
+  if (rv == ERR_IO_PENDING)
+    callback_ = callback;
+
+  return rv;
 }
 
 int HttpCache::Transaction::RestartWithAuth(
@@ -646,6 +672,16 @@ int HttpCache::Transaction::DoSendRequest() {
   DCHECK(mode_ & WRITE || mode_ == NONE);
   DCHECK(!network_trans_.get());
 
+  if (request_->url.SchemeIs("httpsv") &&
+      (!tls_login_auth_data_ ||
+       tls_login_auth_data_->state != AUTH_STATE_HAVE_AUTH)) {
+    response_.login_request_info = new AuthChallengeInfo;
+    response_.login_request_info->host_and_port =
+        UTF8ToWide(request_->url.host() + request_->url.port());
+    response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
+    return ERR_TLS_CLIENT_LOGIN_NEEDED;
+  }
+
   // Create a network transaction.
   int rv = cache_->network_layer_->CreateTransaction(&network_trans_);
   if (rv != OK)
@@ -653,8 +689,9 @@ int HttpCache::Transaction::DoSendRequest() {
 
   // TODO(sqs): better place to put this?
   if (tls_login_auth_data_ &&
-      tls_login_auth_data_->state == AUTH_STATE_HAVE_AUTH)
+      tls_login_auth_data_->state == AUTH_STATE_HAVE_AUTH) {
     network_trans_->SetTLSLoginAuthData(tls_login_auth_data_);
+  }
 
   next_state_ = STATE_SEND_REQUEST_COMPLETE;
   rv = network_trans_->Start(request_, &io_callback_, net_log_);
@@ -1580,6 +1617,18 @@ int HttpCache::Transaction::RestartNetworkRequestWithCertificate(
 
   next_state_ = STATE_SEND_REQUEST_COMPLETE;
   int rv = network_trans_->RestartWithCertificate(client_cert, &io_callback_);
+  if (rv != ERR_IO_PENDING)
+    return DoLoop(rv);
+  return rv;
+}
+
+int HttpCache::Transaction::RestartNetworkRequestWithTLSLogin() {
+  DCHECK(mode_ & WRITE || mode_ == NONE);
+  DCHECK(network_trans_.get());
+  DCHECK_EQ(STATE_NONE, next_state_);
+
+  next_state_ = STATE_SEND_REQUEST_COMPLETE;
+  int rv = network_trans_->RestartWithTLSLogin(&io_callback_);
   if (rv != ERR_IO_PENDING)
     return DoLoop(rv);
   return rv;

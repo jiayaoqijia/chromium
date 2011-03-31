@@ -143,6 +143,8 @@ class TestDelegate : public net::URLRequest::Delegate {
                                   bool* defer_redirect);
   virtual void OnAuthRequired(net::URLRequest* request,
                               net::AuthChallengeInfo* auth_info);
+  virtual void OnTLSLoginRequired(net::URLRequest* request,
+                                  net::AuthChallengeInfo* login_request_info);
   virtual void OnSSLCertificateError(net::URLRequest* request,
                                      int cert_error,
                                      net::X509Certificate* cert);

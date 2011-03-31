@@ -8,6 +8,7 @@
 #include "base/message_loop.h"
 #include "base/metrics/stats_counters.h"
 #include "base/singleton.h"
+#include "base/utf_string_conversions.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_log.h"
@@ -70,6 +71,11 @@ void URLRequest::Delegate::OnAuthRequired(URLRequest* request,
   request->CancelAuth();
 }
 
+void URLRequest::Delegate::OnTLSLoginRequired(
+    URLRequest* request,
+    net::AuthChallengeInfo* login_request_info) {
+}
+
 void URLRequest::Delegate::OnCertificateRequested(
     URLRequest* request,
     net::SSLCertRequestInfo* cert_request_info) {
@@ -80,14 +86,6 @@ void URLRequest::Delegate::OnSSLCertificateError(URLRequest* request,
                                                  int cert_error,
                                                  net::X509Certificate* cert) {
   request->Cancel();
-}
-
-void URLRequest::Delegate::OnTLSLoginRequested(
-    URLRequest* request,
-    net::AuthChallengeInfo* login_request_info) {
-  request->ContinueWithTLSLogin("", "");
-  LOG(WARNING) << "maybe need to call request->CancelAuth() here";//sqs
-  // TODO(sqs): maybe needs to be request->CancelAuth()?
 }
 
 void URLRequest::Delegate::OnGetCookies(URLRequest* request,
@@ -522,6 +520,14 @@ void URLRequest::SetTLSLogin(const string16& username,
 
 AuthData* URLRequest::GetTLSLoginAuthData() {
   return tls_login_auth_data_.get();
+}
+
+void URLRequest::ContinueWithTLSLogin() {
+  DCHECK(job_);
+  DCHECK(tls_login_auth_data_->state == AUTH_STATE_HAVE_AUTH);
+  DCHECK(!tls_login_auth_data_->username.empty());
+
+  job_->ContinueWithTLSLogin();
 }
 
 void URLRequest::ContinueDespiteLastError() {

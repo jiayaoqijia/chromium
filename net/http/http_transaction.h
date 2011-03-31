@@ -65,6 +65,8 @@ class HttpTransaction {
   // Sets TLS login credentials for the HTTPS transaction.
   virtual void SetTLSLoginAuthData(AuthData* auth_data) = 0;
 
+  virtual int RestartWithTLSLogin(CompletionCallback* callback) = 0;
+
   // Restarts the HTTP transaction with authentication credentials.
   virtual int RestartWithAuth(const string16& username,
                               const string16& password,

@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "net/base/auth.h"
 #include "base/debug/leak_tracker.h"
 #include "base/linked_ptr.h"
 #include "base/logging.h"
@@ -169,6 +170,10 @@ class URLRequest : public base::NonThreadSafe {
     virtual void OnAuthRequired(URLRequest* request,
                                 net::AuthChallengeInfo* auth_info);
 
+    // TODO(sqs): document
+    virtual void OnTLSLoginRequired(URLRequest* request,
+                                    net::AuthChallengeInfo* login_request_info);
+
     // Called when we receive an SSL CertificateRequest message for client
     // authentication.  The delegate should call
     // request->ContinueWithCertificate() with the client certificate the user
@@ -187,17 +192,6 @@ class URLRequest : public base::NonThreadSafe {
     virtual void OnSSLCertificateError(URLRequest* request,
                                        int cert_error,
                                        net::X509Certificate* cert);
-
-    // Called when using TLS with TLS-SRP when the server requests that the
-    // user provide a username and password for authentication. The delegate
-    // should call request->ContinueWithTLSLogin() with the
-    // credentials provided by the client, or
-    // request->ContinueWithTLSLogin("", "") to continue the SSL
-    // handshake without providing login credentials.
-    virtual void OnTLSLoginRequested(
-        URLRequest* request,
-        net::AuthChallengeInfo* login_request_info);
-
 
     // Called when reading cookies. |blocked_by_policy| is true if access to
     // cookies was denied due to content settings. This method will never be
@@ -542,6 +536,8 @@ class URLRequest : public base::NonThreadSafe {
   void SetTLSLogin(const string16& username,
                                const string16& password);
   AuthData* GetTLSLoginAuthData();
+
+  void ContinueWithTLSLogin();
 
   // This method can be called after some error notifications to instruct this
   // URLRequest to ignore the current error and continue with the request.  To
