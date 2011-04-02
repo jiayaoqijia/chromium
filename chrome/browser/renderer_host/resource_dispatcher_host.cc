@@ -1169,9 +1169,15 @@ bool ResourceDispatcherHost::CompleteResponseStarted(net::URLRequest* request) {
         SSLManager::SerializeSecurityInfo(
             cert_id, request->ssl_info().cert_status,
             request->ssl_info().security_bits,
-            request->ssl_info().connection_status);
+            request->ssl_info().connection_status,
+            request->ssl_info().tls_username);
   } else if (!request->ssl_info().tls_username.empty()) {
-    // TODO(sqs): add some ssl sec info
+    response->response_head.security_info =
+        SSLManager::SerializeSecurityInfo(
+            0, 0,
+            request->ssl_info().security_bits,
+            request->ssl_info().connection_status,
+            request->ssl_info().tls_username);
   } else {
     // We should not have any SSL state.
     DCHECK(!request->ssl_info().cert_status &&
@@ -1510,10 +1516,12 @@ void ResourceDispatcherHost::OnResponseCompleted(net::URLRequest* request) {
                                                             info->child_id());
     security_info = SSLManager::SerializeSecurityInfo(
         cert_id, ssl_info.cert_status, ssl_info.security_bits,
-        ssl_info.connection_status);
+        ssl_info.connection_status, ssl_info.tls_username);
   } else if (!ssl_info.tls_username.empty()) {
-    // TODO(sqs): make some security info
-    LOG(INFO) << "**** Should show sec info";
+    security_info = SSLManager::SerializeSecurityInfo(
+        0, 0,
+        ssl_info.security_bits, ssl_info.connection_status,
+        ssl_info.tls_username);
   }
 
   if (info->resource_handler()->OnResponseCompleted(info->request_id(),

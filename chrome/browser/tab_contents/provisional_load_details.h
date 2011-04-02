@@ -56,6 +56,8 @@ class ProvisionalLoadDetails {
 
   int ssl_connection_status() const { return ssl_connection_status_; }
 
+  string16 tls_username() const { return tls_username_; }
+
   bool is_content_filtered() const { return is_content_filtered_; }
 
   bool is_error_page() const { return is_error_page_; }
@@ -72,6 +74,7 @@ class ProvisionalLoadDetails {
   int ssl_cert_status_;
   int ssl_security_bits_;
   int ssl_connection_status_;
+  string16 tls_username_;
   bool is_content_filtered_;
   bool is_error_page_;
   int64 frame_id_;

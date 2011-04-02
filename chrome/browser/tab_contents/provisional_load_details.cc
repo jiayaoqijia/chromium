@@ -23,6 +23,7 @@ ProvisionalLoadDetails::ProvisionalLoadDetails(bool is_main_frame,
         ssl_cert_status_(0),
         ssl_security_bits_(-1),
         ssl_connection_status_(0),
+        tls_username_(),
         is_content_filtered_(is_content_filtered),
         is_error_page_(is_error_page),
         frame_id_(frame_id) {
@@ -30,5 +31,6 @@ ProvisionalLoadDetails::ProvisionalLoadDetails(bool is_main_frame,
                                       &ssl_cert_id_,
                                       &ssl_cert_status_,
                                       &ssl_security_bits_,
-                                      &ssl_connection_status_);
+                                      &ssl_connection_status_,
+                                      &tls_username_);
 }

@@ -1345,15 +1345,18 @@ void RenderViewContextMenu::ExecuteCommand(int id) {
       NavigationEntry::SSLStatus ssl;
       if (!params_.security_info.empty()) {
         int cert_id, cert_status, security_bits, connection_status;
+        string16 tls_username;
         SSLManager::DeserializeSecurityInfo(params_.security_info,
                                             &cert_id,
                                             &cert_status,
                                             &security_bits,
-                                            &connection_status);
+                                            &connection_status,
+                                            &tls_username);
         ssl.set_cert_id(cert_id);
         ssl.set_cert_status(cert_status);
         ssl.set_security_bits(security_bits);
         ssl.set_connection_status(connection_status);
+        ssl.set_tls_username(tls_username);
       }
       source_tab_contents_->ShowPageInfo(params_.frame_url, ssl,
                                          false);  // Don't show the history.

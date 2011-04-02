@@ -59,12 +59,14 @@ class SSLManager : public NotificationObserver {
   static std::string SerializeSecurityInfo(int cert_id,
                                            int cert_status,
                                            int security_bits,
-                                           int connection_status);
+                                           int connection_status,
+                                           string16 tls_username);
   static bool DeserializeSecurityInfo(const std::string& state,
                                       int* cert_id,
                                       int* cert_status,
                                       int* security_bits,
-                                      int* connection_status);
+                                      int* connection_status,
+                                      string16* tls_username);
 
   // Returns "<organization_name> [<country>]".
   static string16 GetEVCertName(const net::X509Certificate& cert);

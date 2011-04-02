@@ -148,10 +148,11 @@ void SSLPolicy::UpdateEntry(NavigationEntry* entry, TabContents* tab_contents) {
   if (!entry->url().SchemeIsSecure())
     return;
 
-  // An HTTPS response may not have a certificate for some reason.  When that
-  // happens, use the unauthenticated (HTTP) rather than the authentication
-  // broken security style so that we can detect this error condition.
-  if (!entry->ssl().cert_id()) {
+  // An HTTPS response may not have a certificate or TLS auth username for some
+  // reason.  When that happens, use the unauthenticated (HTTP) rather than the
+  // authentication broken security style so that we can detect this error
+  // condition.
+  if (!entry->ssl().cert_id() && entry->ssl().tls_username().empty()) {
     entry->ssl().set_security_style(SECURITY_STYLE_UNAUTHENTICATED);
     return;
   }

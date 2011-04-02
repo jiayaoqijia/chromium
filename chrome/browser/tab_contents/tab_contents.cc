@@ -1606,13 +1606,16 @@ void TabContents::OnDidLoadResourceFromMemoryCache(
 
   // Send out a notification that we loaded a resource from our memory cache.
   int cert_id = 0, cert_status = 0, security_bits = -1, connection_status = 0;
+  string16 tls_username;
   SSLManager::DeserializeSecurityInfo(security_info,
                                       &cert_id, &cert_status,
                                       &security_bits,
-                                      &connection_status);
+                                      &connection_status,
+                                      &tls_username);
   LoadFromMemoryCacheDetails details(url, frame_origin, main_frame_origin,
                                      GetRenderProcessHost()->id(), cert_id,
                                      cert_status);
+  // TODO(sqs): add tls_username to this call - requires adding to provisional_load_details.cc probably
 
   NotificationService::current()->Notify(
       NotificationType::LOAD_FROM_MEMORY_CACHE,

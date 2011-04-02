@@ -57,7 +57,8 @@ class NavigationEntry {
              cert_id_ == status.cert_id_ &&
              cert_status_ == status.cert_status_ &&
              security_bits_ == status.security_bits_ &&
-             content_status_ == status.content_status_;
+             content_status_ == status.content_status_ &&
+             tls_username_ == status.tls_username_;
     }
 
     void set_security_style(SecurityStyle security_style) {
@@ -120,6 +121,13 @@ class NavigationEntry {
       return content_status_;
     }
 
+    void set_tls_username(string16 tls_username) {
+      tls_username_ = tls_username;
+    }
+    string16 tls_username() const {
+      return tls_username_;
+    }
+
    private:
     // See the accessors above for descriptions.
     SecurityStyle security_style_;
@@ -128,6 +136,7 @@ class NavigationEntry {
     int security_bits_;
     int connection_status_;
     int content_status_;
+    string16 tls_username_;
 
     // Copy and assignment is explicitly allowed for this class.
   };

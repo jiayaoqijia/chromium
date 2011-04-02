@@ -61,12 +61,14 @@ void SSLManager::NotifySSLInternalStateChanged() {
 std::string SSLManager::SerializeSecurityInfo(int cert_id,
                                               int cert_status,
                                               int security_bits,
-                                              int ssl_connection_status) {
+                                              int ssl_connection_status,
+                                              string16 tls_username) {
   Pickle pickle;
   pickle.WriteInt(cert_id);
   pickle.WriteInt(cert_status);
   pickle.WriteInt(security_bits);
   pickle.WriteInt(ssl_connection_status);
+  pickle.WriteString16(tls_username);
   return std::string(static_cast<const char*>(pickle.data()), pickle.size());
 }
 
@@ -75,7 +77,8 @@ bool SSLManager::DeserializeSecurityInfo(const std::string& state,
                                          int* cert_id,
                                          int* cert_status,
                                          int* security_bits,
-                                         int* ssl_connection_status) {
+                                         int* ssl_connection_status,
+                                         string16* tls_username) {
   DCHECK(cert_id && cert_status && security_bits && ssl_connection_status);
   if (state.empty()) {
     // No SSL used.
@@ -84,6 +87,7 @@ bool SSLManager::DeserializeSecurityInfo(const std::string& state,
     *cert_status = 0;
     *security_bits = -1;
     *ssl_connection_status = 0;
+    tls_username->clear();
     return false;
   }
 
@@ -92,7 +96,8 @@ bool SSLManager::DeserializeSecurityInfo(const std::string& state,
   return pickle.ReadInt(&iter, cert_id) &&
          pickle.ReadInt(&iter, cert_status) &&
          pickle.ReadInt(&iter, security_bits) &&
-         pickle.ReadInt(&iter, ssl_connection_status);
+         pickle.ReadInt(&iter, ssl_connection_status) &&
+         pickle.ReadString16(&iter, tls_username);
 }
 
 // static
@@ -144,11 +149,13 @@ void SSLManager::DidCommitProvisionalLoad(
       // Decode the security details.
       int ssl_cert_id, ssl_cert_status, ssl_security_bits,
           ssl_connection_status;
+      string16 tls_username;
       DeserializeSecurityInfo(details->serialized_security_info,
                               &ssl_cert_id,
                               &ssl_cert_status,
                               &ssl_security_bits,
-                              &ssl_connection_status);
+                              &ssl_connection_status,
+                              &tls_username);
 
       // We may not have an entry if this is a navigation to an initial blank
       // page. Reset the SSL information and add the new data we have.
@@ -157,6 +164,7 @@ void SSLManager::DidCommitProvisionalLoad(
       entry->ssl().set_cert_status(ssl_cert_status);
       entry->ssl().set_security_bits(ssl_security_bits);
       entry->ssl().set_connection_status(ssl_connection_status);
+      entry->ssl().set_tls_username(tls_username);
     }
   }
 

@@ -133,6 +133,13 @@ PageInfoModel::PageInfoModel(Profile* profile,
       description.assign(l10n_util::GetStringFUTF16(
           IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY, issuer_name));
     }
+  } else if (!ssl.tls_username().empty()) {
+    // HTTPS with TLS-SRP
+    description.assign(l10n_util::GetStringUTF16(
+        IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_SHARED_SECRET));
+    description += ASCIIToUTF16("\n\n");
+    description += l10n_util::GetStringFUTF16(
+        IDS_PAGE_INFO_TLS_USER_IDENTITY, subject_name, ssl.tls_username());
   } else {
     // HTTP or HTTPS with errors (not warnings).
     description.assign(l10n_util::GetStringUTF16(
@@ -168,7 +175,7 @@ PageInfoModel::PageInfoModel(Profile* profile,
   icon_id = ICON_STATE_OK;
   headline.clear();
   description.clear();
-  if (!ssl.cert_id()) {
+  if (!ssl.cert_id() && ssl.tls_username().empty()) {
     // Not HTTPS.
     DCHECK_EQ(ssl.security_style(), SECURITY_STYLE_UNAUTHENTICATED);
     icon_id = ssl.security_style() == SECURITY_STYLE_UNAUTHENTICATED ?
