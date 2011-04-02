@@ -235,6 +235,9 @@ NET_ERROR(TLS_CLIENT_LOGIN_NEEDED, -142)
 // The server indicated that the client's TLS login failed.
 NET_ERROR(TLS_CLIENT_LOGIN_FAILED, -143)
 
+// The server indicated that the pre-shared key or SRP identity is unknown.
+NET_ERROR(SSL_UNKNOWN_PSK_IDENTITY_ALERT, -144)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.

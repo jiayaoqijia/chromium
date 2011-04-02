@@ -199,7 +199,7 @@ int HttpNetworkTransaction::RestartWithCertificate(
 }
 
 void HttpNetworkTransaction::SetTLSLoginAuthData(AuthData* auth_data) {
-  DCHECK(!stream_request_.get());
+  DCHECK(!stream_request_.get()) << "Can't set TLS login on existing stream";
   DCHECK(!stream_.get());
   DCHECK_EQ(STATE_NONE, next_state_);
 
@@ -598,22 +598,25 @@ int HttpNetworkTransaction::DoLoop(int result) {
 
 int HttpNetworkTransaction::DoCreateStream() {
   DCHECK(request_);
-  if (request_->url.SchemeIs("httpsv") && ssl_config_.tls_username.empty()) {
-    scoped_refptr<AuthData> tls_auth_data;
-    bool found_login = session_->tls_client_login_cache()->Lookup(
-        net::GetHostAndPort(request_->url),
-        &tls_auth_data);
-    if (found_login) {
-      LOG(INFO) << "Got TLS login from cache";
-      SetTLSLoginAuthData(tls_auth_data);
-      DCHECK(!ssl_config_.tls_username.empty());
-      DCHECK(!ssl_config_.tls_password.empty());
-    } else {
-      response_.login_request_info = new AuthChallengeInfo;
-      response_.login_request_info->host_and_port =
-          UTF8ToWide(net::GetHostAndPort(request_->url));
-      response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
-      return ERR_TLS_CLIENT_LOGIN_NEEDED;
+  if (request_->url.SchemeIs("httpsv")) {
+    ssl_config_.require_tls_auth = true;
+    if (ssl_config_.tls_username.empty()) {
+      scoped_refptr<AuthData> tls_auth_data;
+      bool found_login = session_->tls_client_login_cache()->Lookup(
+          net::GetHostAndPort(request_->url),
+          &tls_auth_data);
+      if (found_login) {
+        LOG(INFO) << "Got TLS login from cache";
+        SetTLSLoginAuthData(tls_auth_data);
+        DCHECK(!ssl_config_.tls_username.empty());
+        DCHECK(!ssl_config_.tls_password.empty());
+      } else {
+        response_.login_request_info = new AuthChallengeInfo;
+        response_.login_request_info->host_and_port =
+            UTF8ToWide(net::GetHostAndPort(request_->url));
+        response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
+        return ERR_TLS_CLIENT_LOGIN_NEEDED;
+      }
     }
   }
 
@@ -1115,9 +1118,10 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
   if (ssl_config_.use_tls_auth) {
     DCHECK(!ssl_config_.tls_username.empty());
     DCHECK(!ssl_config_.tls_password.empty());
-    if (error == ERR_SSL_BAD_RECORD_MAC_ALERT) {
+    if (error == ERR_SSL_BAD_RECORD_MAC_ALERT ||
+        error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
       // TODO(sqs): remove this log msg
-      LOG(WARNING) << "TLS handshake error: using TLS auth && bad record MAC -> login failed";
+      LOG(WARNING) << "TLS handshake error: using TLS auth && (bad_record_mac || unknown_psk_identity) -> login failed";
       error = ERR_TLS_CLIENT_LOGIN_FAILED;
 
       // TODO(sqs): remove from TLS login cache?

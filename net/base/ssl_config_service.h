@@ -91,7 +91,8 @@ struct SSLConfig {
   bool ssl3_fallback;  // True if we are falling back to SSL 3.0 (one still
                        // needs to clear tls1_enabled).
 
-  bool use_tls_auth;
+  bool use_tls_auth; // True if we should allow the use of SRP cipher suites.
+  bool require_tls_auth; // True if we should only use SRP cipher suites.
   std::string tls_username;
   std::string tls_password;
 

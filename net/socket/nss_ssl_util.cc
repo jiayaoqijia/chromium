@@ -185,6 +185,8 @@ int MapNSSError(PRErrorCode err) {
       return ERR_SSL_UNSAFE_NEGOTIATION;
     case SSL_ERROR_WEAK_SERVER_KEY:
       return ERR_SSL_WEAK_SERVER_EPHEMERAL_DH_KEY;
+    case SSL_ERROR_UNKNOWN_PSK_IDENTITY_ALERT:
+      return ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT;
 
     default: {
       if (IS_SSL_ERROR(err)) {

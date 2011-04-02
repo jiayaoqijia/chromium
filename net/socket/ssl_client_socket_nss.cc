@@ -1088,6 +1088,21 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
     // TODO(sqs): update this when the list of SRP ciphers is updated
   }
 
+  if (ssl_config_.require_tls_auth) {
+    // Disable non-SRP cipher suites.
+    const PRUint16 *cipherSuites = SSL_GetImplementedCiphers();
+    int numCiphers = SSL_GetNumImplementedCiphers();
+    for (int i = 0; i < numCiphers; i++) {
+	PRUint16 suite = cipherSuites[i];
+        if (suite != TLS_SRP_SHA_WITH_AES_128_CBC_SHA) {
+          rv = SSL_CipherPrefSet(nss_fd_, suite, PR_FALSE);
+          if (rv != SECSuccess) {
+            LogFailedNSSFunction(net_log_, "SSL_CipherPrefSet", "");
+          }
+        }
+    }
+  }
+
   rv = SSL_HandshakeCallback(nss_fd_, HandshakeCallback, this);
   if (rv != SECSuccess) {
     LogFailedNSSFunction(net_log_, "SSL_HandshakeCallback", "");
