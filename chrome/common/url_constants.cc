@@ -22,6 +22,7 @@ const char kFtpScheme[] = "ftp";
 const char kGearsScheme[] = "gears";
 const char kHttpScheme[] = "http";
 const char kHttpsScheme[] = "https";
+const char kHttpsvScheme[] = "httpsv";
 const char kJavaScriptScheme[] = "javascript";
 const char kMailToScheme[] = "mailto";
 const char kMetadataScheme[] = "metadata";

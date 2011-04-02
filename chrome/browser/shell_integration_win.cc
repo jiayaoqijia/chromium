@@ -302,7 +302,7 @@ ShellIntegration::DefaultBrowserState ShellIntegration::IsDefaultBrowser() {
   // re-run the installer or run with the --set-default-browser command line
   // flag. There is doubtless some other key we can hook into to cause "Repair"
   // to show up in Add/Remove programs for us.
-  const std::wstring kChromeProtocols[] = {L"http", L"https"};
+  const std::wstring kChromeProtocols[] = {L"http", L"https", L"httpsv"};
 
   if (base::win::GetVersion() >= base::win::VERSION_VISTA) {
     IApplicationAssociationRegistration* pAAR;

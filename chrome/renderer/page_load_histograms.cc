@@ -33,7 +33,7 @@ static const size_t kPLTCount(100);
 static URLPattern::SchemeMasks GetSupportedSchemeType(const GURL& url) {
   if (url.SchemeIs("http"))
     return URLPattern::SCHEME_HTTP;
-  else if (url.SchemeIs("https"))
+  else if (url.SchemeIs("https") || url.SchemeIs("httpsv"))
     return URLPattern::SCHEME_HTTPS;
   return static_cast<URLPattern::SchemeMasks>(0);
 }
