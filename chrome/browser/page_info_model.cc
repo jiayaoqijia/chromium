@@ -55,10 +55,12 @@ PageInfoModel::PageInfoModel(Profile* profile,
       net::CERT_STATUS_UNABLE_TO_CHECK_REVOCATION |
       net::CERT_STATUS_NO_REVOCATION_MECHANISM;
   int status_with_warnings_removed = ssl.cert_status() & ~cert_warnings;
+  bool show_secure_identity_msg = false;
 
   if (ssl.cert_id() &&
       CertStore::GetInstance()->RetrieveCert(ssl.cert_id(), &cert) &&
       !net::IsCertStatusError(status_with_warnings_removed)) {
+    show_secure_identity_msg = true;
     // No error found so far, check cert_status warnings.
     int cert_status = ssl.cert_status();
     if (cert_status & cert_warnings) {
@@ -133,14 +135,7 @@ PageInfoModel::PageInfoModel(Profile* profile,
       description.assign(l10n_util::GetStringFUTF16(
           IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY, issuer_name));
     }
-  } else if (!ssl.tls_username().empty()) {
-    // HTTPS with TLS-SRP
-    description.assign(l10n_util::GetStringUTF16(
-        IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_SHARED_SECRET));
-    description += ASCIIToUTF16("\n\n");
-    description += l10n_util::GetStringFUTF16(
-        IDS_PAGE_INFO_TLS_USER_IDENTITY, subject_name, ssl.tls_username());
-  } else {
+  } else if (ssl.tls_username().empty()) {
     // HTTP or HTTPS with errors (not warnings).
     description.assign(l10n_util::GetStringUTF16(
         IDS_PAGE_INFO_SECURITY_TAB_INSECURE_IDENTITY));
@@ -162,6 +157,21 @@ PageInfoModel::PageInfoModel(Profile* profile,
           IDS_PAGE_INFO_SECURITY_TAB_NON_UNIQUE_NAME);
     }
   }
+
+  if (!ssl.tls_username().empty()) {
+    // HTTPS with TLS-SRP. This can be used with or without certificates, so we
+    // handle this separately (not in the big if-clause above).
+    if (!description.empty())
+      description += ASCIIToUTF16(" ");
+    description += l10n_util::GetStringUTF16(
+        show_secure_identity_msg ?
+        IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_PLUS_SHARED_SECRET :
+        IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_SHARED_SECRET);
+    description += ASCIIToUTF16("\n\n");
+    description += l10n_util::GetStringFUTF16(
+        IDS_PAGE_INFO_TLS_USER_IDENTITY, subject_name, ssl.tls_username());
+  }
+  
   sections_.push_back(SectionInfo(
       icon_id,
       headline,

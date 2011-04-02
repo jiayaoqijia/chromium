@@ -6200,6 +6200,10 @@ Keep your key file in a safe place. You will need it to create new versions of y
         The identity of this website was verified by TLS mutual authentication using a shared secret.
       </message>
 
+      <message name="IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_PLUS_SHARED_SECRET" desc="The text of the identity section when the page's security is backed by a shared secret (e.g., TLS-SRP) plus a certificate or DNSSEC.">
+        The identity of this website was also verified by TLS mutual authentication using a shared secret.
+      </message>
+
       <message name="IDS_PAGE_INFO_TLS_USER_IDENTITY" desc="The text of the user identity section when the page's security derives from TLS client login authentication.">
         You are mutually authenticated to <ph name="DOMAIN_NAME">$1<ex>www.google.com</ex></ph> as <ph name="TLS_USERNAME">$2<ex>user</ex></ph>.
       </message>      
