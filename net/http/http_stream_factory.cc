@@ -82,7 +82,6 @@ int HttpStreamFactory::PreconnectStreams(
 }
 
 void HttpStreamFactory::AddTLSIntolerantServer(const GURL& url) {
-  LOG(WARNING) << "Adding TLS intolerant server: " << GetHostAndPort(url);
   tls_intolerant_servers_.insert(GetHostAndPort(url));
 }
 
