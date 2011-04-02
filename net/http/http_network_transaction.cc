@@ -206,6 +206,7 @@ void HttpNetworkTransaction::SetTLSLoginAuthData(AuthData* auth_data) {
   DCHECK(!auth_data->username.empty());
   DCHECK(!auth_data->password.empty());
 
+  tls_auth_data_ = auth_data;
   ssl_config_.tls_username = UTF16ToUTF8(auth_data->username);
   ssl_config_.tls_password = UTF16ToUTF8(auth_data->password);
   ssl_config_.use_tls_auth = true;
@@ -225,6 +226,12 @@ int HttpNetworkTransaction::RestartWithTLSLogin(CompletionCallback* callback) {
   DCHECK(ssl_config_.use_tls_auth);
   DCHECK(ssl_config_.tls1_enabled);
   DCHECK(!ssl_config_.ssl3_enabled);
+
+  DCHECK(response_.login_request_info.get());
+  DCHECK(tls_auth_data_.get());
+  session_->tls_client_login_cache()->Add(
+      WideToUTF8(response_.login_request_info->host_and_port),
+      tls_auth_data_);
 
   // Reset the other member variables.
   // Note: this is necessary only with SSL renegotiation.
@@ -592,11 +599,22 @@ int HttpNetworkTransaction::DoLoop(int result) {
 int HttpNetworkTransaction::DoCreateStream() {
   DCHECK(request_);
   if (request_->url.SchemeIs("httpsv") && ssl_config_.tls_username.empty()) {
-    response_.login_request_info = new AuthChallengeInfo;
-    response_.login_request_info->host_and_port =
-        UTF8ToWide(net::GetHostAndPort(request_->url));
-    response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
-    return ERR_TLS_CLIENT_LOGIN_NEEDED;
+    scoped_refptr<AuthData> tls_auth_data;
+    bool found_login = session_->tls_client_login_cache()->Lookup(
+        net::GetHostAndPort(request_->url),
+        &tls_auth_data);
+    if (found_login) {
+      LOG(INFO) << "Got TLS login from cache";
+      SetTLSLoginAuthData(tls_auth_data);
+      DCHECK(!ssl_config_.tls_username.empty());
+      DCHECK(!ssl_config_.tls_password.empty());
+    } else {
+      response_.login_request_info = new AuthChallengeInfo;
+      response_.login_request_info->host_and_port =
+          UTF8ToWide(net::GetHostAndPort(request_->url));
+      response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
+      return ERR_TLS_CLIENT_LOGIN_NEEDED;
+    }
   }
 
   next_state_ = STATE_CREATE_STREAM_COMPLETE;
@@ -1101,6 +1119,9 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
       // TODO(sqs): remove this log msg
       LOG(WARNING) << "TLS handshake error: using TLS auth && bad record MAC -> login failed";
       error = ERR_TLS_CLIENT_LOGIN_FAILED;
+
+      // TODO(sqs): remove from TLS login cache?
+      
       DCHECK(!response_.login_request_info.get());
       response_.login_request_info = new AuthChallengeInfo;
       response_.login_request_info->host_and_port =

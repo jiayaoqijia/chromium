@@ -12,6 +12,7 @@
 #include "net/base/host_port_pair.h"
 #include "net/base/host_resolver.h"
 #include "net/base/ssl_client_auth_cache.h"
+#include "net/base/tls_client_login_cache.h"
 #include "net/http/http_alternate_protocols.h"
 #include "net/http/http_auth_cache.h"
 #include "net/http/http_stream_factory.h"
@@ -74,6 +75,9 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession>,
   HttpAuthCache* auth_cache() { return &auth_cache_; }
   SSLClientAuthCache* ssl_client_auth_cache() {
     return &ssl_client_auth_cache_;
+  }
+  TLSClientLoginCache* tls_client_login_cache() {
+    return &tls_client_login_cache_;
   }
 
   void AddResponseDrainer(HttpResponseBodyDrainer* drainer);
@@ -159,6 +163,7 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession>,
 
   HttpAuthCache auth_cache_;
   SSLClientAuthCache ssl_client_auth_cache_;
+  TLSClientLoginCache tls_client_login_cache_;
   HttpAlternateProtocols alternate_protocols_;
   CertVerifier* cert_verifier_;
   // Not const since it's modified by HttpNetworkSessionPeer for testing.

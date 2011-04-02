@@ -233,7 +233,7 @@ class HttpNetworkTransaction : public HttpTransaction,
   bool logged_response_time_;
 
   SSLConfig ssl_config_;
-  AuthData* auth_data_;
+  scoped_refptr<AuthData> tls_auth_data_;
 
   HttpRequestHeaders request_headers_;
 
