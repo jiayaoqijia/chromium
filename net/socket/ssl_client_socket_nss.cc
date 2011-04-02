@@ -466,6 +466,8 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocketHandle* transport_socket,
       ssl_connection_status_(0),
       client_auth_cert_needed_(false),
       cert_verifier_(cert_verifier),
+      tls_username_(NULL),
+      tls_password_(NULL),
       handshake_callback_called_(false),
       completed_handshake_(false),
       pseudo_connected_(false),
@@ -677,6 +679,11 @@ void SSLClientSocketNSS::Disconnect() {
   local_server_cert_verify_result_.Reset();
   server_cert_verify_result_ = NULL;
   ssl_connection_status_ = 0;
+  // TODO(sqs): free these
+  // if (tls_username_)
+  //   PR_Free(tls_username_);
+  // if (tls_password_)
+  //   PR_Free(tls_password_);
   completed_handshake_   = false;
   pseudo_connected_      = false;
   eset_mitm_detected_    = false;
@@ -1054,10 +1061,20 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
       return ERR_UNEXPECTED;
     }
 
-    rv = SSL_SetUserLogin(
-        nss_fd_,
-        const_cast<char *>(ssl_config_.tls_username.c_str()), 
-        const_cast<char *>(ssl_config_.tls_password.c_str()));
+    tls_username_ = (char *)PR_Malloc(ssl_config_.tls_username.size() + 1);
+    tls_password_ = (char *)PR_Malloc(ssl_config_.tls_password.size() + 1);
+    if (!tls_username_ || !tls_password_) {
+      LOG(ERROR) << "Error in PR_Malloc for tls_username and/or tls_password";
+      return ERR_UNEXPECTED;
+    }
+    memcpy(tls_username_, ssl_config_.tls_username.c_str(),
+           ssl_config_.tls_username.size() + 1);
+    memcpy(tls_password_, ssl_config_.tls_password.c_str(),
+           ssl_config_.tls_password.size() + 1);
+
+    // TODO(sqs): free tls_username_ and tls_password_
+
+    rv = SSL_SetUserLogin(nss_fd_, tls_username_, tls_password_);
     if (rv != SECSuccess) {
       LogFailedNSSFunction(net_log_, "SSL_SetUserLogin", "");
       return ERR_UNEXPECTED;
