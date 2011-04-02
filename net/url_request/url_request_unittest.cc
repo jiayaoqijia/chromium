@@ -489,7 +489,7 @@ TEST_F(HTTPSRequestTest, ClientAuthTest) {
   }
 }
 
-TEST_F(HTTPSRequestTest, HTTPSClientSRPLoginTest) {
+TEST_F(HTTPSRequestTest, HTTPSSRPLoginTest) {
   bool only_tls_srp = false;
   for (int i = 0; i < 2; i++, only_tls_srp = !only_tls_srp) {
     net::TestServer::HTTPSOptions https_options;
