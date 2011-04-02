@@ -13,6 +13,7 @@
 
 namespace net {
 
+class AuthChallengeInfo;
 class BoundNetLog;
 class HostPortPair;
 class HttpAlternateProtocols;
