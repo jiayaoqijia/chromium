@@ -46,13 +46,16 @@ class NSSSSLInitSingleton {
 #define pSSL_ImplementedCiphers SSL_ImplementedCiphers
 #endif
 
-    // Explicitly enable exactly those ciphers with keys of at least 80 bits
+    // Explicitly enable exactly those ciphers with keys of at least 80 bits,
+    // except for SRP ciphers.
     for (int i = 0; i < SSL_NumImplementedCiphers; i++) {
       SSLCipherSuiteInfo info;
       if (SSL_GetCipherSuiteInfo(pSSL_ImplementedCiphers[i], &info,
                                  sizeof(info)) == SECSuccess) {
+        bool is_srp_cipher = (strcmp("SRP", info.keaTypeName) == 0);
         SSL_CipherPrefSetDefault(pSSL_ImplementedCiphers[i],
-                                 (info.effectiveKeyBits >= 80));
+                                 (info.effectiveKeyBits >= 80 &&
+                                  !is_srp_cipher));
       }
     }
 
