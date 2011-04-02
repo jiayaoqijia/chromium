@@ -1074,6 +1074,18 @@ void ResourceDispatcherHost::OnSSLCertificateError(
   SSLManager::OnSSLCertificateError(this, request, cert_error, cert);
 }
 
+void ResourceDispatcherHost::OnTLSLoginRequired(
+    net::URLRequest* request,
+    net::AuthChallengeInfo* auth_info) {
+  DCHECK(request);
+
+  LOG(INFO) << "OnTLSLoginRequired";
+  ResourceDispatcherHostRequestInfo* info = InfoForRequest(request);
+  DCHECK(!info->login_handler()) <<
+      "OnTLSLoginRequired called with login_handler pending";
+  info->set_login_handler(CreateLoginPrompt(auth_info, request));
+}
+
 void ResourceDispatcherHost::OnGetCookies(
     net::URLRequest* request,
     bool blocked_by_policy) {
@@ -1158,6 +1170,8 @@ bool ResourceDispatcherHost::CompleteResponseStarted(net::URLRequest* request) {
             cert_id, request->ssl_info().cert_status,
             request->ssl_info().security_bits,
             request->ssl_info().connection_status);
+  } else if (!request->ssl_info().tls_username.empty()) {
+    // TODO(sqs): add some ssl sec info
   } else {
     // We should not have any SSL state.
     DCHECK(!request->ssl_info().cert_status &&
@@ -1497,6 +1511,9 @@ void ResourceDispatcherHost::OnResponseCompleted(net::URLRequest* request) {
     security_info = SSLManager::SerializeSecurityInfo(
         cert_id, ssl_info.cert_status, ssl_info.security_bits,
         ssl_info.connection_status);
+  } else if (!ssl_info.tls_username.empty()) {
+    // TODO(sqs): make some security info
+    LOG(INFO) << "**** Should show sec info";
   }
 
   if (info->resource_handler()->OnResponseCompleted(info->request_id(),

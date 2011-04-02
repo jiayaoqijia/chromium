@@ -350,7 +350,15 @@ void LoginHandler::SetAuthDeferred(const std::wstring& username,
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (request_) {
-    request_->SetAuth(WideToUTF16Hack(username), WideToUTF16Hack(password));
+    if (auth_info_->scheme == ASCIIToWide("TLS-SRP")) {
+      // TODO(sqs): ensure that this only happens if we are indeed using TLS-SRP
+      LOG(INFO) << "SetAuthDeferred SetTLSLogin(" << username << ", " << password << ")";
+      request_->SetTLSLogin(WideToUTF16Hack(username),
+                            WideToUTF16Hack(password));
+      request_->ContinueWithTLSLogin();
+    } else {
+      request_->SetAuth(WideToUTF16Hack(username), WideToUTF16Hack(password));
+    }
     ResetLoginHandlerForRequest(request_);
   }
 }
@@ -435,6 +443,8 @@ class LoginDialogTask : public Task {
       dialog_form.scheme = PasswordForm::SCHEME_BASIC;
     } else if (LowerCaseEqualsASCII(auth_info_->scheme, "digest")) {
       dialog_form.scheme = PasswordForm::SCHEME_DIGEST;
+    } else if (LowerCaseEqualsASCII(auth_info_->scheme, "tls-srp")) {
+      dialog_form.scheme = PasswordForm::SCHEME_TLS_SRP;
     } else {
       dialog_form.scheme = PasswordForm::SCHEME_OTHER;
     }

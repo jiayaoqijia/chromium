@@ -44,6 +44,7 @@ struct PasswordForm {
     SCHEME_HTML,
     SCHEME_BASIC,
     SCHEME_DIGEST,
+    SCHEME_TLS_SRP,
     SCHEME_OTHER
   } scheme;
 
