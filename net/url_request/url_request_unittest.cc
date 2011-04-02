@@ -511,7 +511,7 @@ TEST_F(HTTPSRequestTest, ClientSRPLoginTest) {
   }
 }
 
-TEST_F(HTTPSRequestTest, HTTPVSClientSRPLoginTest) {//TODO(sqs): make HTTPSVRequestTest
+TEST_F(HTTPSRequestTest, HTTPSVClientSRPLoginTest) {//TODO(sqs): make HTTPSVRequestTest
   net::TestServer::HTTPSOptions https_options;
   https_options.use_tls_srp = true;
   https_options.only_tls_srp = true;//TODO(sqs): try removing this "only" option
