@@ -25,6 +25,7 @@
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_log.h"
+#include "net/base/net_util.h"
 #include "net/base/ssl_cert_request_info.h"
 #include "net/base/ssl_config_service.h"
 #include "net/disk_cache/disk_cache.h"
@@ -677,7 +678,7 @@ int HttpCache::Transaction::DoSendRequest() {
        tls_login_auth_data_->state != AUTH_STATE_HAVE_AUTH)) {
     response_.login_request_info = new AuthChallengeInfo;
     response_.login_request_info->host_and_port =
-        UTF8ToWide(request_->url.host() + request_->url.port());
+        UTF8ToWide(net::GetHostAndPort(request_->url));
     response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
     return ERR_TLS_CLIENT_LOGIN_NEEDED;
   }

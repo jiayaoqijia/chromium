@@ -594,7 +594,7 @@ int HttpNetworkTransaction::DoCreateStream() {
   if (request_->url.SchemeIs("httpsv") && ssl_config_.tls_username.empty()) {
     response_.login_request_info = new AuthChallengeInfo;
     response_.login_request_info->host_and_port =
-        UTF8ToWide(request_->url.host() + request_->url.port());
+        UTF8ToWide(net::GetHostAndPort(request_->url));
     response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
     return ERR_TLS_CLIENT_LOGIN_NEEDED;
   }
