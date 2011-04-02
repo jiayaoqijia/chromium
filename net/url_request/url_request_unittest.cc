@@ -58,7 +58,9 @@ namespace {
 
 const string16 kChrome(ASCIIToUTF16("chrome"));
 const string16 kSecret(ASCIIToUTF16("secret"));
+const string16 kWrongSecret(ASCIIToUTF16("wrongsecret"));
 const string16 kUser(ASCIIToUTF16("user"));
+const string16 kWrongUser(ASCIIToUTF16("wronguser"));
 
 base::StringPiece TestNetResourceProvider(int key) {
   return "header";
@@ -519,20 +521,18 @@ TEST_F(HTTPSRequestTest, HTTPSVClientSRPLoginTest) {//TODO(sqs): make HTTPSVRequ
                               FilePath());
   ASSERT_TRUE(test_server.Start());
 
+  GURL https_url = test_server.GetURL("tlslogininfo");
+  GURL::Replacements replacements;
+  replacements.SetSchemeStr("httpsv");
+  GURL httpsv_url = https_url.ReplaceComponents(replacements);
+
   HTTPSVClientSRPLoginTestDelegate d;
   {
-    GURL https_url = test_server.GetURL("tlslogininfo");
-    GURL::Replacements replacements;
-    replacements.SetSchemeStr("httpsv");
-    GURL httpsv_url = https_url.ReplaceComponents(replacements);
-
     TestURLRequest r(httpsv_url, &d);
-
     r.Start();
     EXPECT_TRUE(r.is_pending());
 
     MessageLoop::current()->Run();
-
     EXPECT_EQ(0, d.bytes_received());
     EXPECT_FALSE(d.received_data_before_response());
     EXPECT_EQ(1, d.on_tls_login_required_count());
@@ -544,16 +544,33 @@ TEST_F(HTTPSRequestTest, HTTPSVClientSRPLoginTest) {//TODO(sqs): make HTTPSVRequ
 
     r.SetTLSLogin(kUser, kSecret);
     r.ContinueWithTLSLogin();
-    MessageLoop::current()->Run();
 
+    MessageLoop::current()->Run();
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
+  }
+
+  {
+    TestURLRequest r(httpsv_url, &d);
+    // Try wrong password.
+    r.SetTLSLogin(kUser, kWrongSecret);
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
     EXPECT_NE(0, d.bytes_received());
     EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
     EXPECT_FALSE(d.received_data_before_response());
 
-    // EXPECT_EQ(kUser, r.ssl_info().tls_username);
-    // int cipher_suite = net::SSLConnectionStatusToCipherSuite(
-    //     r.ssl_info().connection_status);
-    // EXPECT_EQ(TLS_SRP_SHA_WITH_AES_128_CBC_SHA, cipher_suite);
+    // Now continue with the correct password.
+    r.SetTLSLogin(kUser, kSecret);
+    r.ContinueWithTLSLogin();
+
+    MessageLoop::current()->Run();
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
   }
 }
 

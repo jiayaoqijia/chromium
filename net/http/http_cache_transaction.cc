@@ -673,16 +673,6 @@ int HttpCache::Transaction::DoSendRequest() {
   DCHECK(mode_ & WRITE || mode_ == NONE);
   DCHECK(!network_trans_.get());
 
-  if (request_->url.SchemeIs("httpsv") &&
-      (!tls_login_auth_data_ ||
-       tls_login_auth_data_->state != AUTH_STATE_HAVE_AUTH)) {
-    response_.login_request_info = new AuthChallengeInfo;
-    response_.login_request_info->host_and_port =
-        UTF8ToWide(net::GetHostAndPort(request_->url));
-    response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
-    return ERR_TLS_CLIENT_LOGIN_NEEDED;
-  }
-
   // Create a network transaction.
   int rv = cache_->network_layer_->CreateTransaction(&network_trans_);
   if (rv != OK)
@@ -718,6 +708,11 @@ int HttpCache::Transaction::DoSendRequestComplete(int result) {
     const HttpResponseInfo* response = network_trans_->GetResponseInfo();
     DCHECK(response);
     response_.cert_request_info = response->cert_request_info;
+  } else if (result == ERR_TLS_CLIENT_LOGIN_NEEDED ||
+             result == ERR_TLS_CLIENT_LOGIN_FAILED) {
+    const HttpResponseInfo* response = network_trans_->GetResponseInfo();
+    DCHECK(response);
+    response_.login_request_info = response->login_request_info;
   }
   return result;
 }

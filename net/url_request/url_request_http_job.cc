@@ -573,7 +573,8 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
   } else if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
     request_->delegate()->OnCertificateRequested(
         request_, transaction_->GetResponseInfo()->cert_request_info);
-  } else if (result == ERR_TLS_CLIENT_LOGIN_NEEDED) {
+  } else if (result == ERR_TLS_CLIENT_LOGIN_NEEDED ||
+             result == ERR_TLS_CLIENT_LOGIN_FAILED) {
     DCHECK(transaction_->GetResponseInfo());
     request_->delegate()->OnTLSLoginRequired(
         request_, transaction_->GetResponseInfo()->login_request_info);

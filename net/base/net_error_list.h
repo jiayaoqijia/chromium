@@ -232,6 +232,9 @@ NET_ERROR(SSL_CLIENT_AUTH_SIGNATURE_FAILED, -141)
 // The server requested TLS client authentication using a username and password.
 NET_ERROR(TLS_CLIENT_LOGIN_NEEDED, -142)
 
+// The server indicated that the client's TLS login failed.
+NET_ERROR(TLS_CLIENT_LOGIN_FAILED, -143)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.

@@ -1094,6 +1094,22 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
         GetHostAndPort(request_->url));
   }
 
+  if (ssl_config_.use_tls_auth) {
+    DCHECK(!ssl_config_.tls_username.empty());
+    DCHECK(!ssl_config_.tls_password.empty());
+    if (error == ERR_SSL_BAD_RECORD_MAC_ALERT) {
+      // TODO(sqs): remove this log msg
+      LOG(WARNING) << "TLS handshake error: using TLS auth && bad record MAC -> login failed";
+      error = ERR_TLS_CLIENT_LOGIN_FAILED;
+      DCHECK(!response_.login_request_info.get());
+      response_.login_request_info = new AuthChallengeInfo;
+      response_.login_request_info->host_and_port =
+          UTF8ToWide(GetHostAndPort(request_->url));
+      response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
+      return error;
+    }
+  }
+
   switch (error) {
     case ERR_SSL_PROTOCOL_ERROR:
     case ERR_SSL_VERSION_OR_CIPHER_MISMATCH:
