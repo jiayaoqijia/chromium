@@ -193,6 +193,9 @@ class ResourceDispatcherHost : public net::URLRequest::Delegate {
   virtual void OnSSLCertificateError(net::URLRequest* request,
                                      int cert_error,
                                      net::X509Certificate* cert);
+  virtual void OnTLSLoginRequired(
+      net::URLRequest* request,
+      net::AuthChallengeInfo* auth_info);
   virtual void OnGetCookies(net::URLRequest* request,
                             bool blocked_by_policy);
   virtual void OnSetCookie(net::URLRequest* request,
