@@ -1323,7 +1323,7 @@ class TLSConnection(TLSRecordLayer):
                 entry = verifierDB[self.allegedSrpUsername]
             except KeyError:
                 for result in self._sendError(\
-                        AlertDescription.unknown_srp_username):
+                        AlertDescription.unknown_psk_identity):
                     yield result
             (N, g, s, v) = entry
 
