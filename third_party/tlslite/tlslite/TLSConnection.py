@@ -514,7 +514,7 @@ class TLSConnection(TLSRecordLayer):
         for result in self._sendMsg(clientHello):
             yield result
 
-        #Get ServerHello (or missing_srp_username)
+        #Get ServerHello (or unknown_psk_identity)
         for result in self._getMsg((ContentType.handshake,
                                   ContentType.alert),
                                   HandshakeType.server_hello):
@@ -530,7 +530,7 @@ class TLSConnection(TLSRecordLayer):
             alert = msg
 
             #If it's not a missing_srp_username, re-raise
-            if alert.description != AlertDescription.missing_srp_username:
+            if alert.description != AlertDescription.unknown_psk_identity:
                 self._shutdown(False)
                 raise TLSRemoteAlert(alert)
 
@@ -1259,7 +1259,7 @@ class TLSConnection(TLSRecordLayer):
 
                 #Ask the client to re-send ClientHello with one
                 for result in self._sendMsg(Alert().create(\
-                        AlertDescription.missing_srp_username,
+                        AlertDescription.unknown_psk_identity,
                         AlertLevel.warning)):
                     yield result
 

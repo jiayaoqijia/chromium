@@ -202,8 +202,17 @@ static const SSLCipherSuiteInfo suiteInfo[] = {
 {0,CS(SSL_RSA_WITH_NULL_SHA),                 S_RSA, K_RSA, C_NULL,B_0,   M_SHA, 0, 1, 0, },
 {0,CS(SSL_RSA_WITH_NULL_MD5),                 S_RSA, K_RSA, C_NULL,B_0,   M_MD5, 0, 1, 0, },
 
+/* SRP cipher suites */
+/* TODO(sqs): the ones with RSA/DSS should probably indicate that here */
+{0,CS(TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA),     S_KEA, K_SRP, C_3DES,B_3DES,M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA), S_KEA, K_SRP, C_3DES,B_3DES,M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA), S_KEA, K_SRP, C_3DES,B_3DES,M_SHA, 0, 0, 0, },
 {0,CS(TLS_SRP_SHA_WITH_AES_128_CBC_SHA),      S_KEA, K_SRP, C_AES, B_128, M_SHA, 0, 0, 0, },
-// TODO(sqs) TODO(nss): is this correct? and add values for the rest of the SRP cipher suite
+{0,CS(TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA),  S_KEA, K_SRP, C_AES, B_128, M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA),  S_KEA, K_SRP, C_AES, B_128, M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_WITH_AES_256_CBC_SHA),      S_KEA, K_SRP, C_AES, B_256, M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA),  S_KEA, K_SRP, C_AES, B_256, M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA),  S_KEA, K_SRP, C_AES, B_256, M_SHA, 0, 0, 0, },
 
 #ifdef NSS_ENABLE_ECC
 /* ECC cipher suites */

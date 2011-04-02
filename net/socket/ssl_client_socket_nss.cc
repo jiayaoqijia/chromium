@@ -930,14 +930,6 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
     return ERR_UNEXPECTED;
   }
 
-  for (std::vector<uint16>::const_iterator it =
-           ssl_config_.disabled_cipher_suites.begin();
-       it != ssl_config_.disabled_cipher_suites.end(); ++it) {
-    // This will fail if the specified cipher is not implemented by NSS, but
-    // the failure is harmless.
-    SSL_CipherPrefSet(nss_fd_, *it, PR_FALSE);
-  }
-
 #ifdef SSL_ENABLE_SESSION_TICKETS
   // Support RFC 5077
   rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SESSION_TICKETS, PR_TRUE);
@@ -1056,14 +1048,6 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
     LOG(WARNING) << "Using TLS-SRP: " <<
         ssl_config_.tls_username << " / " << ssl_config_.tls_password;
 
-    // TODO(sqs): add other SRP cipher suites
-    uint16 srpCipher1 = TLS_SRP_SHA_WITH_AES_128_CBC_SHA;
-    rv = SSL_CipherPrefSet(nss_fd_, srpCipher1, PR_TRUE);
-    if (rv != SECSuccess) {
-      LogFailedNSSFunction(net_log_, "SSL_CipherPrefSet", "");
-      return ERR_UNEXPECTED;
-    }
-
     tls_username_ = (char *)PR_Malloc(ssl_config_.tls_username.size() + 1);
     tls_password_ = (char *)PR_Malloc(ssl_config_.tls_password.size() + 1);
     if (!tls_username_ || !tls_password_) {
@@ -1082,27 +1066,21 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
       LogFailedNSSFunction(net_log_, "SSL_SetUserLogin", "");
       return ERR_UNEXPECTED;
     }
-  } else {
-    // Disable all SRP ciphers.
-    SSL_CipherPrefSet(nss_fd_, TLS_SRP_SHA_WITH_AES_128_CBC_SHA, PR_FALSE);
-    // TODO(sqs): update this when the list of SRP ciphers is updated
+
+    // Enable SRP ciphers, and disable non-SRP ciphers if we *require* TLS auth.
+    rv = SetCiphersForTLSAuth(ssl_config_.require_tls_auth);
+    if (rv != OK)
+      return rv;
   }
 
-  if (ssl_config_.require_tls_auth) {
-    // Disable non-SRP cipher suites.
-    const PRUint16 *cipherSuites = SSL_GetImplementedCiphers();
-    int numCiphers = SSL_GetNumImplementedCiphers();
-    for (int i = 0; i < numCiphers; i++) {
-	PRUint16 suite = cipherSuites[i];
-        if (suite != TLS_SRP_SHA_WITH_AES_128_CBC_SHA) {
-          rv = SSL_CipherPrefSet(nss_fd_, suite, PR_FALSE);
-          if (rv != SECSuccess) {
-            LogFailedNSSFunction(net_log_, "SSL_CipherPrefSet", "");
-          }
-        }
-    }
+  for (std::vector<uint16>::const_iterator it =
+           ssl_config_.disabled_cipher_suites.begin();
+       it != ssl_config_.disabled_cipher_suites.end(); ++it) {
+    // This will fail if the specified cipher is not implemented by NSS, but
+    // the failure is harmless.
+    SSL_CipherPrefSet(nss_fd_, *it, PR_FALSE);
   }
-
+  
   rv = SSL_HandshakeCallback(nss_fd_, HandshakeCallback, this);
   if (rv != SECSuccess) {
     LogFailedNSSFunction(net_log_, "SSL_HandshakeCallback", "");
@@ -1115,6 +1093,32 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
   // Tell SSL we're a client; needed if not letting NSPR do socket I/O
   SSL_ResetHandshake(nss_fd_, 0);
 
+  return OK;
+}
+
+int SSLClientSocketNSS::SetCiphersForTLSAuth(bool disable_non_srp_ciphers) {
+  int rv;
+  const PRUint16 *cipherSuites = SSL_GetImplementedCiphers();
+  int numCiphers = SSL_GetNumImplementedCiphers();
+  SSLCipherSuiteInfo info;
+  for (int i = 0; i < numCiphers; i++) {
+    PRUint16 suite = cipherSuites[i];
+    rv = SSL_GetCipherSuiteInfo(suite, &info, sizeof(info));
+    if (rv != SECSuccess) {
+      LogFailedNSSFunction(net_log_, "SSL_GetCipherSuiteInfo", "");
+      return ERR_UNEXPECTED;
+    }
+    bool is_srp_cipher = (strcmp("SRP", info.keaTypeName) == 0);
+    if (is_srp_cipher) {
+      rv = SSL_CipherPrefSet(nss_fd_, suite, PR_TRUE);
+    } else if (disable_non_srp_ciphers) {
+      rv = SSL_CipherPrefSet(nss_fd_, suite, PR_FALSE);
+    }
+    if (rv != SECSuccess) {
+      LogFailedNSSFunction(net_log_, "SSL_CipherPrefSet", "");
+      return ERR_UNEXPECTED;
+    }
+  }
   return OK;
 }
 

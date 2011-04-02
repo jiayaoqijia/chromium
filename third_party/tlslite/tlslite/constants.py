@@ -92,7 +92,6 @@ class AlertDescription:
     user_canceled = 90
     no_renegotiation = 100
     unknown_psk_identity = 115
-    missing_srp_username = 121 # TODO(sqs): probably outdated wrt RFC 5054
     untrusted_srp_parameters = 122 # TODO(sqs): probably outdated wrt RFC 5054
 
 class CipherSuite:
