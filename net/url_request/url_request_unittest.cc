@@ -636,6 +636,35 @@ TEST_F(HTTPSRequestTest, HTTPSVBadUsernameTest) {
   }
 }
 
+TEST_F(HTTPSRequestTest, HTTPSVCancelLoginTest) {
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = true;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
+
+  GURL https_url = test_server.GetURL("");
+
+  {
+    HTTPSVClientSRPLoginTestDelegate d;
+      
+    TestURLRequest r(https_url, &d);
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_EQ(1, d.on_tls_login_required_count());
+    EXPECT_FALSE(d.received_data_before_response());
+
+    r.Cancel();
+
+    MessageLoop::current()->Run();
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+  }
+}
+
 TEST_F(URLRequestTestHTTP, CancelTest) {
   TestDelegate d;
   {
