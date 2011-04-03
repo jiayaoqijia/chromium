@@ -222,9 +222,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
   CertVerifier* const cert_verifier_;
   scoped_ptr<SingleRequestCertVerifier> verifier_;
 
-  // Stores TLS login credentials.
-  char *tls_username_;
-  char *tls_password_;
 
   // True if NSS has called HandshakeCallback.
   bool handshake_callback_called_;
