@@ -9,6 +9,7 @@
 #define NET_SOCKET_NSS_SSL_UTIL_H_
 
 #include <prerror.h>
+#include <sslt.h>
 
 namespace net {
 
@@ -30,6 +31,9 @@ int MapNSSError(PRErrorCode err);
 
 // Map NSS error code from the first SSL handshake to network error code.
 int MapNSSHandshakeError(PRErrorCode err);
+
+// Returns whether an NSS cipher's key exchange algorithm (KEA) uses SRP.
+bool IsNSSCipherKEATypeSRP(SSLKEAType kea_type);
 
 }  // namespace net
 

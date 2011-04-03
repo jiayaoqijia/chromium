@@ -52,10 +52,9 @@ class NSSSSLInitSingleton {
       SSLCipherSuiteInfo info;
       if (SSL_GetCipherSuiteInfo(pSSL_ImplementedCiphers[i], &info,
                                  sizeof(info)) == SECSuccess) {
-        bool is_srp_cipher = (strcmp("SRP", info.keaTypeName) == 0);
         SSL_CipherPrefSetDefault(pSSL_ImplementedCiphers[i],
                                  (info.effectiveKeyBits >= 80 &&
-                                  !is_srp_cipher));
+                                  !IsNSSCipherKEATypeSRP(info.keaType)));
       }
     }
 
@@ -248,6 +247,15 @@ void LogFailedNSSFunction(const BoundNetLog& net_log,
   net_log.AddEvent(
       NetLog::TYPE_SSL_NSS_ERROR,
       make_scoped_refptr(new SSLFailedNSSFunctionParams(function, param)));
+}
+
+// Returns true iff |kea_type|, an NSS cipher's key exchange algorithm (KEA),
+// uses SRP, including ciphers that also use certificates (e.g., SRP_SHA_RSA
+// and SRP_SHA_DSS).
+bool IsNSSCipherKEATypeSRP(SSLKEAType kea_type) {
+  return kea_type == ssl_kea_srp ||
+      kea_type == ssl_kea_srp_rsa ||
+      kea_type == ssl_kea_srp_dss;
 }
 
 }  // namespace net
