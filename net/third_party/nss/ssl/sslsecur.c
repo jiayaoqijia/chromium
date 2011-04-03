@@ -902,6 +902,14 @@ ssl_CopySecurityInfo(sslSocket *ss, sslSocket *os)
     if (os->sec.rcvSecret.data && !ss->sec.rcvSecret.data)
     	goto loser;
 
+    SECITEM_CopyItem(0, ss->sec.userName,   os->sec.userName);
+    if (os->sec.userName->data && !ss->sec.userName->data)
+        goto loser;
+    SECITEM_CopyItem(0, ss->sec.userPasswd, os->sec.userPasswd);
+    if (os->sec.userPasswd->data && !ss->sec.userPasswd->data)
+        goto loser;
+  
+    
     /* XXX following code is wrong if either cx != 0 */
     PORT_Assert(os->sec.readcx  == 0);
     PORT_Assert(os->sec.writecx == 0);
