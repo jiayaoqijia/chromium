@@ -110,6 +110,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
 #endif
   X509Certificate* UpdateServerCert();
   void UpdateConnectionStatus();
+  void UpdateAuth();
   void DoReadCallback(int result);
   void DoWriteCallback(int result);
   void DoConnectCallback(int result);
@@ -222,6 +223,10 @@ class SSLClientSocketNSS : public SSLClientSocket {
   CertVerifier* const cert_verifier_;
   scoped_ptr<SingleRequestCertVerifier> verifier_;
 
+  // The mutually authenticated TLS username for the connection. This is only
+  // set after the handshake has succeeded with this username.
+  // If none, this is the empty string.
+  std::string authenticated_tls_username_;
 
   // True if NSS has called HandshakeCallback.
   bool handshake_callback_called_;
@@ -236,6 +241,10 @@ class SSLClientSocketNSS : public SSLClientSocket {
   // True iff we believe that the user has an ESET product intercepting our
   // HTTPS connections.
   bool eset_mitm_detected_;
+
+  // False iff we are using an SRP cipher suite that doesn't use server certs.
+  // Default is true.
+  bool server_cert_needed_;
 
   // True iff |ssl_host_info_| contained a predicted certificate chain and
   // that we found the prediction to be correct.

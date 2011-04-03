@@ -470,6 +470,7 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocketHandle* transport_socket,
       completed_handshake_(false),
       pseudo_connected_(false),
       eset_mitm_detected_(false),
+      server_cert_needed_(true),
       predicted_cert_chain_correct_(false),
       peername_initialized_(false),
       dnssec_provider_(NULL),
@@ -1155,6 +1156,43 @@ X509Certificate *SSLClientSocketNSS::UpdateServerCert() {
   return server_cert_;
 }
 
+// Sets tls_username_ and server_cert_needed_.
+void SSLClientSocketNSS::UpdateAuth() {
+  if (ssl_config_.use_tls_auth) {
+    // Get the username that we actually authenticated with.
+    SECItem user;
+    SECStatus rv = SSL_GetChannelUsername(nss_fd_, &user);
+    if (rv != SECSuccess) {
+      LogFailedNSSFunction(net_log_, "SSL_GetChannelUsername", "");
+    } else {
+      authenticated_tls_username_.assign(const_cast<char *>((char *)user.data),
+                                         (size_t)user.len);
+      SECITEM_FreeItem(&user, PR_FALSE);
+    }
+    DCHECK(authenticated_tls_username_ == ssl_config_.tls_username);
+
+    // See whether this SRP cipher suite uses certs.
+    SSLChannelInfo channel_info;
+    SSLCipherSuiteInfo info;
+    rv = SSL_GetChannelInfo(nss_fd_, &channel_info, sizeof(channel_info));
+    if (rv != SECSuccess) {
+      LogFailedNSSFunction(net_log_, "SSL_GetChannelInfo", "");
+      return;
+    }
+    if (!channel_info.cipherSuite) {
+      LOG(WARNING) << "Couldn't get SSL channel cipher suite";
+      return;
+    }
+    rv = SSL_GetCipherSuiteInfo(channel_info.cipherSuite, &info, sizeof(info));
+    if (rv != SECSuccess) {
+      LogFailedNSSFunction(net_log_, "SSL_GetCipherSuiteInfo", "");
+      return;
+    }
+    bool cipher_is_srp_no_certs = (info.keaType == ssl_kea_srp);
+    server_cert_needed_ = !cipher_is_srp_no_certs;
+  }
+}
+
 // Sets ssl_connection_status_.
 void SSLClientSocketNSS::UpdateConnectionStatus() {
   SSLChannelInfo channel_info;
@@ -1699,8 +1737,9 @@ int SSLClientSocketNSS::DoVerifyDNSSECComplete(int result) {
 }
 
 int SSLClientSocketNSS::DoVerifyCert(int result) {
-  /* TODO(sqs): cleanest way to bypass cert verification? */
-  if (ssl_config_.use_tls_auth) {
+  if (!server_cert_needed_) {
+    DCHECK(ssl_config_.use_tls_auth);
+    DCHECK(!ssl_config_.tls_username.empty());
     GotoState(STATE_VERIFY_CERT_COMPLETE);
     return OK;
   }
@@ -2565,6 +2604,7 @@ void SSLClientSocketNSS::HandshakeCallback(PRFileDesc* socket,
   that->handshake_callback_called_ = true;
 
   that->UpdateServerCert();
+  that->UpdateAuth();
   that->UpdateConnectionStatus();
 }
 
