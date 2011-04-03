@@ -1090,8 +1090,7 @@ int SSLClientSocketNSS::SetCiphersForTLSAuth(bool disable_non_srp_ciphers) {
       LogFailedNSSFunction(net_log_, "SSL_GetCipherSuiteInfo", "");
       return ERR_UNEXPECTED;
     }
-    bool is_srp_cipher = (strcmp("SRP", info.keaTypeName) == 0);
-    if (is_srp_cipher) {
+    if (IsNSSCipherKEATypeSRP(info.keaType)) {
       rv = SSL_CipherPrefSet(nss_fd_, suite, PR_TRUE);
     } else if (disable_non_srp_ciphers) {
       rv = SSL_CipherPrefSet(nss_fd_, suite, PR_FALSE);
