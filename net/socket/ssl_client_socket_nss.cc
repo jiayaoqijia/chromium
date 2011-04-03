@@ -1911,22 +1911,21 @@ int SSLClientSocketNSS::DoPayloadWrite() {
 }
 
 void SSLClientSocketNSS::LogConnectionTypeMetrics() const {
-  // If we're using no server cert (e.g., TLS-SRP)
-  // TODO(sqs): log some metrics here anyway, about SRP
-  if (!server_cert_verify_result_)
-    return;
-
   UpdateConnectionTypeHistograms(CONNECTION_SSL);
-  if (server_cert_verify_result_->has_md5)
-    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5);
-  if (server_cert_verify_result_->has_md2)
-    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2);
-  if (server_cert_verify_result_->has_md4)
-    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD4);
-  if (server_cert_verify_result_->has_md5_ca)
-    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5_CA);
-  if (server_cert_verify_result_->has_md2_ca)
-    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2_CA);
+  
+  if (server_cert_verify_result_) {
+    if (server_cert_verify_result_->has_md5)
+      UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5);
+    if (server_cert_verify_result_->has_md2)
+      UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2);
+    if (server_cert_verify_result_->has_md4)
+      UpdateConnectionTypeHistograms(CONNECTION_SSL_MD4);
+    if (server_cert_verify_result_->has_md5_ca)
+      UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5_CA);
+    if (server_cert_verify_result_->has_md2_ca)
+      UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2_CA);
+  }
+  
   int ssl_version = SSLConnectionStatusToVersion(ssl_connection_status_);
   switch (ssl_version) {
     case SSL_CONNECTION_VERSION_SSL2:
@@ -1945,6 +1944,9 @@ void SSLClientSocketNSS::LogConnectionTypeMetrics() const {
       UpdateConnectionTypeHistograms(CONNECTION_SSL_TLS1_2);
       break;
   };
+
+  if (!authenticated_tls_username_.empty())
+    UpdateConnectionTypeHistograms(CONNECTION_TLS_PASSWORD_AUTH);
 }
 
 // SaveSnapStartInfo extracts the information needed to perform a Snap Start
