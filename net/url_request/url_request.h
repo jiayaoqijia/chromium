@@ -170,7 +170,7 @@ class URLRequest : public base::NonThreadSafe {
     virtual void OnAuthRequired(URLRequest* request,
                                 net::AuthChallengeInfo* auth_info);
 
-    // TODO(sqs): document
+    // Called when we need to provide TLS client login credentials.
     virtual void OnTLSLoginRequired(URLRequest* request,
                                     net::AuthChallengeInfo* login_request_info);
 
