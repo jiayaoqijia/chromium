@@ -34,6 +34,7 @@
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
 #include "net/base/ssl_connection_status_flags.h"
+#include "net/base/cert_status_flags.h"
 #include "net/base/upload_data.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/ftp/ftp_network_layer.h"
@@ -551,6 +552,82 @@ TEST_F(HTTPSRequestTest, HTTPSVLoginTest) {
       EXPECT_NE(0, d.bytes_received());
       EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
       EXPECT_FALSE(d.received_data_before_response());
+    }
+  }
+}
+
+TEST_F(HTTPSRequestTest, HTTPSVSRPLoginWithCertTest) {
+  net::TestServer::HTTPSOptions https_options(
+      net::TestServer::HTTPSOptions::CERT_OK);
+  https_options.use_tls_srp = true;
+  net::TestServer test_server(https_options,
+                              FilePath(FILE_PATH_LITERAL("net/data/ssl")));
+  ASSERT_TRUE(test_server.Start());
+
+  GURL https_url = test_server.GetURL("tlslogininfo");
+  GURL::Replacements replacements;
+  replacements.SetSchemeStr("httpsv");
+  GURL httpsv_url = https_url.ReplaceComponents(replacements);
+  
+  TestDelegate d;
+  {
+    TestURLRequest r(httpsv_url, &d);
+    r.SetTLSLogin(kUser, kSecret);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_NE(0, d.bytes_received());
+    CheckSSLInfo(r.ssl_info());
+    EXPECT_FALSE(net::IsCertStatusError(r.ssl_info().cert_status));
+    EXPECT_TRUE(r.ssl_info().cert.get());
+    EXPECT_EQ(kUser, r.ssl_info().tls_username);
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+  }
+}
+
+// Check that we still validate certs on SRP cipher suites that use certs.
+TEST_F(HTTPSRequestTest, HTTPSVSRPBadCertFailureTest) {
+  bool cert_err_allowed = false;
+  for (int i = 0; i < 2; i++, cert_err_allowed = !cert_err_allowed) {
+    net::TestServer::HTTPSOptions https_options(
+        net::TestServer::HTTPSOptions::CERT_EXPIRED);
+    https_options.use_tls_srp = true;
+    net::TestServer test_server(https_options,
+                                FilePath(FILE_PATH_LITERAL("net/data/ssl")));
+    ASSERT_TRUE(test_server.Start());
+
+    GURL https_url = test_server.GetURL("tlslogininfo");
+    GURL::Replacements replacements;
+    replacements.SetSchemeStr("httpsv");
+    GURL httpsv_url = https_url.ReplaceComponents(replacements);
+
+    TestDelegate d;
+    {
+      d.set_allow_certificate_errors(cert_err_allowed);
+      TestURLRequest r(httpsv_url, &d);
+      r.SetTLSLogin(kUser, kSecret);
+
+      r.Start();
+      EXPECT_TRUE(r.is_pending());
+      MessageLoop::current()->Run();
+
+      EXPECT_EQ(1, d.response_started_count());
+      EXPECT_FALSE(d.received_data_before_response());
+      EXPECT_TRUE(d.have_certificate_errors());
+
+      if (cert_err_allowed) {
+        EXPECT_NE(0, d.bytes_received());
+        CheckSSLInfo(r.ssl_info());
+        LOG(INFO) << d.data_received();
+        EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+      } else {
+        EXPECT_EQ(0, d.bytes_received());
+      }
     }
   }
 }
