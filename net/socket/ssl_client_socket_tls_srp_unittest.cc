@@ -192,7 +192,8 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
   // does a ping-pong test to check the the SSL socket is working correctly.
   void PerformConnection(std::string username = "", 
                          std::string password = "",
-                         bool fail = false) {
+                         bool fail = false,
+                         int expected_net_error = OK) {
     client_ = socket(AF_INET, SOCK_STREAM, 0);
     ASSERT_LE(0, client_);
     ASSERT_EQ(
@@ -232,10 +233,7 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
       ASSERT_EQ(ERR_IO_PENDING, rv);
       EXPECT_FALSE(sock->IsConnected());
       rv = callback.WaitForResult();
-      if (fail)
-        EXPECT_NE(OK, rv);
-      else
-        EXPECT_EQ(OK, rv);
+      EXPECT_EQ(expected_net_error, rv); // default expected_net_error is OK
       return;
     }
     EXPECT_TRUE(sock->IsConnected());
@@ -281,12 +279,12 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
   int expected_exit_code_;
 };
 
-// TODO(sqs): this will fail - add an assert that it fails w/"no shared ciphers"
-// TEST_F(SSLClientSocketTLSSRPTest, NoCredentials) {
-//   StartTLSSRPServer(NULL);
-//   // Not a TLS-SRP connection.
-//   PerformConnection();
-// }
+TEST_F(SSLClientSocketTLSSRPTest, NoCredentials) {
+  StartTLSSRPServer(NULL);
+  // Not a TLS-SRP connection.
+  PerformConnection("", "", true, ERR_SSL_VERSION_OR_CIPHER_MISMATCH);
+  expected_exit_code_ = 1;
+}
 
 TEST_F(SSLClientSocketTLSSRPTest, GoodCredentials) {
   StartTLSSRPServer(NULL);
@@ -298,15 +296,19 @@ TEST_F(SSLClientSocketTLSSRPTest, GoodCredentials2) {
   PerformConnection("alice", "1234");
 }
 
+// TODO(sqs): The current openssl_helper terminates the connection upon seeing
+// a username it doesn't know. It should instead either (1) make up (s,v) and
+// play along, or (2) send unknown_psk_identity. When it's fixed, the net error
+// below will need to change.
 TEST_F(SSLClientSocketTLSSRPTest, BadCredentials) {
   StartTLSSRPServer(NULL);
-  PerformConnection("baduser", "badpw", true);
+  PerformConnection("baduser", "badpw", true, ERR_SSL_PROTOCOL_ERROR);
   expected_exit_code_ = 1;
 }
 
 TEST_F(SSLClientSocketTLSSRPTest, GoodUsernameBadPassword) {
   StartTLSSRPServer(NULL);
-  PerformConnection("jsmith", "badpw", true);
+  PerformConnection("jsmith", "badpw", true, ERR_SSL_BAD_RECORD_MAC_ALERT);
   expected_exit_code_ = 1;
 }
 
