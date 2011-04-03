@@ -269,7 +269,6 @@ int MockNetworkTransaction::RestartWithCertificate(
 }
 
 void MockNetworkTransaction::SetTLSLoginAuthData(net::AuthData* auth_data) {
-  //TODO(sqs): should put stuff here?
 }
 
 int MockNetworkTransaction::RestartWithTLSLogin(net::CompletionCallback* callback) {

@@ -223,7 +223,7 @@ void URLRequestHttpJob::StartTransaction() {
     if (rv == OK) {
       if (tls_login_auth_data_->state == AUTH_STATE_HAVE_AUTH) {
         transaction_->SetTLSLoginAuthData(tls_login_auth_data_);
-      }//TODO(sqs): duplicated in ContinueWithTLSLogin
+      }
 
       rv = transaction_->Start(
           &request_info_, &start_callback_, request_->net_log());

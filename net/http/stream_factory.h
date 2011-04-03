@@ -71,7 +71,7 @@ class StreamRequest {
     // this callback.
     virtual void OnNeedsClientAuth(SSLCertRequestInfo* cert_info) = 0;
 
-    // TODO(sqs): doc
+    // Called when we need to provide TLS client login credentials.
     virtual void OnNeedsTLSLogin(AuthChallengeInfo* login_info) = 0;
     
     // This is the failure of the CONNECT request through an HTTPS proxy.

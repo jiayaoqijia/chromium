@@ -317,7 +317,8 @@ TEST_F(SSLClientSocketTest, ConnectUsingCertWithSRPEnabled) {
       entries, 5, net::NetLog::TYPE_SSL_CONNECT));
   if (rv == net::ERR_IO_PENDING)
     rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv); // TODO(sqs): check that we did in fact use the cert
+  EXPECT_EQ(net::OK, rv);
+  
   EXPECT_TRUE(sock->IsConnected());
   log.GetEntries(&entries);
   EXPECT_TRUE(LogContainsSSLConnectEndEvent(entries, -1));
