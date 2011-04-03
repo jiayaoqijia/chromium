@@ -368,8 +368,13 @@ void LoginHandler::CancelAuthDeferred() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (request_) {
-    request_->CancelAuth();
-    // Verify that CancelAuth doesn't destroy the request via our delegate.
+    if (auth_info_->scheme == ASCIIToWide("TLS-SRP")) {
+      request_->CancelTLSLogin();
+    } else {
+      request_->CancelAuth();
+    }
+    // Verify that CancelAuth/CancelTLSLogin doesn't destroy the request via
+    // our delegate.
     DCHECK(request_ != NULL);
     ResetLoginHandlerForRequest(request_);
   }
