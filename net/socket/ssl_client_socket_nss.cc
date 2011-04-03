@@ -1040,7 +1040,6 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
     return ERR_UNEXPECTED;
   }
 
-  // TODO(sqs): add #ifdef guards
   if (ssl_config_.use_tls_auth) {
     DCHECK(!ssl_config_.tls_username.empty());
     DCHECK(!ssl_config_.tls_password.empty());
