@@ -991,6 +991,15 @@ ssl_DestroySecurityInfo(sslSecurityInfo *sec)
 {
     ssl_ResetSecurityInfo(sec, PR_FALSE);
 
+    if (sec->userName) {
+      SECITEM_FreeItem(sec->userName, PR_TRUE);
+      sec->userName = NULL;
+    }
+    if (sec->userPasswd) {
+      SECITEM_FreeItem(sec->userPasswd, PR_TRUE);
+      sec->userPasswd = NULL;
+    }
+
     PORT_ZFree(sec->writeBuf.buf, sec->writeBuf.space);
     sec->writeBuf.buf = 0;
 
