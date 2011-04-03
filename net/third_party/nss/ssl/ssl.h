@@ -441,7 +441,9 @@ SSL_IMPORT SECStatus SSL_SetPKCS11PinArg(PRFileDesc *fd, void *a);
 /*
  * Set the client side user name and password non-interactively.
  */
-SSL_IMPORT SECStatus SSL_SetUserLogin(PRFileDesc *fd, char *u, char *p);
+SSL_IMPORT SECStatus SSL_SetUserLogin(PRFileDesc *fd,
+                                      const char *u,
+                                      const char *p);
 
 /*
  * This sets the client side callback for SSL to retrieve the user password.
