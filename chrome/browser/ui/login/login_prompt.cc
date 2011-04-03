@@ -352,7 +352,6 @@ void LoginHandler::SetAuthDeferred(const std::wstring& username,
   if (request_) {
     if (auth_info_->scheme == ASCIIToWide("TLS-SRP")) {
       // TODO(sqs): ensure that this only happens if we are indeed using TLS-SRP
-      LOG(INFO) << "SetAuthDeferred SetTLSLogin(" << username << ", " << password << ")";
       request_->SetTLSLogin(WideToUTF16Hack(username),
                             WideToUTF16Hack(password));
       request_->ContinueWithTLSLogin();
