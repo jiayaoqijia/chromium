@@ -644,11 +644,14 @@ TEST_F(HTTPSRequestTest, HTTPSVCancelLoginTest) {
   ASSERT_TRUE(test_server.Start());
 
   GURL https_url = test_server.GetURL("");
+  GURL::Replacements replacements;
+  replacements.SetSchemeStr("httpsv");
+  GURL httpsv_url = https_url.ReplaceComponents(replacements);
 
   {
     HTTPSVClientSRPLoginTestDelegate d;
       
-    TestURLRequest r(https_url, &d);
+    TestURLRequest r(httpsv_url, &d);
     r.Start();
     EXPECT_TRUE(r.is_pending());
     MessageLoop::current()->Run();
@@ -657,7 +660,7 @@ TEST_F(HTTPSRequestTest, HTTPSVCancelLoginTest) {
     EXPECT_EQ(1, d.on_tls_login_required_count());
     EXPECT_FALSE(d.received_data_before_response());
 
-    r.Cancel();
+    r.CancelTLSLogin();
 
     MessageLoop::current()->Run();
     EXPECT_EQ(0, d.bytes_received());

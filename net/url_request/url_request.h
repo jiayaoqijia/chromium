@@ -533,6 +533,9 @@ class URLRequest : public base::NonThreadSafe {
   // certificate.  Pass NULL if the user doesn't have a client certificate.
   void ContinueWithCertificate(net::X509Certificate* client_cert);
 
+  // One of the following two methods should be called in response to an
+  // OnTLSLoginRequired() callback.
+  void CancelTLSLogin();
   void SetTLSLogin(const string16& username,
                                const string16& password);
   AuthData* GetTLSLoginAuthData();

@@ -866,6 +866,17 @@ void URLRequestHttpJob::CancelAuth() {
           &URLRequestHttpJob::OnStartCompleted, OK));
 }
 
+void URLRequestHttpJob::CancelTLSLogin() {
+  // These will be reset in OnStartCompleted.
+  response_info_ = NULL;
+
+  MessageLoop::current()->PostTask(
+      FROM_HERE,
+      method_factory_.NewRunnableMethod(
+          &URLRequestHttpJob::OnStartCompleted,
+          ERR_ABORTED));
+}
+
 void URLRequestHttpJob::ContinueWithCertificate(
     X509Certificate* client_cert) {
   DCHECK(transaction_.get());

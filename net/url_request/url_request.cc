@@ -522,6 +522,12 @@ AuthData* URLRequest::GetTLSLoginAuthData() {
   return tls_login_auth_data_.get();
 }
 
+void URLRequest::CancelTLSLogin() {
+  DCHECK(job_);
+
+  job_->CancelTLSLogin();
+}
+
 void URLRequest::ContinueWithTLSLogin() {
   DCHECK(job_);
   DCHECK(tls_login_auth_data_->state == AUTH_STATE_HAVE_AUTH);

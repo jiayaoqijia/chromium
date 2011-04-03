@@ -171,6 +171,7 @@ class URLRequestJob : public base::RefCounted<URLRequestJob>,
   virtual void ContinueWithCertificate(net::X509Certificate* client_cert);
 
   virtual void ContinueWithTLSLogin();
+  virtual void CancelTLSLogin();
 
   // Continue processing the request ignoring the last error.
   virtual void ContinueDespiteLastError();

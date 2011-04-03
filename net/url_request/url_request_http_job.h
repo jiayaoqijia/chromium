@@ -81,6 +81,7 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual void SetAuth(const string16& username,
                        const string16& password);
   virtual void CancelAuth();
+  virtual void CancelTLSLogin();
   virtual void ContinueWithCertificate(X509Certificate* client_cert);
   virtual void ContinueWithTLSLogin();
   virtual void ContinueDespiteLastError();
