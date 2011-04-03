@@ -740,6 +740,7 @@ SSL_IMPORT SSL3Statistics * SSL_GetStatistics(void);
 /* Report more information than SSL_SecurityStatus.
 ** Caller supplies the info struct.  Function fills it in.
 */
+SSL_IMPORT SECStatus SSL_GetChannelUsername(PRFileDesc *fd, SECItem *user);
 SSL_IMPORT SECStatus SSL_GetChannelInfo(PRFileDesc *fd, SSLChannelInfo *info,
                                         PRUintn len);
 SSL_IMPORT SECStatus SSL_GetCipherSuiteInfo(PRUint16 cipherSuite, 

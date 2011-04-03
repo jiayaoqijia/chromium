@@ -54,6 +54,27 @@ ssl_GetCompressionMethodName(SSLCompressionMethod compression)
     }
 }
 
+SECStatus
+SSL_GetChannelUsername(PRFileDesc *fd, SECItem *user)
+{
+    SECItem   * username;
+    sslSocket * ss;
+
+    ss = ssl_FindSocket(fd);
+    if (!ss) {
+	SSL_DBG(("%d: SSL[%d]: bad socket in SSL_GetChannelUsername",
+		 SSL_GETPID(), fd));
+	return SECFailure;
+    }
+
+    if (ss->sec.userName == NULL) {
+        PORT_SetError(SEC_ERROR_INVALID_ARGS);
+        return SECFailure;
+    }
+
+    return SECITEM_CopyItem(NULL, user, ss->sec.userName);
+}
+
 SECStatus 
 SSL_GetChannelInfo(PRFileDesc *fd, SSLChannelInfo *info, PRUintn len)
 {
