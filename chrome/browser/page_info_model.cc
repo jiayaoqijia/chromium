@@ -135,8 +135,9 @@ PageInfoModel::PageInfoModel(Profile* profile,
       description.assign(l10n_util::GetStringFUTF16(
           IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY, issuer_name));
     }
-  } else if (ssl.tls_username().empty()) {
+  } else {
     // HTTP or HTTPS with errors (not warnings).
+    // TODO(sqs): handle this properly with TLS-SRP
     description.assign(l10n_util::GetStringUTF16(
         IDS_PAGE_INFO_SECURITY_TAB_INSECURE_IDENTITY));
     icon_id = ssl.security_style() == SECURITY_STYLE_UNAUTHENTICATED ?
