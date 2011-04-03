@@ -212,7 +212,7 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
     TCPClientSocket* transport = new TCPClientSocket(
         addr_list, &log_, NetLog::Source());
 
-    if (username.size() > 0) {
+    if (!username.empty()) {
       ssl_config_.use_tls_auth = true;
       ssl_config_.tls_username = username;
       ssl_config_.tls_password = password;
