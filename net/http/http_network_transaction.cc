@@ -1120,7 +1120,7 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
         error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
       error = ERR_TLS_CLIENT_LOGIN_FAILED;
 
-      // TODO(sqs): remove from TLS login cache?
+      session_->tls_client_login_cache()->Remove(GetHostAndPort(request_->url));
       
       DCHECK(!response_.login_request_info.get());
       response_.login_request_info = new AuthChallengeInfo;
