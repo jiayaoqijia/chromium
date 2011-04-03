@@ -79,8 +79,7 @@ class HttpResponseInfo {
   scoped_refptr<SSLCertRequestInfo> cert_request_info;
 
   // The SSL client login request info.
-  // TODO(sqs): same question as the TODO for cert_request_info: does this
-  // belongs in HttpResponseInfo?
+  // TODO(wtc): if cert_request_info doesn't belong here, then neither does this
   scoped_refptr<AuthChallengeInfo> login_request_info;
 
   // The SSL connection info (if HTTPS).

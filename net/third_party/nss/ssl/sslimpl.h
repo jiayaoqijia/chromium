@@ -317,10 +317,9 @@ typedef struct {
 } ssl3CipherSuiteCfg;
 
 #ifdef NSS_ENABLE_ECC
-#define ssl_V3_SUITES_IMPLEMENTED 60
+#define ssl_V3_SUITES_IMPLEMENTED 59
 #else
-#define ssl_V3_SUITES_IMPLEMENTED 60
-/* TODO(sqs): where do these #s come from? I think sslsock.c, where we added 9 more SRP suites. before tls-srp patch, these were 59 and 39. */
+#define ssl_V3_SUITES_IMPLEMENTED 39
 #endif /* NSS_ENABLE_ECC */
 
 typedef struct sslOptionsStr {

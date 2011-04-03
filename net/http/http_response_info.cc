@@ -58,8 +58,6 @@ enum {
 
   // TODO(darin): Add other bits to indicate alternate request methods.
   // For now, we don't support storing those.
-
-  // TODO(sqs): add stuff here for TLS-SRP?
 };
 
 HttpResponseInfo::HttpResponseInfo()

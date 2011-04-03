@@ -678,7 +678,6 @@ int HttpCache::Transaction::DoSendRequest() {
   if (rv != OK)
     return rv;
 
-  // TODO(sqs): better place to put this?
   if (tls_login_auth_data_ &&
       tls_login_auth_data_->state == AUTH_STATE_HAVE_AUTH) {
     network_trans_->SetTLSLoginAuthData(tls_login_auth_data_);

@@ -215,8 +215,6 @@ void HttpNetworkTransaction::SetTLSLoginAuthData(AuthData* auth_data) {
 }
 
 int HttpNetworkTransaction::RestartWithTLSLogin(CompletionCallback* callback) {
-  // TODO(sqs): not sure if these 3 DCHECKS are correct to have - just copied
-  // them from the cert code above
   DCHECK(!stream_request_.get());
   DCHECK(!stream_.get());
   DCHECK_EQ(STATE_NONE, next_state_);
@@ -1120,8 +1118,6 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
     DCHECK(!ssl_config_.tls_password.empty());
     if (error == ERR_SSL_BAD_RECORD_MAC_ALERT ||
         error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
-      // TODO(sqs): remove this log msg
-      LOG(WARNING) << "TLS handshake error: using TLS auth && (bad_record_mac || unknown_psk_identity) -> login failed";
       error = ERR_TLS_CLIENT_LOGIN_FAILED;
 
       // TODO(sqs): remove from TLS login cache?
