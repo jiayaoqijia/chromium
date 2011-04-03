@@ -141,7 +141,9 @@ SSL_GetChannelInfo(PRFileDesc *fd, SSLChannelInfo *info, PRUintn len)
 #define K_KEA	"KEA", kt_kea
 #define K_ECDH	"ECDH", kt_ecdh
 #define K_ECDHE	"ECDHE", kt_ecdh
-#define K_SRP   "SRP", kt_srp
+#define K_SRP   "SRP", ssl_kea_srp
+#define K_SRP_RSA "SRP_RSA", ssl_kea_srp_rsa
+#define K_SRP_DSS "SRP_DSS", ssl_kea_srp_dss
 
 #define C_SEED 	"SEED", calg_seed
 #define C_CAMELLIA	"CAMELLIA", calg_camellia
@@ -203,16 +205,15 @@ static const SSLCipherSuiteInfo suiteInfo[] = {
 {0,CS(SSL_RSA_WITH_NULL_MD5),                 S_RSA, K_RSA, C_NULL,B_0,   M_MD5, 0, 1, 0, },
 
 /* SRP cipher suites */
-/* TODO(sqs): the ones with RSA/DSS should probably indicate that here */
 {0,CS(TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA),     S_KEA, K_SRP, C_3DES,B_3DES,M_SHA, 0, 0, 0, },
-{0,CS(TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA), S_KEA, K_SRP, C_3DES,B_3DES,M_SHA, 0, 0, 0, },
-{0,CS(TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA), S_KEA, K_SRP, C_3DES,B_3DES,M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA), S_KEA, K_SRP_RSA, C_3DES,B_3DES,M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA), S_KEA, K_SRP_DSS, C_3DES,B_3DES,M_SHA, 0, 0, 0, },
 {0,CS(TLS_SRP_SHA_WITH_AES_128_CBC_SHA),      S_KEA, K_SRP, C_AES, B_128, M_SHA, 0, 0, 0, },
-{0,CS(TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA),  S_KEA, K_SRP, C_AES, B_128, M_SHA, 0, 0, 0, },
-{0,CS(TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA),  S_KEA, K_SRP, C_AES, B_128, M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA),  S_KEA, K_SRP_RSA, C_AES, B_128, M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA),  S_KEA, K_SRP_DSS, C_AES, B_128, M_SHA, 0, 0, 0, },
 {0,CS(TLS_SRP_SHA_WITH_AES_256_CBC_SHA),      S_KEA, K_SRP, C_AES, B_256, M_SHA, 0, 0, 0, },
-{0,CS(TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA),  S_KEA, K_SRP, C_AES, B_256, M_SHA, 0, 0, 0, },
-{0,CS(TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA),  S_KEA, K_SRP, C_AES, B_256, M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA),  S_KEA, K_SRP_RSA, C_AES, B_256, M_SHA, 0, 0, 0, },
+{0,CS(TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA),  S_KEA, K_SRP_DSS, C_AES, B_256, M_SHA, 0, 0, 0, },
 
 #ifdef NSS_ENABLE_ECC
 /* ECC cipher suites */
