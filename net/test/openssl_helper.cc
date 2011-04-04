@@ -68,7 +68,7 @@ static int ssl_srp_server_param_cb(SSL *s, int *ad, void *arg) {
   p->login = BUF_strdup(SSL_get_srp_username(s));
   fprintf(stderr,"SRP username = \"%s\"\n",p->login);
 
-  user = SRP_VBASE_get_by_user(p->vb, p->login);	
+  user = SRP_VBASE_get_by_user(p->vb, p->login);
   if (user == NULL) {
     fprintf(stderr, "User %s doesn't exist\n", p->login);
     return SSL3_AL_FATAL;

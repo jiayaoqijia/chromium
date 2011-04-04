@@ -645,7 +645,7 @@ class TestPageHandler(BasePageHandler):
     self.send_response(200)
     self.send_header('Content-type', 'text/html')
     self.end_headers()
-    
+
     srp_user = socket_server.tlsConnection.session.srpUsername
     if srp_user:
       self.wfile.write('username: ' + srp_user)
