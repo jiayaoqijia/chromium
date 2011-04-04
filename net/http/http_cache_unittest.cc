@@ -9,6 +9,7 @@
 #include "base/scoped_vector.h"
 #include "base/string_util.h"
 #include "base/stringprintf.h"
+#include "base/utf_string_conversions.h"
 #include "net/base/cache_type.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/load_flags.h"
@@ -814,7 +815,8 @@ const MockTransaction kFastNoStoreGET_Transaction = {
   "<html><body>Google Blah Blah</body></html>",
   TEST_MODE_SYNC_NET_START,
   &FastTransactionServer::FastNoStoreHandler,
-  0
+  0,
+  string16()
 };
 
 // This class provides a handler for kRangeGET_TransactionOK so that the range
@@ -949,7 +951,8 @@ const MockTransaction kRangeGET_TransactionOK = {
   "rg: 40-49 ",
   TEST_MODE_NORMAL,
   &RangeTransactionServer::RangeHandler,
-  0
+  0,
+  string16()
 };
 
 // Verifies the response headers (|response|) match a partial content
@@ -4611,6 +4614,22 @@ TEST(HttpCache, SimpleGET_SSLError) {
   if (rv == net::ERR_IO_PENDING)
     rv = callback.WaitForResult();
   ASSERT_EQ(net::ERR_CACHE_MISS, rv);
+}
+
+// Ensure we cache the TLS username in SSLInfo.
+TEST(HttpCache, CachesTLSUsername) {
+  MockHttpCache cache;
+
+  MockTransaction transaction = kSimpleGET_Transaction;
+  transaction.tls_username = ASCIIToUTF16("user");
+  ScopedMockTransaction scoped_transaction(transaction);
+
+  // write to the cache
+  RunTransactionTest(cache.http_cache(), transaction);
+
+  net::HttpResponseInfo response;
+  RunTransactionTestWithResponseInfo(cache.http_cache(), transaction, &response);
+  EXPECT_EQ(ASCIIToUTF16("user"), response.ssl_info.tls_username);
 }
 
 // Ensure that we don't crash by if left-behind transactions.

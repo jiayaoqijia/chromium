@@ -56,6 +56,9 @@ enum {
   // will ingore the alternate protocol if spdy is not enabled.
   RESPONSE_INFO_WAS_ALTERNATE_PROTOCOL_AVAILABLE = 1 << 16,
 
+  // This bit is set if the response info has a TLS username.
+  RESPONSE_INFO_HAS_TLS_USERNAME = 1 << 17,
+
   // TODO(darin): Add other bits to indicate alternate request methods.
   // For now, we don't support storing those.
 };
@@ -141,6 +144,12 @@ bool HttpResponseInfo::InitFromPickle(const Pickle& pickle,
     ssl_info.cert =
         X509Certificate::CreateFromPickle(pickle, &iter);
   }
+  if (flags & RESPONSE_INFO_HAS_TLS_USERNAME) {
+    string16 tls_username;
+    if (!pickle.ReadString16(&iter, &tls_username))
+      return false;
+    ssl_info.tls_username = tls_username;
+  }
   if (flags & RESPONSE_INFO_HAS_CERT_STATUS) {
     int cert_status;
     if (!pickle.ReadInt(&iter, &cert_status))
@@ -179,7 +188,10 @@ void HttpResponseInfo::Persist(Pickle* pickle,
                                bool response_truncated) const {
   int flags = RESPONSE_INFO_VERSION;
   if (ssl_info.is_valid()) {
-    flags |= RESPONSE_INFO_HAS_CERT;
+    if (ssl_info.cert.get())
+      flags |= RESPONSE_INFO_HAS_CERT;
+    if (!ssl_info.tls_username.empty())
+      flags |= RESPONSE_INFO_HAS_TLS_USERNAME;
     flags |= RESPONSE_INFO_HAS_CERT_STATUS;
     if (ssl_info.security_bits != -1)
       flags |= RESPONSE_INFO_HAS_SECURITY_BITS;
@@ -217,7 +229,10 @@ void HttpResponseInfo::Persist(Pickle* pickle,
   headers->Persist(pickle, persist_options);
 
   if (ssl_info.is_valid()) {
-    ssl_info.cert->Persist(pickle);
+    if (flags & RESPONSE_INFO_HAS_CERT)
+      ssl_info.cert->Persist(pickle);
+    if (flags & RESPONSE_INFO_HAS_TLS_USERNAME)
+      pickle->WriteString16(ssl_info.tls_username);
     pickle->WriteInt(ssl_info.cert_status);
     if (ssl_info.security_bits != -1)
       pickle->WriteInt(ssl_info.security_bits);

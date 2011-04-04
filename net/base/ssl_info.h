@@ -24,7 +24,7 @@ class SSLInfo {
 
   void Reset();
 
-  bool is_valid() const { return cert != NULL; }
+  bool is_valid() const { return cert != NULL || !tls_username.empty(); }
 
   // Adds the specified |error| to the cert status.
   void SetCertError(int error);

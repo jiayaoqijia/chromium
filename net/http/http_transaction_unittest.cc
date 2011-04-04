@@ -37,7 +37,8 @@ const MockTransaction kSimpleGET_Transaction = {
   "<html><body>Google Blah Blah</body></html>",
   TEST_MODE_NORMAL,
   NULL,
-  0
+  0,
+  string16()
 };
 
 const MockTransaction kSimplePOST_Transaction = {
@@ -52,7 +53,8 @@ const MockTransaction kSimplePOST_Transaction = {
   "<html><body>Google Blah Blah</body></html>",
   TEST_MODE_NORMAL,
   NULL,
-  0
+  0,
+  string16()
 };
 
 const MockTransaction kTypicalGET_Transaction = {
@@ -68,7 +70,8 @@ const MockTransaction kTypicalGET_Transaction = {
   "<html><body>Google Blah Blah</body></html>",
   TEST_MODE_NORMAL,
   NULL,
-  0
+  0,
+  string16()
 };
 
 const MockTransaction kETagGET_Transaction = {
@@ -84,7 +87,8 @@ const MockTransaction kETagGET_Transaction = {
   "<html><body>Google Blah Blah</body></html>",
   TEST_MODE_NORMAL,
   NULL,
-  0
+  0,
+  string16()
 };
 
 const MockTransaction kRangeGET_Transaction = {
@@ -99,7 +103,8 @@ const MockTransaction kRangeGET_Transaction = {
   "<html><body>Google Blah Blah</body></html>",
   TEST_MODE_NORMAL,
   NULL,
-  0
+  0,
+  string16()
 };
 
 static const MockTransaction* const kBuiltinMockTransactions[] = {
@@ -247,6 +252,7 @@ int MockNetworkTransaction::Start(const net::HttpRequestInfo* request,
 
   response_.headers = new net::HttpResponseHeaders(header_data);
   response_.ssl_info.cert_status = t->cert_status;
+  response_.ssl_info.tls_username = t->tls_username;
   data_ = resp_data;
   test_mode_ = t->test_mode;
 

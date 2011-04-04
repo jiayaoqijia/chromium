@@ -374,6 +374,7 @@ int HttpNetworkTransaction::Read(IOBuffer* buf, int buf_len,
 
 const HttpResponseInfo* HttpNetworkTransaction::GetResponseInfo() const {
   return ((headers_valid_ && response_.headers) || response_.ssl_info.cert ||
+          !response_.ssl_info.tls_username.empty() ||
           response_.cert_request_info || response_.login_request_info) ?
       &response_ : NULL;
 }

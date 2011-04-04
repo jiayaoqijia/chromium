@@ -64,6 +64,7 @@ struct MockTransaction {
   int test_mode;
   MockTransactionHandler handler;
   int cert_status;
+  string16 tls_username;
 };
 
 extern const MockTransaction kSimpleGET_Transaction;
