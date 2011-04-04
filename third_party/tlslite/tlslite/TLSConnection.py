@@ -529,20 +529,17 @@ class TLSConnection(TLSRecordLayer):
         elif isinstance(msg, Alert):
             alert = msg
 
-            #If it's not a missing_srp_username, re-raise
+            #If it's not a unknown_psk_identity, re-raise
             if alert.description != AlertDescription.unknown_psk_identity:
                 self._shutdown(False)
                 raise TLSRemoteAlert(alert)
 
-            #If we're not in SRP callback mode, we won't have offered SRP
-            #without a username, so we shouldn't get this alert
-            if not srpCallback:
-                for result in self._sendError(\
-                                AlertDescription.unexpected_message):
-                    yield result
-            srpParams = srpCallback()
-            #If the callback returns None, cancel the handshake
-            if srpParams == None:
+            #Our SRP credentials were wrong, so try getting new ones.
+            if srpCallback:
+                srpParams = srpCallback()
+
+            #If we can't get different credentials, cancel the handshake
+            if srpParams == None or not srpCallback:
                 for result in self._sendError(AlertDescription.user_canceled):
                     yield result
 

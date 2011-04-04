@@ -207,7 +207,8 @@ class Fault:
 
     faultAlerts = {\
         badUsername: (AlertDescription.unknown_psk_identity, \
-                      AlertDescription.bad_record_mac),\
+                      AlertDescription.bad_record_mac, \
+                      AlertDescription.user_canceled),\
         badPassword: (AlertDescription.bad_record_mac,),\
         badA: (AlertDescription.illegal_parameter,),\
         badIdentifier: (AlertDescription.handshake_failure,),\
