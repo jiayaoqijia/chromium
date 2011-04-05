@@ -1,0 +1,193 @@
+Only in chromium: patches
+diff --git tlslite-0.3.8/scripts/tls.py chromium/tlslite/scripts/tls.py
+index fa2c663..e7a473d 100644
+--- tlslite-0.3.8/scripts/tls.py
++++ chromium/tlslite/scripts/tls.py
+@@ -91,7 +91,7 @@ def clientTest(address, dir):
+             badFault = True
+         connection.sock.close()
+ 
+-    print "Test 5 - good SRP: unknown_srp_username idiom"
++    print "Test 5 - good SRP: unknown_psk_identity idiom"
+     def srpCallback():
+         return ("test", "password")
+     connection = connect()
+@@ -465,7 +465,7 @@ def serverTest(address, dir):
+             pass
+         connection.sock.close()
+ 
+-    print "Test 5 - good SRP: unknown_srp_username idiom"
++    print "Test 5 - good SRP: unknown_psk_identity idiom"
+     connection = connect()
+     connection.handshakeServer(verifierDB=verifierDB)
+     connection.close()
+@@ -893,7 +893,7 @@ try:
+                 raise
+             sys.exit()
+         except TLSRemoteAlert, a:
+-            if a.description == AlertDescription.unknown_srp_username:
++            if a.description == AlertDescription.unknown_psk_identity:
+                 if cmd == "clientsrp":
+                     print "Unknown username"
+                 else:
+@@ -1027,7 +1027,7 @@ try:
+                         connection.write(s)
+                         s = ""
+             except TLSLocalAlert, a:
+-                if a.description == AlertDescription.unknown_srp_username:
++                if a.description == AlertDescription.unknown_psk_identity:
+                     print "Unknown SRP username"
+                 elif a.description == AlertDescription.bad_record_mac:
+                     if cmd == "serversrp" or cmd == "serversrpcert":
+diff --git tlslite-0.3.8/tlslite/TLSConnection.py chromium/tlslite//TLSConnection.py
+index 7e38a23..1616c7c 100644
+--- tlslite-0.3.8/tlslite/TLSConnection.py
++++ chromium/tlslite//TLSConnection.py
+@@ -514,7 +514,7 @@ class TLSConnection(TLSRecordLayer):
+         for result in self._sendMsg(clientHello):
+             yield result
+ 
+-        #Get ServerHello (or missing_srp_username)
++        #Get ServerHello (or unknown_psk_identity)
+         for result in self._getMsg((ContentType.handshake,
+                                   ContentType.alert),
+                                   HandshakeType.server_hello):
+@@ -529,20 +529,17 @@ class TLSConnection(TLSRecordLayer):
+         elif isinstance(msg, Alert):
+             alert = msg
+ 
+-            #If it's not a missing_srp_username, re-raise
+-            if alert.description != AlertDescription.missing_srp_username:
++            #If it's not a unknown_psk_identity, re-raise
++            if alert.description != AlertDescription.unknown_psk_identity:
+                 self._shutdown(False)
+                 raise TLSRemoteAlert(alert)
+ 
+-            #If we're not in SRP callback mode, we won't have offered SRP
+-            #without a username, so we shouldn't get this alert
+-            if not srpCallback:
+-                for result in self._sendError(\
+-                                AlertDescription.unexpected_message):
+-                    yield result
+-            srpParams = srpCallback()
+-            #If the callback returns None, cancel the handshake
+-            if srpParams == None:
++            #Our SRP credentials were wrong, so try getting new ones.
++            if srpCallback:
++                srpParams = srpCallback()
++
++            #If we can't get different credentials, cancel the handshake
++            if srpParams == None or not srpCallback:
+                 for result in self._sendError(AlertDescription.user_canceled):
+                     yield result
+ 
+@@ -1259,7 +1256,7 @@ class TLSConnection(TLSRecordLayer):
+ 
+                 #Ask the client to re-send ClientHello with one
+                 for result in self._sendMsg(Alert().create(\
+-                        AlertDescription.missing_srp_username,
++                        AlertDescription.unknown_psk_identity,
+                         AlertLevel.warning)):
+                     yield result
+ 
+@@ -1323,7 +1320,7 @@ class TLSConnection(TLSRecordLayer):
+                 entry = verifierDB[self.allegedSrpUsername]
+             except KeyError:
+                 for result in self._sendError(\
+-                        AlertDescription.unknown_srp_username):
++                        AlertDescription.unknown_psk_identity):
+                     yield result
+             (N, g, s, v) = entry
+ 
+diff --git tlslite-0.3.8/tlslite/constants.py chromium/tlslite//constants.py
+index 04302c0..7ed7634 100644
+--- tlslite-0.3.8/tlslite/constants.py
++++ chromium/tlslite//constants.py
+@@ -30,6 +30,9 @@ class ContentType:
+     application_data = 23
+     all = (20,21,22,23)
+ 
++class ClientHelloExtension:
++    srp = 12
++
+ class AlertLevel:
+     warning = 1
+     fatal = 2
+@@ -88,18 +91,19 @@ class AlertDescription:
+     internal_error = 80
+     user_canceled = 90
+     no_renegotiation = 100
+-    unknown_srp_username = 120
+-    missing_srp_username = 121
+-    untrusted_srp_parameters = 122
++    unknown_psk_identity = 115
++    untrusted_srp_parameters = 122 # TODO(sqs): probably outdated wrt RFC 5054
+ 
+ class CipherSuite:
+-    TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA  = 0x0050
+-    TLS_SRP_SHA_WITH_AES_128_CBC_SHA = 0x0053
+-    TLS_SRP_SHA_WITH_AES_256_CBC_SHA = 0x0056
++    TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA  = 0xC01A
++    TLS_SRP_SHA_WITH_AES_128_CBC_SHA = 0xC01D
++    TLS_SRP_SHA_WITH_AES_256_CBC_SHA = 0xC020
++
++    TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA = 0xC01B
++    TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA = 0xC01E
++    TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA = 0xC021
+ 
+-    TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA = 0x0051
+-    TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA = 0x0054
+-    TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA = 0x0057
++    # TODO(sqs): No SRP DSS cipher suites
+ 
+     TLS_RSA_WITH_3DES_EDE_CBC_SHA = 0x000A
+     TLS_RSA_WITH_AES_128_CBC_SHA = 0x002F
+@@ -202,8 +206,9 @@ class Fault:
+     genericFaults = range(300,303)
+ 
+     faultAlerts = {\
+-        badUsername: (AlertDescription.unknown_srp_username, \
+-                      AlertDescription.bad_record_mac),\
++        badUsername: (AlertDescription.unknown_psk_identity, \
++                      AlertDescription.bad_record_mac, \
++                      AlertDescription.user_canceled),\
+         badPassword: (AlertDescription.bad_record_mac,),\
+         badA: (AlertDescription.illegal_parameter,),\
+         badIdentifier: (AlertDescription.handshake_failure,),\
+diff --git tlslite-0.3.8/tlslite/errors.py chromium/tlslite//errors.py
+index c7f7ba8..c9a480e 100644
+--- tlslite-0.3.8/tlslite/errors.py
++++ chromium/tlslite//errors.py
+@@ -50,8 +50,8 @@ class TLSAlert(TLSError):
+         AlertDescription.internal_error: "internal_error",\
+         AlertDescription.user_canceled: "user_canceled",\
+         AlertDescription.no_renegotiation: "no_renegotiation",\
+-        AlertDescription.unknown_srp_username: "unknown_srp_username",\
+-        AlertDescription.missing_srp_username: "missing_srp_username"}
++        AlertDescription.unknown_psk_identity: "unknown_psk_identity",
++    }
+ 
+ class TLSLocalAlert(TLSAlert):
+     """A TLS alert has been signalled by the local implementation.
+diff --git tlslite-0.3.8/tlslite/messages.py chromium/tlslite//messages.py
+index dc6ed32..1058ad0 100644
+--- tlslite-0.3.8/tlslite/messages.py
++++ chromium/tlslite//messages.py
+@@ -170,7 +170,7 @@ class ClientHello(HandshakeMsg):
+                 while soFar != totalExtLength:
+                     extType = p.get(2)
+                     extLength = p.get(2)
+-                    if extType == 6:
++                    if extType == ClientHelloExtension.srp:
+                         self.srp_username = bytesToString(p.getVarBytes(1))
+                     elif extType == 7:
+                         self.certificate_types = p.getVarList(1, 1)
+@@ -204,7 +204,7 @@ class ClientHello(HandshakeMsg):
+             w.add(len(self.certificate_types)+1, 2)
+             w.addVarSeq(self.certificate_types, 1, 1)
+         if self.srp_username:
+-            w.add(6, 2)
++            w.add(ClientHelloExtension.srp, 2)
+             w.add(len(self.srp_username)+1, 2)
+             w.addVarSeq(stringToBytes(self.srp_username), 1, 1)
+ 

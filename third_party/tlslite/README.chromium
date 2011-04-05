@@ -25,3 +25,6 @@ Local Modifications:
   default to a certificate_types of [rsa_sign] in CertificateRequest. Apple's
   Secure Transport library rejects an empty list and raises an SSL protocol
   error.
+- patches/tls-srp-rfc5054.patch: use RFC 5054's values for the SRP Client Hello
+  extension and cipher suites, and use the unknown_psk_identity alert as
+  described in RFC 5054 (instead of unknown_srp_username).
