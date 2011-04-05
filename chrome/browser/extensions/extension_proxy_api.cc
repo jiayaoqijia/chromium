@@ -20,6 +20,7 @@ enum {
   SCHEME_ALL = 0,
   SCHEME_HTTP,
   SCHEME_HTTPS,
+  SCHEME_HTTPSV,
   SCHEME_FTP,
   SCHEME_SOCKS,
   SCHEME_MAX = SCHEME_SOCKS  // Keep this value up to date.
@@ -30,6 +31,7 @@ enum {
 const char* field_name[] = { "singleProxy",
                              "proxyForHttp",
                              "proxyForHttps",
+                             "proxyForHttpsv",
                              "proxyForFtp",
                              "socksProxy" };
 
@@ -39,6 +41,7 @@ const char* field_name[] = { "singleProxy",
 const char* scheme_name[] = { "*error*",
                               "http",
                               "https",
+                              "httpsv",
                               "ftp",
                               "socks" };
 
@@ -160,9 +163,11 @@ bool UseCustomProxySettingsFunction::ApplyProxyRules(
   if (has_proxy[SCHEME_ALL]) {
     proxy_server[SCHEME_HTTP] = proxy_server[SCHEME_ALL];
     proxy_server[SCHEME_HTTPS] = proxy_server[SCHEME_ALL];
+    proxy_server[SCHEME_HTTPSV] = proxy_server[SCHEME_ALL];
     proxy_server[SCHEME_FTP] = proxy_server[SCHEME_ALL];
     has_proxy[SCHEME_HTTP] = true;
     has_proxy[SCHEME_HTTPS] = true;
+    has_proxy[SCHEME_HTTPSV] = true;
     has_proxy[SCHEME_FTP] = true;
     has_proxy[SCHEME_ALL] = false;
   }

@@ -38,6 +38,7 @@ const char kStandardSchemeSeparator[] = "://";
 const char* kSavableSchemes[] = {
   kHttpScheme,
   kHttpsScheme,
+  kHttpsvScheme,
   kFileScheme,
   kFtpScheme,
   kExtensionScheme,

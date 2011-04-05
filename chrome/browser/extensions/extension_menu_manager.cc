@@ -92,7 +92,8 @@ void ExtensionMenuItem::AddChild(ExtensionMenuItem* item) {
 }
 
 const int ExtensionMenuManager::kAllowedSchemes =
-    URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS;
+    URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS |
+    URLPattern::SCHEME_HTTPSV;
 
 ExtensionMenuManager::ExtensionMenuManager() {
   registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,

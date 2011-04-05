@@ -23,6 +23,7 @@ TEST(ExtensionUserScriptTest, Match1) {
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.google.com")));
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.google.com/foo")));
   EXPECT_TRUE(script.MatchesUrl(GURL("https://mail.google.com/foo")));
+  EXPECT_TRUE(script.MatchesUrl(GURL("httpsv://mail.google.com/foo")));
   EXPECT_TRUE(script.MatchesUrl(GURL("ftp://mail.google.com/foo")));
   EXPECT_TRUE(script.MatchesUrl(GURL("http://woo.mail.google.com/foo")));
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.yahoo.com/bar")));
@@ -50,6 +51,7 @@ TEST(ExtensionUserScriptTest, Match3) {
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.google.com")));
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.google.com/foo")));
   EXPECT_FALSE(script.MatchesUrl(GURL("https://mail.google.com/foo")));
+  EXPECT_FALSE(script.MatchesUrl(GURL("httpsv://mail.google.com/foo")));
 }
 
 TEST(ExtensionUserScriptTest, Match4) {
@@ -58,6 +60,7 @@ TEST(ExtensionUserScriptTest, Match4) {
   EXPECT_TRUE(script.MatchesUrl(GURL("http://foo.com/bar")));
   EXPECT_TRUE(script.MatchesUrl(GURL("http://hot.com/dog")));
   EXPECT_TRUE(script.MatchesUrl(GURL("https://hot.com/dog")));
+  EXPECT_TRUE(script.MatchesUrl(GURL("httpsv://hot.com/dog")));
   EXPECT_TRUE(script.MatchesUrl(GURL("file:///foo/bar")));
 }
 

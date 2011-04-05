@@ -80,9 +80,10 @@ class URLPattern {
     SCHEME_NONE     = 0,
     SCHEME_HTTP     = 1 << 0,
     SCHEME_HTTPS    = 1 << 1,
-    SCHEME_FILE     = 1 << 2,
-    SCHEME_FTP      = 1 << 3,
-    SCHEME_CHROMEUI = 1 << 4,
+    SCHEME_HTTPSV   = 1 << 2,
+    SCHEME_FILE     = 1 << 3,
+    SCHEME_FTP      = 1 << 4,
+    SCHEME_CHROMEUI = 1 << 5,
     // SCHEME_ALL will match every scheme, including chrome://, chrome-
     // extension://, about:, etc. Because this has lots of security
     // implications, third-party extensions should never be able to get access

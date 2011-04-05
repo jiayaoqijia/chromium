@@ -252,7 +252,8 @@ const size_t Extension::kNumHostedAppPermissions =
 const char Extension::kOldUnlimitedStoragePermission[] = "unlimited_storage";
 
 const int Extension::kValidWebExtentSchemes =
-    URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS;
+    URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS |
+    URLPattern::SCHEME_HTTPSV;
 
 const int Extension::kValidHostPermissionSchemes =
     (UserScript::kValidUserScriptSchemes |
@@ -997,7 +998,8 @@ bool Extension::LoadLaunchURL(const DictionaryValue* manifest,
     if (gallery_url.is_valid()) {
       launch_web_url_ = gallery_url.spec();
 
-      URLPattern pattern(URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS);
+      URLPattern pattern(URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS |
+                         URLPattern::SCHEME_HTTPSV);
       pattern.Parse(gallery_url.spec());
       pattern.set_path(pattern.path() + '*');
       extent_.AddPattern(pattern);

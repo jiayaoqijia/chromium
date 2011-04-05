@@ -769,6 +769,7 @@ TEST(ExtensionTest, EffectiveHostPermissions) {
   hosts = extension->GetEffectiveHostPermissions();
   EXPECT_TRUE(hosts.ContainsURL(GURL("http://www.google.com")));
   EXPECT_FALSE(hosts.ContainsURL(GURL("https://www.google.com")));
+  EXPECT_FALSE(hosts.ContainsURL(GURL("httpsv://www.google.com")));
   EXPECT_FALSE(extension->HasEffectiveAccessToAllHosts());
 
   extension = LoadManifest("effective_host_permissions",
@@ -789,6 +790,7 @@ TEST(ExtensionTest, EffectiveHostPermissions) {
   hosts = extension->GetEffectiveHostPermissions();
   EXPECT_TRUE(hosts.ContainsURL(GURL("http://google.com")));
   EXPECT_TRUE(hosts.ContainsURL(GURL("https://google.com")));
+  EXPECT_TRUE(hosts.ContainsURL(GURL("httpsv://google.com")));
   EXPECT_FALSE(extension->HasEffectiveAccessToAllHosts());
 
   extension = LoadManifest("effective_host_permissions",
@@ -803,6 +805,7 @@ TEST(ExtensionTest, EffectiveHostPermissions) {
   hosts = extension->GetEffectiveHostPermissions();
   EXPECT_TRUE(hosts.ContainsURL(GURL("http://test/")));
   EXPECT_FALSE(hosts.ContainsURL(GURL("https://test/")));
+  EXPECT_FALSE(hosts.ContainsURL(GURL("httpsv://test/")));
   EXPECT_TRUE(hosts.ContainsURL(GURL("http://www.google.com")));
   EXPECT_TRUE(extension->HasEffectiveAccessToAllHosts());
 
@@ -816,6 +819,7 @@ TEST(ExtensionTest, EffectiveHostPermissions) {
   hosts = extension->GetEffectiveHostPermissions();
   EXPECT_FALSE(hosts.ContainsURL(GURL("http://test/")));
   EXPECT_TRUE(hosts.ContainsURL(GURL("https://test/")));
+  EXPECT_TRUE(hosts.ContainsURL(GURL("httpsv://test/")));
   EXPECT_TRUE(hosts.ContainsURL(GURL("http://www.google.com")));
   EXPECT_TRUE(extension->HasEffectiveAccessToAllHosts());
 }

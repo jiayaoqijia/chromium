@@ -326,6 +326,7 @@ void WebPluginProxy::HandleURLRequest(const char* url,
       GURL request_url(url);
       if (!request_url.SchemeIs(chrome::kHttpScheme) &&
           !request_url.SchemeIs(chrome::kHttpsScheme) &&
+          !request_url.SchemeIs(chrome::kHttpsvScheme) &&
           !request_url.SchemeIs(chrome::kFtpScheme)) {
         return;
       }

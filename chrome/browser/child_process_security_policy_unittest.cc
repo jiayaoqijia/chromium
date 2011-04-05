@@ -33,6 +33,7 @@ TEST_F(ChildProcessSecurityPolicyTest, IsWebSafeSchemeTest) {
 
   EXPECT_TRUE(p->IsWebSafeScheme(chrome::kHttpScheme));
   EXPECT_TRUE(p->IsWebSafeScheme(chrome::kHttpsScheme));
+  EXPECT_TRUE(p->IsWebSafeScheme(chrome::kHttpsvScheme));
   EXPECT_TRUE(p->IsWebSafeScheme(chrome::kFtpScheme));
   EXPECT_TRUE(p->IsWebSafeScheme(chrome::kDataScheme));
   EXPECT_TRUE(p->IsWebSafeScheme("feed"));
@@ -63,6 +64,7 @@ TEST_F(ChildProcessSecurityPolicyTest, StandardSchemesTest) {
   // Safe
   EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("http://www.google.com/")));
   EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("https://www.paypal.com/")));
+  EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("httpsv://scs.stanford.edu/")));
   EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("ftp://ftp.gnu.org/")));
   EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("data:text/html,<b>Hi</b>")));
   EXPECT_TRUE(p->CanRequestURL(kRendererID,

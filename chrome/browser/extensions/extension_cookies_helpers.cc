@@ -94,6 +94,8 @@ GURL GetURLFromCanonicalCookie(
   const std::string& domain_key = cookie.Domain();
   const std::string scheme =
       cookie.IsSecure() ? chrome::kHttpsScheme : chrome::kHttpScheme;
+  // TODO(sqs): secure cookies must be able to be reconstructed, but this is a
+  // problem with httpsv
   const std::string host =
       domain_key.find('.') != 0 ? domain_key : domain_key.substr(1);
   return GURL(scheme + chrome::kStandardSchemeSeparator + host + "/");

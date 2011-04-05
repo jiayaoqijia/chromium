@@ -17,6 +17,7 @@
 static const char* kValidSchemes[] = {
   chrome::kHttpScheme,
   chrome::kHttpsScheme,
+  chrome::kHttpsvScheme,
   chrome::kFileScheme,
   chrome::kFtpScheme,
   chrome::kChromeUIScheme,
@@ -25,6 +26,7 @@ static const char* kValidSchemes[] = {
 static const int kValidSchemeMasks[] = {
   URLPattern::SCHEME_HTTP,
   URLPattern::SCHEME_HTTPS,
+  URLPattern::SCHEME_HTTPSV,
   URLPattern::SCHEME_FILE,
   URLPattern::SCHEME_FTP,
   URLPattern::SCHEME_CHROMEUI,
@@ -148,7 +150,7 @@ URLPattern::ParseResult URLPattern::Parse(const std::string& pattern) {
 bool URLPattern::SetScheme(const std::string& scheme) {
   scheme_ = scheme;
   if (scheme_ == "*") {
-    valid_schemes_ &= (SCHEME_HTTP | SCHEME_HTTPS);
+    valid_schemes_ &= (SCHEME_HTTP | SCHEME_HTTPS | SCHEME_HTTPSV);
   } else if (!IsValidScheme(scheme_)) {
     return false;
   }

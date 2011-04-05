@@ -366,17 +366,18 @@ bool SearchProvider::IsQuerySuitableForSuggest() const {
     return true;
 
   // Next we check the scheme.  If this is UNKNOWN/REQUESTED_URL/URL with a
-  // scheme that isn't http/https/ftp, we shouldn't send it.  Sending things
-  // like file: and data: is both a waste of time and a disclosure of
+  // scheme that isn't http/https/httpsv/ftp, we shouldn't send it.  Sending
+  // things like file: and data: is both a waste of time and a disclosure of
   // potentially private, local data.  Other "schemes" may actually be
   // usernames, and we don't want to send passwords.  If the scheme is OK, we
-  // still need to check other cases below.  If this is QUERY, then the presence
-  // of these schemes means the user explicitly typed one, and thus this is
-  // probably a URL that's being entered and happens to currently be invalid --
-  // in which case we again want to run our checks below.  Other QUERY cases are
-  // less likely to be URLs and thus we assume we're OK.
+  // still need to check other cases below.  If this is QUERY, then the
+  // presence of these schemes means the user explicitly typed one, and thus
+  // this is probably a URL that's being entered and happens to currently be
+  // invalid -- in which case we again want to run our checks below.  Other
+  // QUERY cases are less likely to be URLs and thus we assume we're OK.
   if (!LowerCaseEqualsASCII(input_.scheme(), chrome::kHttpScheme) &&
       !LowerCaseEqualsASCII(input_.scheme(), chrome::kHttpsScheme) &&
+      !LowerCaseEqualsASCII(input_.scheme(), chrome::kHttpsvScheme) &&
       !LowerCaseEqualsASCII(input_.scheme(), chrome::kFtpScheme))
     return (input_.type() == AutocompleteInput::QUERY);
 
@@ -391,10 +392,11 @@ bool SearchProvider::IsQuerySuitableForSuggest() const {
       parts.query.is_nonempty() || parts.ref.is_nonempty())
     return false;
 
-  // Don't send anything for https except the hostname.  Hostnames are OK
+  // Don't send anything for https(v) except the hostname.  Hostnames are OK
   // because they are visible when the TCP connection is established, but the
   // specific path may reveal private information.
-  if (LowerCaseEqualsASCII(input_.scheme(), chrome::kHttpsScheme) &&
+  if ((LowerCaseEqualsASCII(input_.scheme(), chrome::kHttpsScheme) ||
+       LowerCaseEqualsASCII(input_.scheme(), chrome::kHttpsvScheme)) &&
       parts.path.is_nonempty())
     return false;
 

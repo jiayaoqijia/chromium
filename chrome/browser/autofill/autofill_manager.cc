@@ -205,7 +205,8 @@ bool SectionIsAutoFilled(const FormStructure* form_structure,
 }
 
 bool FormIsHTTPS(FormStructure* form) {
-  return form->source_url().SchemeIs(chrome::kHttpsScheme);
+  return form->source_url().SchemeIs(chrome::kHttpsScheme) ||
+      form->source_url().SchemeIs(chrome::kHttpsvScheme);
 }
 
 }  // namespace

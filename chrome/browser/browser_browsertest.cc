@@ -306,8 +306,8 @@ IN_PROC_BROWSER_TEST_F(BrowserTest, RenderIdleTime) {
   }
 }
 
-// Test IDC_CREATE_SHORTCUTS command is enabled for url scheme file, ftp, http
-// and https and disabled for chrome://, about:// etc.
+// Test IDC_CREATE_SHORTCUTS command is enabled for url scheme file, ftp, http,
+// https, and httpsv and disabled for chrome://, about:// etc.
 // TODO(pinkerton): Disable app-mode in the model until we implement it
 // on the Mac. http://crbug.com/13148
 #if !defined(OS_MACOSX)
@@ -339,6 +339,20 @@ IN_PROC_BROWSER_TEST_F(BrowserTest, CommandCreateAppShortcutHttps) {
   ASSERT_TRUE(test_server.Start());
   GURL https_url(test_server.GetURL("/"));
   ASSERT_TRUE(https_url.SchemeIs(chrome::kHttpsScheme));
+  ui_test_utils::NavigateToURL(browser(), https_url);
+  EXPECT_TRUE(command_updater->IsCommandEnabled(IDC_CREATE_SHORTCUTS));
+}
+
+IN_PROC_BROWSER_TEST_F(BrowserTest, CommandCreateAppShortcutHttpsv) {
+  CommandUpdater* command_updater = browser()->command_updater();
+
+  net::TestServer test_server(net::TestServer::TYPE_HTTPS, FilePath(kDocRoot));
+  ASSERT_TRUE(test_server.Start());
+  GURL https_url(test_server.GetURL("/"));
+  GURL::Replacements replacements;
+  replacements.SetSchemeStr("httpsv");
+  GURL httpsv_url = https_url.ReplaceComponents(replacements);
+  ASSERT_TRUE(https_url.SchemeIs(chrome::kHttpsvScheme));
   ui_test_utils::NavigateToURL(browser(), https_url);
   EXPECT_TRUE(command_updater->IsCommandEnabled(IDC_CREATE_SHORTCUTS));
 }

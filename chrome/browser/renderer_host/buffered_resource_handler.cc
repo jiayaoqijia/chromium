@@ -217,10 +217,11 @@ bool BufferedResourceHandler::DelayResponse() {
 
 bool BufferedResourceHandler::ShouldBuffer(const GURL& url,
                                            const std::string& mime_type) {
-  // We are willing to buffer for HTTP and HTTPS.
+  // We are willing to buffer for HTTP, HTTPS, and HTTPSV.
   bool sniffable_scheme = url.is_empty() ||
                           url.SchemeIs(chrome::kHttpScheme) ||
-                          url.SchemeIs(chrome::kHttpsScheme);
+                          url.SchemeIs(chrome::kHttpsScheme) ||
+                          url.SchemeIs(chrome::kHttpsvScheme);
   if (!sniffable_scheme)
     return false;
 

@@ -740,6 +740,7 @@ bool IsValidUrl(const GURL& url) {
       chrome::kFtpScheme,
       chrome::kHttpScheme,
       chrome::kHttpsScheme,
+      chrome::kHttpsvScheme,
       chrome::kExtensionScheme,
   };
 
