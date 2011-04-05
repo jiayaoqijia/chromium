@@ -17,7 +17,8 @@ class LoadFromMemoryCacheDetails {
        const std::string& main_frame_origin,
        int pid,
        int cert_id,
-       int cert_status);
+       int cert_status,
+       string16 tls_username);
   ~LoadFromMemoryCacheDetails();
 
   const GURL& url() const { return url_; }
@@ -26,6 +27,7 @@ class LoadFromMemoryCacheDetails {
   int pid() const { return pid_; }
   int ssl_cert_id() const { return cert_id_; }
   int ssl_cert_status() const { return cert_status_; }
+  string16 tls_username() const { return tls_username_; }
 
  private:
   GURL url_;
@@ -34,6 +36,7 @@ class LoadFromMemoryCacheDetails {
   int pid_;
   int cert_id_;
   int cert_status_;
+  string16 tls_username_;
 
   DISALLOW_COPY_AND_ASSIGN(LoadFromMemoryCacheDetails);
 };

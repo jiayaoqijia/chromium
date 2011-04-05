@@ -116,8 +116,8 @@ void SSLPolicy::OnRequestStarted(SSLRequestInfo* info) {
   // However, right now we don't have the proper context to understand where
   // these resources will be used.  Consequently, we're conservative and treat
   // them all like DidRunInsecureContent().
-
-  if (net::IsCertStatusError(info->ssl_cert_status())) {
+  if (net::IsCertStatusError(info->ssl_cert_status()) ||
+      (!info->ssl_cert_id() && info->tls_username().empty())) {
     backend_->HostRanInsecureContent(info->url().host(), info->child_id());
 
     // TODO(abarth): We should eventually remove the main_frame_origin and
@@ -169,7 +169,7 @@ void SSLPolicy::UpdateEntry(NavigationEntry* entry, TabContents* tab_contents) {
   // If CERT_STATUS_UNABLE_TO_CHECK_REVOCATION is the only certificate error,
   // don't lower the security style to SECURITY_STYLE_AUTHENTICATION_BROKEN.
   int cert_errors = entry->ssl().cert_status() & net::CERT_STATUS_ALL_ERRORS;
-  if (cert_errors) {
+  if (cert_errors && entry->ssl().tls_username().empty()) {
     if (cert_errors != net::CERT_STATUS_UNABLE_TO_CHECK_REVOCATION)
       entry->ssl().set_security_style(SECURITY_STYLE_AUTHENTICATION_BROKEN);
     return;

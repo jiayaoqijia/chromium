@@ -23,7 +23,8 @@ class SSLRequestInfo : public base::RefCounted<SSLRequestInfo> {
                  const std::string& main_frame_origin,
                  int child_id,
                  int ssl_cert_id,
-                 int ssl_cert_status);
+                 int ssl_cert_status,
+                 string16 tls_username);
 
   const GURL& url() const { return url_; }
   ResourceType::Type resource_type() const { return resource_type_; }
@@ -32,6 +33,7 @@ class SSLRequestInfo : public base::RefCounted<SSLRequestInfo> {
   int child_id() const { return child_id_; }
   int ssl_cert_id() const { return ssl_cert_id_; }
   int ssl_cert_status() const { return ssl_cert_status_; }
+  string16 tls_username() const { return tls_username_; }
 
  private:
   friend class base::RefCounted<SSLRequestInfo>;
@@ -45,6 +47,7 @@ class SSLRequestInfo : public base::RefCounted<SSLRequestInfo> {
   int child_id_;
   int ssl_cert_id_;
   int ssl_cert_status_;
+  string16 tls_username_;
 
   DISALLOW_COPY_AND_ASSIGN(SSLRequestInfo);
 };

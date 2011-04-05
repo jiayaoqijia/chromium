@@ -135,10 +135,17 @@ PageInfoModel::PageInfoModel(Profile* profile,
       description.assign(l10n_util::GetStringFUTF16(
           IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY, issuer_name));
     }
-  } else {
-    // HTTP or HTTPS with errors (not warnings).
-    // TODO(sqs): handle this properly with TLS-SRP
+    if (!ssl.tls_username().empty()) {
+      description += ASCIIToUTF16("\n\n");
+      description += l10n_util::GetStringUTF16(
+          IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_PLUS_SHARED_SECRET);
+    }
+  } else if (ssl.tls_username().empty() ||
+             (!ssl.tls_username().empty() && ssl.cert_id())) {
+    // HTTP, HTTPS, or HTTPSV with errors (not warnings).
     description.assign(l10n_util::GetStringUTF16(
+        ssl.cert_id() && !ssl.tls_username().empty() ?
+        IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_BAD_CERT_OK_SHARED_SECRET :
         IDS_PAGE_INFO_SECURITY_TAB_INSECURE_IDENTITY));
     icon_id = ssl.security_style() == SECURITY_STYLE_UNAUTHENTICATED ?
         ICON_STATE_WARNING_MAJOR : ICON_STATE_ERROR;
@@ -157,17 +164,15 @@ PageInfoModel::PageInfoModel(Profile* profile,
       description += l10n_util::GetStringUTF16(
           IDS_PAGE_INFO_SECURITY_TAB_NON_UNIQUE_NAME);
     }
+  } else if (!ssl.tls_username().empty()) {
+    // HTTPS with TLS-SRP (with no certificate)
+    if (!description.empty())
+      description += ASCIIToUTF16("\n\n");
+    description += l10n_util::GetStringUTF16(
+        IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_SHARED_SECRET);
   }
 
   if (!ssl.tls_username().empty()) {
-    // HTTPS with TLS-SRP. This can be used with or without certificates, so we
-    // handle this separately (not in the big if-clause above).
-    if (!description.empty())
-      description += ASCIIToUTF16(" ");
-    description += l10n_util::GetStringUTF16(
-        show_secure_identity_msg ?
-        IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_PLUS_SHARED_SECRET :
-        IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_SHARED_SECRET);
     description += ASCIIToUTF16("\n\n");
     description += l10n_util::GetStringFUTF16(
         IDS_PAGE_INFO_TLS_USER_IDENTITY, subject_name, ssl.tls_username());

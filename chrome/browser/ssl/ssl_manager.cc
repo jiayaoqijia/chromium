@@ -79,7 +79,8 @@ bool SSLManager::DeserializeSecurityInfo(const std::string& state,
                                          int* security_bits,
                                          int* ssl_connection_status,
                                          string16* tls_username) {
-  DCHECK(cert_id && cert_status && security_bits && ssl_connection_status);
+  DCHECK(cert_id && cert_status && security_bits && ssl_connection_status &&
+         tls_username);
   if (state.empty()) {
     // No SSL used.
     *cert_id = 0;
@@ -226,7 +227,8 @@ void SSLManager::DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details) {
       details->main_frame_origin(),
       details->pid(),
       details->ssl_cert_id(),
-      details->ssl_cert_status()));
+      details->ssl_cert_status(),
+      details->tls_username()));
 
   // Simulate loading this resource through the usual path.
   policy()->OnRequestStarted(info.get());
@@ -240,7 +242,8 @@ void SSLManager::DidStartResourceResponse(ResourceRequestDetails* details) {
       details->main_frame_origin(),
       details->origin_child_id(),
       details->ssl_cert_id(),
-      details->ssl_cert_status()));
+      details->ssl_cert_status(),
+      details->tls_username()));
 
   // Notify our policy that we started a resource request.  Ideally, the
   // policy should have the ability to cancel the request, but we can't do

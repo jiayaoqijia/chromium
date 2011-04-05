@@ -10,14 +10,16 @@ SSLRequestInfo::SSLRequestInfo(const GURL& url,
                                const std::string& main_frame_origin,
                                int child_id,
                                int ssl_cert_id,
-                               int ssl_cert_status)
+                               int ssl_cert_status,
+                               string16 tls_username)
     : url_(url),
       resource_type_(resource_type),
       frame_origin_(frame_origin),
       main_frame_origin_(main_frame_origin),
       child_id_(child_id),
       ssl_cert_id_(ssl_cert_id),
-      ssl_cert_status_(ssl_cert_status) {
+      ssl_cert_status_(ssl_cert_status),
+      tls_username_(tls_username) {
 }
 
 SSLRequestInfo::~SSLRequestInfo() {}

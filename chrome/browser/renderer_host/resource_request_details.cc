@@ -18,7 +18,8 @@ ResourceRequestDetails::ResourceRequestDetails(const net::URLRequest* request,
       load_flags_(request->load_flags()),
       status_(request->status()),
       ssl_cert_id_(cert_id),
-      ssl_cert_status_(request->ssl_info().cert_status) {
+      ssl_cert_status_(request->ssl_info().cert_status),
+      tls_username_(request->ssl_info().tls_username) {
   const ResourceDispatcherHostRequestInfo* info =
       ResourceDispatcherHost::InfoForRequest(request);
   DCHECK(info);

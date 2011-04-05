@@ -10,13 +10,15 @@ LoadFromMemoryCacheDetails::LoadFromMemoryCacheDetails(
     const std::string& main_frame_origin,
     int pid,
     int cert_id,
-    int cert_status)
+    int cert_status,
+    string16 tls_username)
     : url_(url),
       frame_origin_(frame_origin),
       main_frame_origin_(main_frame_origin),
       pid_(pid),
       cert_id_(cert_id),
-      cert_status_(cert_status) {
+      cert_status_(cert_status),
+      tls_username_(tls_username) {
 }
 
 LoadFromMemoryCacheDetails::~LoadFromMemoryCacheDetails() {

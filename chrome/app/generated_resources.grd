@@ -6199,6 +6199,9 @@ Keep your key file in a safe place. You will need it to create new versions of y
       <message name="IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_SHARED_SECRET" desc="The text of the identity section when the page's security is backed by a shared secret (e.g., TLS-SRP).">
         The identity of this website was verified by TLS mutual authentication using a shared secret.
       </message>
+      <message name="IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_BAD_CERT_OK_SHARED_SECRET" desc="The text of the identity section when the page's security is backed by a shared secret (e.g., TLS-SRP) and certificate, and the certificate is bad..">
+        The identity of this website could not be verified using the certificate it provided, but it was verified by TLS mutual authentication using a shared secret.
+      </message>
 
       <message name="IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_PLUS_SHARED_SECRET" desc="The text of the identity section when the page's security is backed by a shared secret (e.g., TLS-SRP) plus a certificate or DNSSEC.">
         The identity of this website was also verified by TLS mutual authentication using a shared secret.

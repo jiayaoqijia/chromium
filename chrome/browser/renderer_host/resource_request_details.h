@@ -39,6 +39,7 @@ class ResourceRequestDetails {
   const net::URLRequestStatus& status() const { return status_; }
   int ssl_cert_id() const { return ssl_cert_id_; }
   int ssl_cert_status() const { return ssl_cert_status_; }
+  string16 tls_username() const { return tls_username_; }
   ResourceType::Type resource_type() const { return resource_type_; }
 
  private:
@@ -54,6 +55,7 @@ class ResourceRequestDetails {
   net::URLRequestStatus status_;
   int ssl_cert_id_;
   int ssl_cert_status_;
+  string16 tls_username_;
   ResourceType::Type resource_type_;
 };
 
