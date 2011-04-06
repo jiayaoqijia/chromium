@@ -708,7 +708,8 @@ TEST_F(HTTPSRequestTest, HTTPSVLoginTest) {
 
       MessageLoop::current()->Run();
       EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                  std::string::npos);
       EXPECT_FALSE(d.received_data_before_response());
     }
   }
