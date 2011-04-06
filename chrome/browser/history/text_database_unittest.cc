@@ -164,6 +164,7 @@ TEST_F(TextDatabaseTest, AttachDetach) {
   EXPECT_FALSE(!!db3.get());
 }
 
+// TODO(sqs): this test fails - fix it
 TEST_F(TextDatabaseTest, AddRemove) {
   // Create a database and add some pages to it.
   const int kIdee1 = 200801;
@@ -194,6 +195,7 @@ TEST_F(TextDatabaseTest, AddRemove) {
   EXPECT_EQ(1, RowCount(db.get()));
 }
 
+// TODO(sqs): this test fails - fix it
 TEST_F(TextDatabaseTest, Query) {
   // Make a database with some pages.
   const int kIdee1 = 200801;
