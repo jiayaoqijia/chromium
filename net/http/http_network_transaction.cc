@@ -1126,9 +1126,11 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
         // suite.
         error = ERR_TLS_CLIENT_LOGIN_NEEDED;
       }
-    } else if (!ssl_config_.tls_username.empty() && ssl_config_.tls_password.empty()) {
+    } else if (!ssl_config_.tls_username.empty() &&
+               ssl_config_.tls_password.empty()) {
       LOG(WARNING) << "SSL handshake error: empty TLS password";
-    } else if (!ssl_config_.tls_username.empty() && !ssl_config_.tls_password.empty()) {
+    } else if (!ssl_config_.tls_username.empty() &&
+               !ssl_config_.tls_password.empty()) {
       if (error == ERR_SSL_BAD_RECORD_MAC_ALERT ||
           error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
         // The TLS-SRP login probably failed.

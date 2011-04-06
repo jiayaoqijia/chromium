@@ -4628,7 +4628,8 @@ TEST(HttpCache, CachesTLSUsername) {
   RunTransactionTest(cache.http_cache(), transaction);
 
   net::HttpResponseInfo response;
-  RunTransactionTestWithResponseInfo(cache.http_cache(), transaction, &response);
+  RunTransactionTestWithResponseInfo(cache.http_cache(), transaction,
+                                     &response);
   EXPECT_EQ(ASCIIToUTF16("user"), response.ssl_info.tls_username);
 }
 

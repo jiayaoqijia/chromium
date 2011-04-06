@@ -277,7 +277,8 @@ int MockNetworkTransaction::RestartWithCertificate(
 void MockNetworkTransaction::SetTLSLoginAuthData(net::AuthData* auth_data) {
 }
 
-int MockNetworkTransaction::RestartWithTLSLogin(net::CompletionCallback* callback) {
+int MockNetworkTransaction::RestartWithTLSLogin(
+    net::CompletionCallback* callback) {
   return net::ERR_FAILED;
 }
 
