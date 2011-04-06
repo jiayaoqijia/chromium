@@ -619,6 +619,53 @@ TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
   }
 }
 
+TEST_F(HTTPSRequestTest, TLSLoginCredentialsRemainCached) {
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
+
+  GURL https_url = test_server.GetURL("");
+  GURL::Replacements replacements;
+  replacements.SetSchemeStr("httpsv");
+  GURL httpsv_url = https_url.ReplaceComponents(replacements);
+
+  GURL::Replacements replacements2;
+  replacements2.SetPathStr("tlslogininfo");
+  GURL https_url2 = https_url.ReplaceComponents(replacements2);
+
+  {
+    HTTPSVClientSRPLoginTestDelegate d;
+    TestURLRequest r(httpsv_url, &d);
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(1, d.on_tls_login_required_count());
+    EXPECT_EQ("TLS-SRP", WideToUTF8(d.last_login_request_info()->scheme));
+
+    r.SetTLSLogin(kUser, kSecret);
+    r.ContinueWithTLSLogin();
+
+    MessageLoop::current()->Run();
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+
+    // Don't specify credentials for this request.
+    HTTPSVClientSRPLoginTestDelegate d2;
+    TestURLRequest r2(https_url2, &d2);
+    r2.Start();
+    EXPECT_TRUE(r2.is_pending());
+    MessageLoop::current()->Run();
+    EXPECT_NE(0, d2.bytes_received());
+    EXPECT_FALSE(d2.received_data_before_response());
+    LOG(INFO) << "GOT '" << d2.data_received() << "'";
+    EXPECT_TRUE(d2.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+  }
+}
+
 TEST_F(HTTPSRequestTest, HTTPSVLoginTest) {
   bool only_tls_srp = false;
   for (int i = 0; i < 2; i++, only_tls_srp = !only_tls_srp) {

@@ -1118,8 +1118,6 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
   }
 
   if (ssl_config_.use_tls_auth) {
-    session_->tls_client_login_cache()->Remove(GetHostAndPort(request_->url));
-
     if (ssl_config_.tls_username.empty() && ssl_config_.tls_password.empty()) {
       if (error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
         // RFC 5054 unknown_psk_identity idiom: The Client Hello contained no
@@ -1137,6 +1135,9 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
         error = ERR_TLS_CLIENT_LOGIN_FAILED;
       }
     }
+
+    if (error == ERR_TLS_CLIENT_LOGIN_FAILED)
+      session_->tls_client_login_cache()->Remove(GetHostAndPort(request_->url));
 
     // Handle TLS-SRP errors now.
     if (error == ERR_TLS_CLIENT_LOGIN_FAILED ||
