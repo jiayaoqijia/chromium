@@ -99,7 +99,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
 
   // Enables SRP ciphers. If |disable_non_srp_ciphers| is true, then non-SRP
   // ciphers will be disabled. Returns a net error code.
-  int SetCiphersForTLSAuth(bool disable_non_srp_ciphers);
+  int SetCiphersForTLSAuth(bool set_srp_ciphers, bool disable_non_srp_ciphers);
   
   // Initializes the socket peer name in SSL.  Returns a net error code.
   int InitializeSSLPeerName();

@@ -597,8 +597,11 @@ int HttpNetworkTransaction::DoLoop(int result) {
 
 int HttpNetworkTransaction::DoCreateStream() {
   DCHECK(request_);
-  if (request_->url.SchemeIs("httpsv")) {
-    ssl_config_.require_tls_auth = true;
+
+  // Set TLS login, if available.
+  if (ssl_config_.use_tls_auth) {
+    if (request_->url.SchemeIs("httpsv"))
+      ssl_config_.require_tls_auth = true;
     if (ssl_config_.tls_username.empty()) {
       scoped_refptr<AuthData> tls_auth_data;
       bool found_login = session_->tls_client_login_cache()->Lookup(
@@ -609,7 +612,7 @@ int HttpNetworkTransaction::DoCreateStream() {
         SetTLSLoginAuthData(tls_auth_data);
         DCHECK(!ssl_config_.tls_username.empty());
         DCHECK(!ssl_config_.tls_password.empty());
-      } else {
+      } else if (ssl_config_.require_tls_auth) {
         response_.login_request_info = new AuthChallengeInfo;
         response_.login_request_info->host_and_port =
             UTF8ToWide(net::GetHostAndPort(request_->url));
@@ -1115,14 +1118,29 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
   }
 
   if (ssl_config_.use_tls_auth) {
-    DCHECK(!ssl_config_.tls_username.empty());
-    DCHECK(!ssl_config_.tls_password.empty());
-    if (error == ERR_SSL_BAD_RECORD_MAC_ALERT ||
-        error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
-      error = ERR_TLS_CLIENT_LOGIN_FAILED;
+    session_->tls_client_login_cache()->Remove(GetHostAndPort(request_->url));
 
-      session_->tls_client_login_cache()->Remove(GetHostAndPort(request_->url));
-      
+    if (ssl_config_.tls_username.empty() && ssl_config_.tls_password.empty()) {
+      if (error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
+        // RFC 5054 unknown_psk_identity idiom: The Client Hello contained no
+        // SRP username, but the server wishes to connect using an SRP cipher
+        // suite.
+        error = ERR_TLS_CLIENT_LOGIN_NEEDED;
+      }
+    } else if (!ssl_config_.tls_username.empty() && ssl_config_.tls_password.empty()) {
+      LOG(WARNING) << "SSL handshake error: empty TLS password";
+    } else if (!ssl_config_.tls_username.empty() && !ssl_config_.tls_password.empty()) {
+      if (error == ERR_SSL_BAD_RECORD_MAC_ALERT ||
+          error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
+        // The TLS-SRP login probably failed.
+        // TODO(sqs): also verify that we did attempt to use an SRP cipher suite
+        error = ERR_TLS_CLIENT_LOGIN_FAILED;
+      }
+    }
+
+    // Handle TLS-SRP errors now.
+    if (error == ERR_TLS_CLIENT_LOGIN_FAILED ||
+        error == ERR_TLS_CLIENT_LOGIN_NEEDED) {
       DCHECK(!response_.login_request_info.get());
       response_.login_request_info = new AuthChallengeInfo;
       response_.login_request_info->host_and_port =

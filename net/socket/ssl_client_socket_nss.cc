@@ -1030,22 +1030,29 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
   }
 
   if (ssl_config_.use_tls_auth) {
-    DCHECK(!ssl_config_.tls_username.empty());
-    DCHECK(!ssl_config_.tls_password.empty());
-
-    LOG(WARNING) << "Using TLS-SRP: " <<
-        ssl_config_.tls_username << " / " << ssl_config_.tls_password;
-
-    rv = SSL_SetUserLogin(nss_fd_,
-                          ssl_config_.tls_username.c_str(),
-                          ssl_config_.tls_password.c_str());
-    if (rv != SECSuccess) {
-      LogFailedNSSFunction(net_log_, "SSL_SetUserLogin", "");
-      return ERR_UNEXPECTED;
-    }
-
     // Enable SRP ciphers, and disable non-SRP ciphers if we *require* TLS auth.
-    rv = SetCiphersForTLSAuth(ssl_config_.require_tls_auth);
+    rv = SetCiphersForTLSAuth(true, ssl_config_.require_tls_auth);
+    if (rv != OK)
+      return rv;
+
+    if (!ssl_config_.tls_username.empty() && !ssl_config_.tls_password.empty()) {
+      LOG(WARNING) << "Using TLS-SRP as " <<
+          ssl_config_.tls_username << " / " << ssl_config_.tls_password;
+
+      rv = SSL_SetUserLogin(nss_fd_,
+                            ssl_config_.tls_username.c_str(),
+                            ssl_config_.tls_password.c_str());
+      if (rv != SECSuccess) {
+        LogFailedNSSFunction(net_log_, "SSL_SetUserLogin", "");
+        return ERR_UNEXPECTED;
+      }
+    } else
+      LOG(INFO) << "Using TLS-SRP with no username/password";
+  } else {
+    // Disable SRP ciphers.
+    // TODO(sqs): this disable step should only be called if the SRP cipher
+    // suites are on by default.
+    rv = SetCiphersForTLSAuth(false, false);
     if (rv != OK)
       return rv;
   }
@@ -1073,7 +1080,11 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
   return OK;
 }
 
-int SSLClientSocketNSS::SetCiphersForTLSAuth(bool disable_non_srp_ciphers) {
+// Enables SRP ciphers if |set_srp_ciphers| is true; otherwise, disables SRP
+// ciphers. If |disable_non_srp_ciphers| is true, then disable non-SRP ciphers;
+// otherwise, leave them alone.
+int SSLClientSocketNSS::SetCiphersForTLSAuth(bool set_srp_ciphers,
+                                             bool disable_non_srp_ciphers) {
   int rv;
   const PRUint16 *cipherSuites = SSL_GetImplementedCiphers();
   int numCiphers = SSL_GetNumImplementedCiphers();
@@ -1086,7 +1097,7 @@ int SSLClientSocketNSS::SetCiphersForTLSAuth(bool disable_non_srp_ciphers) {
       return ERR_UNEXPECTED;
     }
     if (IsNSSCipherKEATypeSRP(info.keaType)) {
-      rv = SSL_CipherPrefSet(nss_fd_, suite, PR_TRUE);
+      rv = SSL_CipherPrefSet(nss_fd_, suite, set_srp_ciphers);
     } else if (disable_non_srp_ciphers) {
       rv = SSL_CipherPrefSet(nss_fd_, suite, PR_FALSE);
     }
@@ -1540,6 +1551,8 @@ int SSLClientSocketNSS::DoSnapStartWaitForWrite() {
   return OK;
 }
 
+// TODO(sqs): this hangs if the server returns an unknown_psk_identity alert
+// that is not fatal (that is a warning)
 int SSLClientSocketNSS::DoHandshake() {
   EnterFunction("");
   int net_error = net::OK;
