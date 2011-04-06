@@ -537,7 +537,7 @@ class URLRequest : public base::NonThreadSafe {
   // OnTLSLoginRequired() callback.
   void CancelTLSLogin();
   void SetTLSLogin(const string16& username,
-                               const string16& password);
+                   const string16& password);
   AuthData* GetTLSLoginAuthData();
 
   void ContinueWithTLSLogin();
