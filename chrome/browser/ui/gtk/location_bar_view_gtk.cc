@@ -1068,7 +1068,9 @@ void LocationBarViewGtk::UpdateAccountArea() {
 
     gtk_widget_set_tooltip_text(
         GTK_WIDGET(account_event_box_.get()),
-        "You are currently logged in as sqs.");
+        l10n_util::GetStringFUTF8(IDS_PAGE_INFO_TLS_USER_IDENTITY,
+                                  toolbar_model_->GetSiteName(),
+                                  site_account).c_str());
 
     gtk_widget_show(GTK_WIDGET(account_event_box_.get()));
   } else {

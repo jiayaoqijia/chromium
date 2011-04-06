@@ -50,6 +50,7 @@ class ToolbarModel {
   // level is EV_SECURE.
   std::wstring GetEVCertName() const;
 
+  string16 GetSiteName() const;
   string16 GetSiteAccount() const;
 
   // Getter/setter of whether the text in location bar is currently being

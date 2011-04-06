@@ -122,6 +122,13 @@ std::wstring ToolbarModel::GetEVCertName() const {
   return UTF16ToWideHack(SSLManager::GetEVCertName(*cert));
 }
 
+string16 ToolbarModel::GetSiteName() const {
+  DCHECK(GetNavigationController());
+  DCHECK(GetNavigationController()->GetActiveEntry());
+  return UTF8ToUTF16(net::GetHostAndPort(
+      GetNavigationController()->GetActiveEntry()->url()));
+}
+
 string16 ToolbarModel::GetSiteAccount() const {
   if (!GetNavigationController() || !GetNavigationController()->GetActiveEntry())
     return string16();
