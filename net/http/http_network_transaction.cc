@@ -1117,6 +1117,7 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
         GetHostAndPort(request_->url));
   }
 
+  // Check for TLS-SRP-related errors.
   if (ssl_config_.use_tls_auth) {
     if (ssl_config_.tls_username.empty() && ssl_config_.tls_password.empty()) {
       if (error == ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT) {
