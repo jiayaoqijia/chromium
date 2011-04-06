@@ -47,7 +47,7 @@ TEST(ExtensionExtentTest, SeparateHTTPSAndHTTPSV) {
   ExtensionExtent extent;
   extent.AddPattern(URLPattern(kAllSchemes, "https://www.google.com/*"));
 
-  EXPECT_FALSE(extent.ContainsURL(GURL("httpsv://www.google.com/"));
+  EXPECT_FALSE(extent.ContainsURL(GURL("httpsv://www.google.com/")));
 }
 
 TEST(ExtensionExtentTest, OverlapsWith) {
