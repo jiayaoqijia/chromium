@@ -576,6 +576,7 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
   } else if (result == ERR_TLS_CLIENT_LOGIN_NEEDED ||
              result == ERR_TLS_CLIENT_LOGIN_FAILED) {
     DCHECK(transaction_->GetResponseInfo());
+    DCHECK(transaction_->GetResponseInfo()->login_request_info.get());
     request_->delegate()->OnTLSLoginRequired(
         request_, transaction_->GetResponseInfo()->login_request_info);
   } else {
