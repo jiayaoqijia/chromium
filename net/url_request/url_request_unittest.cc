@@ -552,7 +552,8 @@ TEST_F(HTTPSRequestTest, HTTPSSRPLoginContinueTest) {
       MessageLoop::current()->Run();
 
       EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                  std::string::npos);
       EXPECT_FALSE(d.received_data_before_response());
     }
   }
@@ -606,7 +607,8 @@ TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
     EXPECT_FALSE(d.received_data_before_response());
     EXPECT_EQ(1, d.on_tls_login_required_count());
     EXPECT_EQ("TLS-SRP", WideToUTF8(d.last_login_request_info()->scheme));
-    std::string host_and_port = WideToUTF8(d.last_login_request_info()->host_and_port);
+    std::string host_and_port =
+        WideToUTF8(d.last_login_request_info()->host_and_port);
     EXPECT_TRUE(host_and_port.find(httpsv_url.host()) != std::string::npos);
     EXPECT_TRUE(host_and_port.find(httpsv_url.port()) != std::string::npos);
     EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
@@ -616,7 +618,8 @@ TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
 
     MessageLoop::current()->Run();
     EXPECT_NE(0, d.bytes_received());
-    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                std::string::npos);
     EXPECT_FALSE(d.received_data_before_response());
   }
 }
@@ -664,7 +667,8 @@ TEST_F(HTTPSRequestTest, TLSLoginCredentialsRemainCached) {
     EXPECT_NE(0, d2.bytes_received());
     EXPECT_FALSE(d2.received_data_before_response());
     LOG(INFO) << "GOT '" << d2.data_received() << "'";
-    EXPECT_TRUE(d2.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+    EXPECT_TRUE(d2.data_received().find(UTF16ToUTF8(kUser)) !=
+                std::string::npos);
   }
 }
 
@@ -693,7 +697,8 @@ TEST_F(HTTPSRequestTest, HTTPSVLoginTest) {
       EXPECT_FALSE(d.received_data_before_response());
       EXPECT_EQ(1, d.on_tls_login_required_count());
       EXPECT_EQ("TLS-SRP", WideToUTF8(d.last_login_request_info()->scheme));
-      std::string host_and_port = WideToUTF8(d.last_login_request_info()->host_and_port);
+      std::string host_and_port =
+          WideToUTF8(d.last_login_request_info()->host_and_port);
       EXPECT_TRUE(host_and_port.find(httpsv_url.host()) != std::string::npos);
       EXPECT_TRUE(host_and_port.find(httpsv_url.port()) != std::string::npos);
       EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
@@ -739,7 +744,8 @@ TEST_F(HTTPSRequestTest, HTTPSVSRPLoginWithCertTest) {
     EXPECT_FALSE(net::IsCertStatusError(r.ssl_info().cert_status));
     EXPECT_TRUE(r.ssl_info().cert.get());
     EXPECT_EQ(kUser, r.ssl_info().tls_username);
-    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                std::string::npos);
   }
 }
 
@@ -776,7 +782,8 @@ TEST_F(HTTPSRequestTest, HTTPSVSRPBadCertFailureTest) {
       if (cert_err_allowed) {
         EXPECT_NE(0, d.bytes_received());
         CheckSSLInfo(r.ssl_info());
-        EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+        EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                    std::string::npos);
       } else {
         EXPECT_EQ(0, d.bytes_received());
       }
@@ -818,7 +825,8 @@ TEST_F(HTTPSRequestTest, HTTPSVBadSecretFailureTest) {
 
       MessageLoop::current()->Run();
       EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                  std::string::npos);
       EXPECT_FALSE(d.received_data_before_response());
     }
   }
@@ -853,7 +861,8 @@ TEST_F(HTTPSRequestTest, HTTPSVBadUsernameTest) {
       EXPECT_EQ(1, d.on_tls_login_required_count());
       ASSERT_TRUE(d.last_login_request_info() != NULL);
       EXPECT_EQ("TLS-SRP", WideToUTF8(d.last_login_request_info()->scheme));
-      std::string host_and_port = WideToUTF8(d.last_login_request_info()->host_and_port);
+      std::string host_and_port =
+          WideToUTF8(d.last_login_request_info()->host_and_port);
       EXPECT_TRUE(host_and_port.find(httpsv_url.host()) != std::string::npos);
       EXPECT_TRUE(host_and_port.find(httpsv_url.port()) != std::string::npos);
       EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
@@ -864,7 +873,8 @@ TEST_F(HTTPSRequestTest, HTTPSVBadUsernameTest) {
 
       MessageLoop::current()->Run();
       EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                  std::string::npos);
       EXPECT_FALSE(d.received_data_before_response());
     }
   }
