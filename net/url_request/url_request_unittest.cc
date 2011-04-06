@@ -517,6 +517,64 @@ TEST_F(HTTPSRequestTest, HTTPSSRPLoginTest) {
   }
 }
 
+// Open a connection to the same host using SSL certificate auth, and then open
+// a connection to the same host requesting TLS-SRP auth.
+// TODO(sqs): disabled - see todo below.
+TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = false;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
+
+  GURL https_url = test_server.GetURL("tlslogininfo");
+  GURL::Replacements replacements;
+  replacements.SetSchemeStr("httpsv");
+  GURL httpsv_url = https_url.ReplaceComponents(replacements);
+
+  {
+    TestDelegate d_https;
+    d_https.set_allow_certificate_errors(true);
+    TestURLRequest r_https(https_url, &d_https);
+    // TODO(sqs): need to force this connection to use certificate auth. Right
+    // now, TLS Lite sends unknown_psk_identity if the client lists SRP cipher
+    // suites even if no srp username is sent in the client hello. One way to
+    // force this is to set all of the SRP cipher suites as disabled in the
+    // URLRequest's ssl_config, but it's not accessible (ssl_config is actually
+    // much deeper than URLRequest).
+
+    r_https.Start();
+    EXPECT_TRUE(r_https.is_pending());
+    MessageLoop::current()->Run();
+    EXPECT_EQ(1, d_https.response_started_count());
+    EXPECT_NE(0, d_https.bytes_received());
+    CheckSSLInfo(r_https.ssl_info());
+    
+    HTTPSVClientSRPLoginTestDelegate d;
+    TestURLRequest r(httpsv_url, &d);
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(1, d.on_tls_login_required_count());
+    EXPECT_EQ("TLS-SRP", WideToUTF8(d.last_login_request_info()->scheme));
+    std::string host_and_port = WideToUTF8(d.last_login_request_info()->host_and_port);
+    EXPECT_TRUE(host_and_port.find(httpsv_url.host()) != std::string::npos);
+    EXPECT_TRUE(host_and_port.find(httpsv_url.port()) != std::string::npos);
+    EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
+
+    r.SetTLSLogin(kUser, kSecret);
+    r.ContinueWithTLSLogin();
+
+    MessageLoop::current()->Run();
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
+  }
+}
+
 TEST_F(HTTPSRequestTest, HTTPSVLoginTest) {
   bool only_tls_srp = false;
   for (int i = 0; i < 2; i++, only_tls_srp = !only_tls_srp) {
