@@ -283,6 +283,9 @@ class LocationBarViewGtk : public AutocompleteEditController,
 
   GtkWidget* site_type_area() { return site_type_alignment_; }
 
+  // Creates and initializes the account area.
+  void BuildAccountArea();
+
   CHROMEGTK_CALLBACK_1(LocationBarViewGtk, gboolean, HandleExpose,
                        GdkEventExpose*);
   CHROMEGTK_CALLBACK_1(LocationBarViewGtk, gboolean, OnIconReleased,
@@ -306,6 +309,12 @@ class LocationBarViewGtk : public AutocompleteEditController,
 
   // Updates the maximum size of the EV certificate label.
   void UpdateEVCertificateLabelSize();
+
+  // Updates the account area: changes the username or login state.
+  void UpdateAccountArea();
+  
+  // Updates the maximum size of the account label.
+  void UpdateAccountLabelSize();
 
   // Sets the text that should be displayed in the info label and its associated
   // tooltip text.  Call with an empty string if the info label should be
@@ -337,7 +346,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
 
   // The outermost widget we want to be hosted.
   OwnedWidgetGtk hbox_;
-
+  
   // Star button.
   OwnedWidgetGtk star_;
   GtkWidget* star_image_;
@@ -353,6 +362,12 @@ class LocationBarViewGtk : public AutocompleteEditController,
   // left of the address bar.
   GtkWidget* security_info_label_;
 
+  // Account bubble.
+  OwnedWidgetGtk account_alignment_;
+  OwnedWidgetGtk account_event_box_;
+  OwnedWidgetGtk account_icon_image_;
+  GtkWidget* account_label_;
+  
   // Content setting icons.
   OwnedWidgetGtk content_setting_hbox_;
   ScopedVector<ContentSettingImageViewGtk> content_setting_views_;

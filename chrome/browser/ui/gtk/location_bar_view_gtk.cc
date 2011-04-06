@@ -95,6 +95,11 @@ const GdkColor kEvSecureTextColor = GDK_COLOR_RGB(0x07, 0x95, 0x00);
 const GdkColor kEvSecureBackgroundColor = GDK_COLOR_RGB(0xef, 0xfc, 0xef);
 const GdkColor kEvSecureBorderColor = GDK_COLOR_RGB(0x90, 0xc3, 0x90);
 
+// Colors used to draw the account bubble.
+const GdkColor kAccountTextColor = GDK_COLOR_RGB(0x14, 0x52, 0xa1);
+const GdkColor kAccountBackgroundColor = GDK_COLOR_RGB(0xe8, 0xf1, 0xfc);
+const GdkColor kAccountBorderColor = GDK_COLOR_RGB(0x8c, 0xb2, 0xde);
+
 // Colors used to draw the Tab to Search rounded bubble.
 const GdkColor kKeywordBackgroundColor = GDK_COLOR_RGB(0xf0, 0xf4, 0xfa);
 const GdkColor kKeywordBorderColor = GDK_COLOR_RGB(0xcb, 0xde, 0xf7);
@@ -130,6 +135,7 @@ LocationBarViewGtk::LocationBarViewGtk(Browser* browser)
       drag_icon_(NULL),
       enable_location_drag_(false),
       security_info_label_(NULL),
+      account_label_(NULL),
       tab_to_search_box_(NULL),
       tab_to_search_full_label_(NULL),
       tab_to_search_partial_label_(NULL),
@@ -157,6 +163,9 @@ LocationBarViewGtk::~LocationBarViewGtk() {
   // All of our widgets should have be children of / owned by the alignment.
   star_.Destroy();
   hbox_.Destroy();
+  account_alignment_.Destroy();
+  account_event_box_.Destroy();
+  account_icon_image_.Destroy();
   content_setting_hbox_.Destroy();
   page_action_hbox_.Destroy();
 }
@@ -262,7 +271,7 @@ void LocationBarViewGtk::Init(bool popup_window_mode) {
   // tab_to_search_hint_ gets hidden initially in OnChanged.  Hiding it here
   // doesn't work, someone is probably calling show_all on our parent box.
   gtk_box_pack_end(GTK_BOX(entry_box_), tab_to_search_hint_, FALSE, FALSE, 0);
-
+  
   // We don't show the star in popups, app windows, etc.
   if (browser_defaults::bookmarks_enabled && !ShouldOnlyShowLocation()) {
     CreateStarButton();
@@ -289,6 +298,9 @@ void LocationBarViewGtk::Init(bool popup_window_mode) {
                       "chrome-page-action-hbox");
   gtk_box_pack_end(GTK_BOX(hbox_.get()), page_action_hbox_.get(),
                    FALSE, FALSE, 0);
+
+  // Create the account area view.
+  BuildAccountArea();
 
   // Now that we've created the widget hierarchy, connect to the main |hbox_|'s
   // size-allocate so we can do proper resizing and eliding on
@@ -376,6 +388,54 @@ void LocationBarViewGtk::SetSiteTypeDragSource() {
                                       ui::CHROME_NAMED_URL);
 }
 
+void LocationBarViewGtk::BuildAccountArea() {
+  account_icon_image_.Own(gtk_image_new());
+  gtk_widget_set_name(account_icon_image_.get(), "chrome-account-icon");
+
+  GtkWidget* icon_alignment = gtk_alignment_new(0, 0, 1, 1);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(icon_alignment), 0, 0, 2, 0);
+  gtk_container_add(GTK_CONTAINER(icon_alignment), account_icon_image_.get());
+  gtk_widget_show_all(icon_alignment);
+  
+  account_label_ = gtk_label_new(NULL);
+  gtk_label_set_ellipsize(GTK_LABEL(account_label_),
+                          PANGO_ELLIPSIZE_MIDDLE);
+  gtk_widget_modify_fg(GTK_WIDGET(account_label_), GTK_STATE_NORMAL,
+                       &kAccountTextColor);
+  gtk_widget_set_name(account_label_,
+                      "chrome-location-bar-account-label");
+
+  GtkWidget* account_hbox = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(account_hbox), icon_alignment,
+                     FALSE, FALSE, 0);
+
+  GtkWidget* label_alignment = gtk_alignment_new(0, 0, 1, 1);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(label_alignment), 0, 0, 0, 4);
+  gtk_container_add(GTK_CONTAINER(label_alignment), account_label_);
+  gtk_box_pack_start(GTK_BOX(account_hbox), label_alignment, FALSE, FALSE, 1);
+  
+  account_event_box_.Own(gtk_event_box_new());
+  gtk_widget_modify_bg(account_event_box_.get(), GTK_STATE_NORMAL,
+                       &kAccountBackgroundColor);
+
+  // Make the event box not visible so it does not paint a background.
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(account_event_box_.get()),
+                                   FALSE);
+  gtk_widget_set_name(account_event_box_.get(),
+                      "chrome-location-bar-account-eventbox");
+  gtk_container_add(GTK_CONTAINER(account_event_box_.get()), account_hbox);
+
+  // Put the event box in an alignment to get the padding correct
+  account_alignment_.Own(gtk_alignment_new(0, 0, 1, 1));
+  gtk_alignment_set_padding(GTK_ALIGNMENT(account_alignment_.get()),
+                            1, 1, 0, 2);
+  gtk_container_add(GTK_CONTAINER(account_alignment_.get()),
+                    account_event_box_.get());
+
+  gtk_box_pack_end(GTK_BOX(hbox_.get()), account_alignment_.get(),
+                   FALSE, FALSE, 0);
+}
+
 void LocationBarViewGtk::SetProfile(Profile* profile) {
   profile_ = profile;
 }
@@ -423,6 +483,7 @@ void LocationBarViewGtk::Update(const TabContents* contents) {
       gtk_widget_hide_all(star_.get());
   }
   UpdateSiteTypeArea();
+  UpdateAccountArea();
   UpdateContentSettingsIcons();
   UpdatePageActions();
   location_entry_->Update(contents);
@@ -520,6 +581,7 @@ void LocationBarViewGtk::OnAutocompleteAccept(const GURL& url,
 
 void LocationBarViewGtk::OnChanged() {
   UpdateSiteTypeArea();
+  UpdateAccountArea();
 
   const string16 keyword(location_entry_->model()->keyword());
   const bool is_keyword_hint = location_entry_->model()->is_keyword_hint();
@@ -821,6 +883,7 @@ void LocationBarViewGtk::Observe(NotificationType type,
     gtk_util::SetLabelColor(tab_to_search_hint_trailing_label_, NULL);
 
     gtk_util::UndoForceFontSize(security_info_label_);
+    gtk_util::UndoForceFontSize(account_label_);
     gtk_util::UndoForceFontSize(tab_to_search_full_label_);
     gtk_util::UndoForceFontSize(tab_to_search_partial_label_);
     gtk_util::UndoForceFontSize(tab_to_search_hint_leading_label_);
@@ -844,6 +907,7 @@ void LocationBarViewGtk::Observe(NotificationType type,
     // Until we switch to vector graphics, force the font size of labels.
     // 12.1px = 9pt @ 96dpi
     gtk_util::ForceFontSizePixels(security_info_label_, 12.1);
+    gtk_util::ForceFontSizePixels(account_label_, 12.1);
     gtk_util::ForceFontSizePixels(tab_to_search_full_label_,
         browser_defaults::kAutocompleteEditFontPixelSize);
     gtk_util::ForceFontSizePixels(tab_to_search_partial_label_,
@@ -968,6 +1032,78 @@ void LocationBarViewGtk::UpdateEVCertificateLabelSize() {
   // Don't let the label be smaller than 10 characters so that the country
   // code is always visible.
   gtk_label_set_max_width_chars(GTK_LABEL(security_info_label_),
+                                std::max(10, max_chars));
+
+  pango_font_metrics_unref(metrics);
+}
+
+void LocationBarViewGtk::UpdateAccountArea() {
+  // The account is always visible except when the |tab_to_search_box_| is visible.
+  if (!location_entry_->model()->keyword().empty() &&
+      !location_entry_->model()->is_keyword_hint()) {
+    gtk_widget_hide(account_event_box_.get());
+    return;
+  }
+
+  int resource_id = IDR_OMNIBOX_ACCOUNT;
+  gtk_image_set_from_pixbuf(GTK_IMAGE(account_icon_image_.get()),
+                            theme_provider_->GetPixbufNamed(resource_id));
+  
+  string16 site_account = toolbar_model_->GetSiteAccount();
+  LOG(INFO) << "UpdateAccountArea acct=" << site_account;
+  if (!site_account.empty()) {
+    if (!gtk_util::IsActingAsRoundedWindow(account_event_box_.get())) {
+      gtk_event_box_set_visible_window(GTK_EVENT_BOX(account_event_box_.get()),
+                                       TRUE);
+      gtk_util::ActAsRoundedWindow(account_event_box_.get(),
+                                   kAccountBorderColor,
+                                   kCornerSize,
+                                   gtk_util::ROUNDED_ALL,
+                                   gtk_util::BORDER_ALL);
+    }
+
+    gtk_label_set_text(GTK_LABEL(account_label_),
+                       UTF16ToUTF8(site_account).c_str());
+    UpdateAccountLabelSize();
+
+    gtk_widget_set_tooltip_text(
+        GTK_WIDGET(account_event_box_.get()),
+        "You are currently logged in as sqs.");
+
+    gtk_widget_show(GTK_WIDGET(account_event_box_.get()));
+  } else {
+    if (gtk_util::IsActingAsRoundedWindow(account_event_box_.get())) {
+      gtk_util::StopActingAsRoundedWindow(account_event_box_.get());
+      gtk_event_box_set_visible_window(GTK_EVENT_BOX(account_event_box_.get()),
+                                       FALSE);
+    }
+
+    gtk_widget_hide(GTK_WIDGET(account_event_box_.get()));
+  }
+}
+
+void LocationBarViewGtk::UpdateAccountLabelSize() {
+  // TODO(sqs): duplicate of above - condense
+  // Figure out the width of the average character.
+  PangoLayout* layout = gtk_label_get_layout(GTK_LABEL(account_label_));
+  PangoContext* context = pango_layout_get_context(layout);
+  PangoFontMetrics* metrics = pango_context_get_metrics(
+      context,
+      gtk_widget_get_style(account_label_)->font_desc,
+      pango_context_get_language(context));
+  int char_width =
+      pango_font_metrics_get_approximate_char_width(metrics) / PANGO_SCALE;
+
+  // The EV label should never take up more than half the hbox. We try to
+  // correct our inaccurate measurement units ("the average character width")
+  // by dividing more than an even 2.
+  int text_area = account_label_->allocation.width +
+                  entry_box_->allocation.width;
+  int max_chars = static_cast<int>(static_cast<float>(text_area) /
+                                   static_cast<float>(char_width) / 2.75);
+  // Don't let the label be smaller than 10 characters so that the country
+  // code is always visible.
+  gtk_label_set_max_width_chars(GTK_LABEL(account_label_),
                                 std::max(10, max_chars));
 
   pango_font_metrics_unref(metrics);
