@@ -1050,7 +1050,6 @@ void LocationBarViewGtk::UpdateAccountArea() {
                             theme_provider_->GetPixbufNamed(resource_id));
   
   string16 site_account = toolbar_model_->GetSiteAccount();
-  LOG(INFO) << "UpdateAccountArea acct=" << site_account;
   if (!site_account.empty()) {
     if (!gtk_util::IsActingAsRoundedWindow(account_event_box_.get())) {
       gtk_event_box_set_visible_window(GTK_EVENT_BOX(account_event_box_.get()),
