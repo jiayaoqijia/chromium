@@ -1615,7 +1615,6 @@ void TabContents::OnDidLoadResourceFromMemoryCache(
   LoadFromMemoryCacheDetails details(url, frame_origin, main_frame_origin,
                                      GetRenderProcessHost()->id(), cert_id,
                                      cert_status, tls_username);
-  // TODO(sqs): add tls_username to this call - requires adding to provisional_load_details.cc probably
 
   NotificationService::current()->Notify(
       NotificationType::LOAD_FROM_MEMORY_CACHE,
