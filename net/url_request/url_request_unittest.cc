@@ -683,7 +683,6 @@ TEST_F(HTTPSRequestTest, HTTPSVSRPBadCertFailureTest) {
       if (cert_err_allowed) {
         EXPECT_NE(0, d.bytes_received());
         CheckSSLInfo(r.ssl_info());
-        LOG(INFO) << d.data_received();
         EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
       } else {
         EXPECT_EQ(0, d.bytes_received());
