@@ -304,7 +304,7 @@ TEST_F(SSLClientSocketTest, ConnectUsingCertWithTLSAuthDisabled) {
     rv = callback.WaitForResult();
   EXPECT_EQ(net::OK, rv);
 
-  // Disable TLS-SRP 
+  // Disable TLS-SRP
   net::SSLConfig ssl_config = kDefaultSSLConfig;
   ssl_config.use_tls_auth = false;
 
@@ -324,7 +324,7 @@ TEST_F(SSLClientSocketTest, ConnectUsingCertWithTLSAuthDisabled) {
   if (rv == net::ERR_IO_PENDING)
     rv = callback.WaitForResult();
   EXPECT_EQ(net::OK, rv);
-  
+
   EXPECT_TRUE(sock->IsConnected());
   log.GetEntries(&entries);
   EXPECT_TRUE(LogContainsSSLConnectEndEvent(entries, -1));

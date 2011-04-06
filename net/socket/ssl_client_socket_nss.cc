@@ -1064,7 +1064,7 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
     // the failure is harmless.
     SSL_CipherPrefSet(nss_fd_, *it, PR_FALSE);
   }
-  
+
   rv = SSL_HandshakeCallback(nss_fd_, HandshakeCallback, this);
   if (rv != SECSuccess) {
     LogFailedNSSFunction(net_log_, "SSL_HandshakeCallback", "");
@@ -1750,7 +1750,7 @@ int SSLClientSocketNSS::DoVerifyCert(int result) {
     GotoState(STATE_VERIFY_CERT_COMPLETE);
     return OK;
   }
-  
+
   DCHECK(server_cert_);
 
   GotoState(STATE_VERIFY_CERT_COMPLETE);
@@ -1920,7 +1920,7 @@ int SSLClientSocketNSS::DoPayloadWrite() {
 
 void SSLClientSocketNSS::LogConnectionTypeMetrics() const {
   UpdateConnectionTypeHistograms(CONNECTION_SSL);
-  
+
   if (server_cert_verify_result_) {
     if (server_cert_verify_result_->has_md5)
       UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5);
@@ -1933,7 +1933,7 @@ void SSLClientSocketNSS::LogConnectionTypeMetrics() const {
     if (server_cert_verify_result_->has_md2_ca)
       UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2_CA);
   }
-  
+
   int ssl_version = SSLConnectionStatusToVersion(ssl_connection_status_);
   switch (ssl_version) {
     case SSL_CONNECTION_VERSION_SSL2:

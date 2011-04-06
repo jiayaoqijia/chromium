@@ -177,7 +177,7 @@ PageInfoModel::PageInfoModel(Profile* profile,
     description += l10n_util::GetStringFUTF16(
         IDS_PAGE_INFO_TLS_USER_IDENTITY, subject_name, ssl.tls_username());
   }
-  
+
   sections_.push_back(SectionInfo(
       icon_id,
       headline,

@@ -75,7 +75,7 @@ static int ssl_srp_server_param_cb(SSL *s, int *ad, void *arg) {
   }
 
   /* TODO(sqs): see why it expects non-const BIGNUM* */
-  rv = SSL_set_srp_server_param(s, (BIGNUM*)user->N, (BIGNUM*)user->g, 
+  rv = SSL_set_srp_server_param(s, (BIGNUM*)user->N, (BIGNUM*)user->g,
                                 user->s, user->v, user->info);
   if (rv < 0) {
     *ad = SSL_AD_INTERNAL_ERROR;
@@ -260,7 +260,7 @@ main(int argc, char **argv) {
       return 1;
     }
     SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, verify_cb);
-    SSL_CTX_set_srp_cb_arg(ctx, &srpp);  			
+    SSL_CTX_set_srp_cb_arg(ctx, &srpp);
     SSL_CTX_set_srp_username_callback(ctx, ssl_srp_server_param_cb);
     fprintf(stderr, "Using SRP verifier file %s\n", srpv_file);
   }

@@ -28,7 +28,7 @@ TEST(TLSClientLoginCacheTest, LookupAddRemove) {
   scoped_refptr<AuthData> auth_data3(new AuthData);
   auth_data3->username = ASCIIToUTF16("user3");
   auth_data3->password = ASCIIToUTF16("secret3");
-  
+
   scoped_refptr<AuthData> cached_auth_data;
   // Lookup non-existent TLS login credentials.
   cached_auth_data = NULL;
@@ -89,7 +89,7 @@ TEST(TLSClientLoginCacheTest, LookupWithPort) {
   scoped_refptr<AuthData> auth_data2(new AuthData);
   auth_data2->username = ASCIIToUTF16("user2");
   auth_data2->password = ASCIIToUTF16("secret2");
-  
+
   cache.Add(server1, auth_data1.get());
   cache.Add(server2, auth_data2.get());
 

@@ -795,7 +795,7 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
     if (result == OK)
       return result;
   }
-  
+
   if (result < 0 && result != ERR_CONNECTION_CLOSED)
     return HandleIOError(result);
 

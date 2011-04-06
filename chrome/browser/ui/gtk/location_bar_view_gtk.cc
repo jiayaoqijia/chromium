@@ -271,7 +271,7 @@ void LocationBarViewGtk::Init(bool popup_window_mode) {
   // tab_to_search_hint_ gets hidden initially in OnChanged.  Hiding it here
   // doesn't work, someone is probably calling show_all on our parent box.
   gtk_box_pack_end(GTK_BOX(entry_box_), tab_to_search_hint_, FALSE, FALSE, 0);
-  
+
   // We don't show the star in popups, app windows, etc.
   if (browser_defaults::bookmarks_enabled && !ShouldOnlyShowLocation()) {
     CreateStarButton();
@@ -396,7 +396,7 @@ void LocationBarViewGtk::BuildAccountArea() {
   gtk_alignment_set_padding(GTK_ALIGNMENT(icon_alignment), 0, 0, 2, 0);
   gtk_container_add(GTK_CONTAINER(icon_alignment), account_icon_image_.get());
   gtk_widget_show_all(icon_alignment);
-  
+
   account_label_ = gtk_label_new(NULL);
   gtk_label_set_ellipsize(GTK_LABEL(account_label_),
                           PANGO_ELLIPSIZE_MIDDLE);
@@ -413,7 +413,7 @@ void LocationBarViewGtk::BuildAccountArea() {
   gtk_alignment_set_padding(GTK_ALIGNMENT(label_alignment), 0, 0, 0, 4);
   gtk_container_add(GTK_CONTAINER(label_alignment), account_label_);
   gtk_box_pack_start(GTK_BOX(account_hbox), label_alignment, FALSE, FALSE, 1);
-  
+
   account_event_box_.Own(gtk_event_box_new());
   gtk_widget_modify_bg(account_event_box_.get(), GTK_STATE_NORMAL,
                        &kAccountBackgroundColor);
@@ -1038,7 +1038,8 @@ void LocationBarViewGtk::UpdateEVCertificateLabelSize() {
 }
 
 void LocationBarViewGtk::UpdateAccountArea() {
-  // The account is always visible except when the |tab_to_search_box_| is visible.
+  // The account is always visible except when the |tab_to_search_box_| is
+  // visible.
   if (!location_entry_->model()->keyword().empty() &&
       !location_entry_->model()->is_keyword_hint()) {
     gtk_widget_hide(account_event_box_.get());
@@ -1048,7 +1049,7 @@ void LocationBarViewGtk::UpdateAccountArea() {
   int resource_id = IDR_OMNIBOX_ACCOUNT;
   gtk_image_set_from_pixbuf(GTK_IMAGE(account_icon_image_.get()),
                             theme_provider_->GetPixbufNamed(resource_id));
-  
+
   string16 site_account = toolbar_model_->GetSiteAccount();
   if (!site_account.empty()) {
     if (!gtk_util::IsActingAsRoundedWindow(account_event_box_.get())) {

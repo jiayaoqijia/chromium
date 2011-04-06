@@ -35,7 +35,7 @@ enum ConnectionType {
   CONNECTION_SSL_TLS1 = 11,    // An SSL connection that uses TLS 1.0
   CONNECTION_SSL_TLS1_1 = 12,  // An SSL connection that uses TLS 1.1
   CONNECTION_SSL_TLS1_2 = 13,  // An SSL connection that uses TLS 1.2
-  
+
   CONNECTION_TLS_PASSWORD_AUTH = 14, // A TLS connection that uses password auth
   NUM_OF_CONNECTION_TYPES
 };

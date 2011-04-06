@@ -140,7 +140,7 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
     path = path.Append("data");
     path = path.Append("ssl");
     path = path.Append("certificates");
-    path = path.Append("ok.srpv");    
+    path = path.Append("ok.srpv");
     return path.value();
   }
 
@@ -190,7 +190,7 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
 
   // PerformConnection makes an SSL connection to the openssl_helper binary and
   // does a ping-pong test to check the the SSL socket is working correctly.
-  void PerformConnection(std::string username = "", 
+  void PerformConnection(std::string username = "",
                          std::string password = "",
                          bool fail = false,
                          int expected_net_error = OK) {
@@ -255,8 +255,8 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
       ASSERT_EQ(ERR_IO_PENDING, rv);
       rv = callback.WaitForResult();
     }
-    
-    std::string exp_response = (ssl_config_.use_tls_auth) ? 
+
+    std::string exp_response = (ssl_config_.use_tls_auth) ?
         ssl_config_.tls_username : "not-using-tls-srp";
 
     EXPECT_EQ((int)exp_response.size(), rv);

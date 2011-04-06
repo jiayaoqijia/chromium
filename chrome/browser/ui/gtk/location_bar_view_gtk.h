@@ -312,7 +312,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
 
   // Updates the account area: changes the username or login state.
   void UpdateAccountArea();
-  
+
   // Updates the maximum size of the account label.
   void UpdateAccountLabelSize();
 
@@ -346,7 +346,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
 
   // The outermost widget we want to be hosted.
   OwnedWidgetGtk hbox_;
-  
+
   // Star button.
   OwnedWidgetGtk star_;
   GtkWidget* star_image_;
@@ -367,7 +367,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
   OwnedWidgetGtk account_event_box_;
   OwnedWidgetGtk account_icon_image_;
   GtkWidget* account_label_;
-  
+
   // Content setting icons.
   OwnedWidgetGtk content_setting_hbox_;
   ScopedVector<ContentSettingImageViewGtk> content_setting_views_;

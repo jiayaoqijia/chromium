@@ -504,7 +504,7 @@ TEST_F(HTTPSRequestTest, HTTPSSRPLoginTest) {
     {
       TestURLRequest r(test_server.GetURL("tlslogininfo"), &d);
       r.SetTLSLogin(kUser, kSecret);
-    
+
       r.Start();
       EXPECT_TRUE(r.is_pending());
 
@@ -532,7 +532,7 @@ TEST_F(HTTPSRequestTest, HTTPSSRPLoginContinueTest) {
     {
       GURL https_url = test_server.GetURL("tlslogininfo");
       TestURLRequest r(https_url, &d);
-    
+
       r.Start();
       EXPECT_TRUE(r.is_pending());
       MessageLoop::current()->Run();
@@ -593,7 +593,7 @@ TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
     EXPECT_EQ(1, d_https.response_started_count());
     EXPECT_NE(0, d_https.bytes_received());
     CheckSSLInfo(r_https.ssl_info());
-    
+
     HTTPSVClientSRPLoginTestDelegate d;
     TestURLRequest r(httpsv_url, &d);
     r.Start();
@@ -719,7 +719,7 @@ TEST_F(HTTPSRequestTest, HTTPSVSRPLoginWithCertTest) {
   GURL::Replacements replacements;
   replacements.SetSchemeStr("httpsv");
   GURL httpsv_url = https_url.ReplaceComponents(replacements);
-  
+
   TestDelegate d;
   {
     TestURLRequest r(httpsv_url, &d);
@@ -798,7 +798,7 @@ TEST_F(HTTPSRequestTest, HTTPSVBadSecretFailureTest) {
 
     {
       HTTPSVClientSRPLoginTestDelegate d;
-      
+
       TestURLRequest r(httpsv_url, &d);
       // Try wrong password. Since this is an httpsv URL, even when the server
       // also offers certificate-based cipher suites, we will fail to connect.
@@ -838,7 +838,7 @@ TEST_F(HTTPSRequestTest, HTTPSVBadUsernameTest) {
 
     {
       HTTPSVClientSRPLoginTestDelegate d;
-      
+
       TestURLRequest r(httpsv_url, &d);
       // Try wrong password. Since this is an httpsv URL, even when the server
       // also offers certificate-based cipher suites, we will fail to connect.
@@ -882,7 +882,7 @@ TEST_F(HTTPSRequestTest, HTTPSVCancelLoginTest) {
 
   {
     HTTPSVClientSRPLoginTestDelegate d;
-      
+
     TestURLRequest r(httpsv_url, &d);
     r.Start();
     EXPECT_TRUE(r.is_pending());

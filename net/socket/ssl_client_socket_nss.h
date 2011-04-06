@@ -100,7 +100,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   // Enables SRP ciphers. If |disable_non_srp_ciphers| is true, then non-SRP
   // ciphers will be disabled. Returns a net error code.
   int SetCiphersForTLSAuth(bool set_srp_ciphers, bool disable_non_srp_ciphers);
-  
+
   // Initializes the socket peer name in SSL.  Returns a net error code.
   int InitializeSSLPeerName();
 
@@ -166,7 +166,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
                                      CERTCertificate** result_certificate,
                                      SECKEYPrivateKey** result_private_key);
 #endif
-  
+
   // NSS calls this when password authentication is requested (for TLS-SRP).
   static SECStatus TLSAuthCallback(PRFileDesc *socket, SECItem *pw, void *arg);
 

@@ -130,9 +130,12 @@ string16 ToolbarModel::GetSiteName() const {
 }
 
 string16 ToolbarModel::GetSiteAccount() const {
-  if (!GetNavigationController() || !GetNavigationController()->GetActiveEntry())
+  if (!GetNavigationController() ||
+      !GetNavigationController()->GetActiveEntry())
     return string16();
-  
+
+  // TODO(sqs): find a better way of indicating "Logging in..." than just
+  // returning a string here
   NavigationEntry* entry = GetNavigationController()->GetActiveEntry();
   if (!entry->ssl().tls_username().empty())
     return entry->ssl().tls_username();

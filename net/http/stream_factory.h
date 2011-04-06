@@ -73,7 +73,7 @@ class StreamRequest {
 
     // Called when we need to provide TLS client login credentials.
     virtual void OnNeedsTLSLogin(AuthChallengeInfo* login_info) = 0;
-    
+
     // This is the failure of the CONNECT request through an HTTPS proxy.
     // Headers can be read from |response_info|, while the body can be read
     // from |stream|.

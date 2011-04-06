@@ -16,7 +16,7 @@ bool TLSClientLoginCache::Lookup(
     const std::string& server,
     scoped_refptr<AuthData>* tls_auth_data) {
   DCHECK(tls_auth_data);
-  
+
   AuthCacheMap::iterator iter = cache_.find(server);
   if (iter == cache_.end())
     return false;
