@@ -429,7 +429,9 @@ class SSLClientAuthTestDelegate : public TestDelegate {
 
 class HTTPSVClientSRPLoginTestDelegate : public TestDelegate {
  public:
-  HTTPSVClientSRPLoginTestDelegate() : on_tls_login_required_count_(0) {
+  HTTPSVClientSRPLoginTestDelegate() :
+      on_tls_login_required_count_(0),
+      last_login_request_info_(NULL) {
   }
   virtual void OnTLSLoginRequired(
       net::URLRequest* request,
