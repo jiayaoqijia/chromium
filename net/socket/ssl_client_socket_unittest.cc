@@ -283,8 +283,10 @@ TEST_F(SSLClientSocketTest, ConnectClientAuthSendNullCert) {
   EXPECT_FALSE(sock->IsConnected());
 }
 
-// Connect using a certificate to a server that has TLS-SRP enabled.
-TEST_F(SSLClientSocketTest, ConnectUsingCertWithSRPEnabled) {
+// Connect using a certificate to a server that has TLS-SRP enabled. Tests that
+// when we set use_tls_auth=false in SSL config, it doesn't attempt TLS-SRP
+// auth.
+TEST_F(SSLClientSocketTest, ConnectUsingCertWithTLSAuthDisabled) {
   net::TestServer::HTTPSOptions https_options;
   https_options.use_tls_srp = true;
   net::TestServer test_server(https_options, FilePath());
@@ -302,9 +304,13 @@ TEST_F(SSLClientSocketTest, ConnectUsingCertWithSRPEnabled) {
     rv = callback.WaitForResult();
   EXPECT_EQ(net::OK, rv);
 
+  // Disable TLS-SRP 
+  net::SSLConfig ssl_config = kDefaultSSLConfig;
+  ssl_config.use_tls_auth = false;
+
   scoped_ptr<net::SSLClientSocket> sock(
       socket_factory_->CreateSSLClientSocket(
-          transport, test_server.host_port_pair(), kDefaultSSLConfig,
+          transport, test_server.host_port_pair(), ssl_config,
           NULL, cert_verifier_.get()));
 
   EXPECT_FALSE(sock->IsConnected());
