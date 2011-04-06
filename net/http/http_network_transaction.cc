@@ -1157,7 +1157,8 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
     case ERR_SSL_DECOMPRESSION_FAILURE_ALERT:
     case ERR_SSL_BAD_RECORD_MAC_ALERT:
       if (ssl_config_.tls1_enabled &&
-          !SSLConfigService::IsKnownStrictTLSServer(request_->url.host())) {
+          !SSLConfigService::IsKnownStrictTLSServer(request_->url.host()) &&
+          !ssl_config_.require_tls_auth) {
         // This could be a TLS-intolerant server, an SSL 3.0 server that
         // chose a TLS-only cipher suite or a server with buggy DEFLATE
         // support. Turn off TLS 1.0, DEFLATE support and retry.
