@@ -25,7 +25,7 @@ SSLConfig::SSLConfig()
       dns_cert_provenance_checking_enabled(false),
       mitm_proxies_allowed(false), false_start_enabled(true),
       send_client_cert(false), verify_ev_cert(false), ssl3_fallback(false),
-      use_tls_auth(false), require_tls_auth(false) {
+      use_tls_auth(true), require_tls_auth(false) {
 }
 
 SSLConfig::~SSLConfig() {
@@ -95,6 +95,7 @@ static bool g_false_start_enabled = true;
 static bool g_mitm_proxies_allowed = false;
 static bool g_snap_start_enabled = false;
 static bool g_dns_cert_provenance_checking = false;
+static bool g_use_tls_auth = true;
 
 // static
 void SSLConfigService::EnableDNSSEC() {
@@ -165,13 +166,15 @@ void SSLConfigService::SetSSLConfigFlags(SSLConfig* ssl_config) {
   ssl_config->snap_start_enabled = g_snap_start_enabled;
   ssl_config->dns_cert_provenance_checking_enabled =
       g_dns_cert_provenance_checking;
+  ssl_config->use_tls_auth = g_use_tls_auth;
 }
 
 void SSLConfigService::ProcessConfigUpdate(const SSLConfig& orig_config,
                                            const SSLConfig& new_config) {
   if (orig_config.rev_checking_enabled != new_config.rev_checking_enabled ||
       orig_config.ssl3_enabled != new_config.ssl3_enabled ||
-      orig_config.tls1_enabled != new_config.tls1_enabled) {
+      orig_config.tls1_enabled != new_config.tls1_enabled ||
+      orig_config.use_tls_auth != new_config.use_tls_auth) {
     FOR_EACH_OBSERVER(Observer, observer_list_, OnSSLConfigChanged());
   }
 }
