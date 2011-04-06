@@ -122,6 +122,19 @@ std::wstring ToolbarModel::GetEVCertName() const {
   return UTF16ToWideHack(SSLManager::GetEVCertName(*cert));
 }
 
+string16 ToolbarModel::GetSiteAccount() const {
+  if (!GetNavigationController() || !GetNavigationController()->GetActiveEntry())
+    return string16();
+  
+  NavigationEntry* entry = GetNavigationController()->GetActiveEntry();
+  if (!entry->ssl().tls_username().empty())
+    return entry->ssl().tls_username();
+  else if (entry->url().SchemeIs("httpsv"))
+    return ASCIIToUTF16("Logging in...");
+  else
+    return string16();
+}
+
 NavigationController* ToolbarModel::GetNavigationController() const {
   // This |current_tab| can be NULL during the initialization of the
   // toolbar during window creation (i.e. before any tabs have been added

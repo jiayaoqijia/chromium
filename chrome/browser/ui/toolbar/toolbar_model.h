@@ -9,6 +9,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/string16.h"
 
 class Browser;
 class NavigationController;
@@ -48,6 +49,8 @@ class ToolbarModel {
   // Returns the name of the EV cert holder.  Only call this when the security
   // level is EV_SECURE.
   std::wstring GetEVCertName() const;
+
+  string16 GetSiteAccount() const;
 
   // Getter/setter of whether the text in location bar is currently being
   // edited.
