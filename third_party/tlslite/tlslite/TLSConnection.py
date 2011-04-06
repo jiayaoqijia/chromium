@@ -1257,7 +1257,7 @@ class TLSConnection(TLSRecordLayer):
                 #Ask the client to re-send ClientHello with one
                 for result in self._sendMsg(Alert().create(\
                         AlertDescription.unknown_psk_identity,
-                        AlertLevel.warning)):
+                        AlertLevel.fatal)):
                     yield result
 
                 #Get ClientHello
