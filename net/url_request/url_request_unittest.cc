@@ -559,6 +559,11 @@ TEST_F(HTTPSRequestTest, HTTPSSRPLoginContinueTest) {
 // Open a connection to the same host using SSL certificate auth, and then open
 // a connection to the same host requesting TLS-SRP auth.
 // TODO(sqs): disabled - see todo below.
+//
+// TODO(sqs): This happens on, e.g., GnuTLS/mod_gnutls. If the Client Hello has
+// no "srp" extension but has SRP cipher suites, GnuTLS will choose a non-SRP
+// ciphersuite. Other implementations (OpenSSL, TLS Lite) will send
+// "unknown_psk_identity".
 TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
   net::TestServer::HTTPSOptions https_options;
   https_options.use_tls_srp = true;
