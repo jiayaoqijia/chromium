@@ -282,7 +282,7 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
 TEST_F(SSLClientSocketTLSSRPTest, NoCredentials) {
   StartTLSSRPServer(NULL);
   // Not a TLS-SRP connection.
-  PerformConnection("", "", true, ERR_SSL_VERSION_OR_CIPHER_MISMATCH);
+  PerformConnection("", "", true, ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT);
   expected_exit_code_ = 1;
 }
 
@@ -302,7 +302,7 @@ TEST_F(SSLClientSocketTLSSRPTest, GoodCredentials2) {
 // below will need to change.
 TEST_F(SSLClientSocketTLSSRPTest, BadCredentials) {
   StartTLSSRPServer(NULL);
-  PerformConnection("baduser", "badpw", true, ERR_SSL_PROTOCOL_ERROR);
+  PerformConnection("baduser", "badpw", true, ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT);
   expected_exit_code_ = 1;
 }
 
