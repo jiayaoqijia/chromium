@@ -260,7 +260,8 @@ class SSLClientSocketTLSSRPTest : public PlatformTest {
         ssl_config_.tls_username : "not-using-tls-srp";
 
     EXPECT_EQ((int)exp_response.size(), rv);
-    EXPECT_TRUE(memcmp(reply_buffer->data(), exp_response.data(), exp_response.size()) == 0);
+    EXPECT_TRUE(memcmp(reply_buffer->data(), exp_response.data(),
+                       exp_response.size()) == 0);
 
     next_proto_status_ = sock->GetNextProto(&next_proto_);
 
@@ -302,7 +303,8 @@ TEST_F(SSLClientSocketTLSSRPTest, GoodCredentials2) {
 // below will need to change.
 TEST_F(SSLClientSocketTLSSRPTest, BadCredentials) {
   StartTLSSRPServer(NULL);
-  PerformConnection("baduser", "badpw", true, ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT);
+  PerformConnection("baduser", "badpw", true,
+                    ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT);
   expected_exit_code_ = 1;
 }
 

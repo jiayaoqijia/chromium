@@ -1035,7 +1035,8 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
     if (rv != OK)
       return rv;
 
-    if (!ssl_config_.tls_username.empty() && !ssl_config_.tls_password.empty()) {
+    if (!ssl_config_.tls_username.empty() &&
+        !ssl_config_.tls_password.empty()) {
       LOG(WARNING) << "Using TLS-SRP as " <<
           ssl_config_.tls_username << " / " << ssl_config_.tls_password;
 

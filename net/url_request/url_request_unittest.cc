@@ -511,7 +511,8 @@ TEST_F(HTTPSRequestTest, HTTPSSRPLoginTest) {
       MessageLoop::current()->Run();
 
       EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) != std::string::npos);
+      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                  std::string::npos);
       EXPECT_FALSE(d.received_data_before_response());
     }
   }
@@ -540,7 +541,8 @@ TEST_F(HTTPSRequestTest, HTTPSSRPLoginContinueTest) {
       EXPECT_FALSE(d.received_data_before_response());
       EXPECT_EQ(1, d.on_tls_login_required_count());
       EXPECT_EQ("TLS-SRP", WideToUTF8(d.last_login_request_info()->scheme));
-      std::string host_and_port = WideToUTF8(d.last_login_request_info()->host_and_port);
+      std::string host_and_port =
+          WideToUTF8(d.last_login_request_info()->host_and_port);
       EXPECT_TRUE(host_and_port.find(https_url.host()) != std::string::npos);
       EXPECT_TRUE(host_and_port.find(https_url.port()) != std::string::npos);
       EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
