@@ -117,6 +117,16 @@ void CheckSSLInfo(const net::SSLInfo& ssl_info) {
   EXPECT_NE(0, cipher_suite);
 }
 
+// Verify that the AuthChallengeInfo for TLS-SRP has valid values.
+void CheckTLSAuthChallengeInfo(net::AuthChallengeInfo* login_request,
+                               GURL& request_url) {
+  EXPECT_EQ(WideToUTF8(login_request->host_and_port),
+            net::GetHostAndPort(request_url));
+  EXPECT_EQ(net::kTLSSRPScheme, WideToUTF8(login_request->scheme));
+  EXPECT_EQ("", WideToUTF8(login_request->realm));
+  EXPECT_EQ(net::AUTH_OVER_TLS, login_request->over_protocol);
+}
+
 }  // namespace
 
 // Inherit PlatformTest since we require the autorelease pool on Mac OS X.f
@@ -540,13 +550,7 @@ TEST_F(HTTPSRequestTest, HTTPSSRPLoginContinueTest) {
       EXPECT_EQ(0, d.bytes_received());
       EXPECT_FALSE(d.received_data_before_response());
       EXPECT_EQ(1, d.on_tls_login_required_count());
-      EXPECT_EQ(net::kTLSSRPScheme,
-                WideToUTF8(d.last_login_request_info()->scheme));
-      std::string host_and_port =
-          WideToUTF8(d.last_login_request_info()->host_and_port);
-      EXPECT_TRUE(host_and_port.find(https_url.host()) != std::string::npos);
-      EXPECT_TRUE(host_and_port.find(https_url.port()) != std::string::npos);
-      EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
+      CheckTLSAuthChallengeInfo(d.last_login_request_info(), https_url);
 
       r.SetTLSLogin(kUser, kSecret);
       r.ContinueWithTLSLogin();
@@ -607,13 +611,7 @@ TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
     EXPECT_EQ(0, d.bytes_received());
     EXPECT_FALSE(d.received_data_before_response());
     EXPECT_EQ(1, d.on_tls_login_required_count());
-    EXPECT_EQ(net::kTLSSRPScheme,
-              WideToUTF8(d.last_login_request_info()->scheme));
-    std::string host_and_port =
-        WideToUTF8(d.last_login_request_info()->host_and_port);
-    EXPECT_TRUE(host_and_port.find(httpsv_url.host()) != std::string::npos);
-    EXPECT_TRUE(host_and_port.find(httpsv_url.port()) != std::string::npos);
-    EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
+    CheckTLSAuthChallengeInfo(d.last_login_request_info(), httpsv_url);
 
     r.SetTLSLogin(kUser, kSecret);
     r.ContinueWithTLSLogin();
@@ -651,8 +649,7 @@ TEST_F(HTTPSRequestTest, TLSLoginCredentialsRemainCached) {
     EXPECT_EQ(0, d.bytes_received());
     EXPECT_FALSE(d.received_data_before_response());
     EXPECT_EQ(1, d.on_tls_login_required_count());
-    EXPECT_EQ(net::kTLSSRPScheme,
-              WideToUTF8(d.last_login_request_info()->scheme));
+    CheckTLSAuthChallengeInfo(d.last_login_request_info(), httpsv_url);
 
     r.SetTLSLogin(kUser, kSecret);
     r.ContinueWithTLSLogin();
@@ -699,14 +696,7 @@ TEST_F(HTTPSRequestTest, HTTPSVLoginTest) {
       EXPECT_EQ(0, d.bytes_received());
       EXPECT_FALSE(d.received_data_before_response());
       EXPECT_EQ(1, d.on_tls_login_required_count());
-      EXPECT_EQ(net::kTLSSRPScheme,
-                WideToUTF8(d.last_login_request_info()->scheme));
-      std::string host_and_port =
-          WideToUTF8(d.last_login_request_info()->host_and_port);
-      EXPECT_TRUE(host_and_port.find(httpsv_url.host()) != std::string::npos);
-      EXPECT_TRUE(host_and_port.find(httpsv_url.port()) != std::string::npos);
-      EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
-      EXPECT_EQ(net::AUTH_OVER_TLS, d.last_login_request_info()->over_protocol);
+      CheckTLSAuthChallengeInfo(d.last_login_request_info(), httpsv_url);
 
       r.SetTLSLogin(kUser, kSecret);
       r.ContinueWithTLSLogin();
@@ -865,14 +855,7 @@ TEST_F(HTTPSRequestTest, HTTPSVBadUsernameTest) {
       EXPECT_EQ(0, d.bytes_received());
       EXPECT_FALSE(d.received_data_before_response());
       EXPECT_EQ(1, d.on_tls_login_required_count());
-      ASSERT_TRUE(d.last_login_request_info() != NULL);
-      EXPECT_EQ(net::kTLSSRPScheme,
-                WideToUTF8(d.last_login_request_info()->scheme));
-      std::string host_and_port =
-          WideToUTF8(d.last_login_request_info()->host_and_port);
-      EXPECT_TRUE(host_and_port.find(httpsv_url.host()) != std::string::npos);
-      EXPECT_TRUE(host_and_port.find(httpsv_url.port()) != std::string::npos);
-      EXPECT_EQ("", WideToUTF8(d.last_login_request_info()->realm));
+      CheckTLSAuthChallengeInfo(d.last_login_request_info(), httpsv_url);
 
       // Now continue with the correct password.
       r.SetTLSLogin(kUser, kSecret);
