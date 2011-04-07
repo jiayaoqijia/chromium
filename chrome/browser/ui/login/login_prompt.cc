@@ -350,9 +350,8 @@ void LoginHandler::SetAuthDeferred(const std::wstring& username,
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (request_) {
-    if (auth_info_->scheme == ASCIIToWide("TLS-SRP")) {
-      // TODO(sqs): ensure that this only happens if we are indeed using TLS-SRP
-      // and that an HTTP scheme called "TLS-SRP" can't trigger this
+    if (auth_info->over_protocol == AUTH_OVER_TLS) {
+      DCHECK_EQ(ASCIIToWide(net::kTLSSRPScheme), auth_info_->scheme);
       request_->SetTLSLogin(WideToUTF16Hack(username),
                             WideToUTF16Hack(password));
       request_->ContinueWithTLSLogin();
@@ -368,7 +367,8 @@ void LoginHandler::CancelAuthDeferred() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (request_) {
-    if (auth_info_->scheme == ASCIIToWide("TLS-SRP")) {
+    if (auth_info->over_protocol == AUTH_OVER_TLS) {
+      DCHECK_EQ(ASCIIToWide(net::kTLSSRPScheme), auth_info_->scheme);
       request_->CancelTLSLogin();
     } else {
       request_->CancelAuth();

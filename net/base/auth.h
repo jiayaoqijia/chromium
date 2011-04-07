@@ -13,6 +13,14 @@
 
 namespace net {
 
+extern const char kTLSSRPScheme[];
+
+// Protocols that use authentication
+enum AuthOverProtocol {
+  AUTH_OVER_HTTP,
+  AUTH_OVER_TLS
+};
+
 // Holds info about an authentication challenge that we may want to display
 // to the user.
 class AuthChallengeInfo :
@@ -34,6 +42,8 @@ class AuthChallengeInfo :
   std::wstring scheme;  // "Basic", "Digest", or whatever other method is used.
   std::wstring realm;  // the realm provided by the server, if there is one.
 
+  int over_protocol; // the protocol to authenticate over (HTTP or TLS).
+
  private:
   friend class base::RefCountedThreadSafe<AuthChallengeInfo>;
   ~AuthChallengeInfo();
@@ -53,6 +63,7 @@ class AuthData : public base::RefCountedThreadSafe<AuthData> {
   std::wstring scheme;  // the authentication scheme.
   string16 username;  // the username supplied to us for auth.
   string16 password;  // the password supplied to us for auth.
+  int over_protocol; // the protocol to authenticate over (HTTP or TLS).
 
   // We wouldn't instantiate this class if we didn't need authentication.
   AuthData();

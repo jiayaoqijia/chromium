@@ -616,7 +616,8 @@ int HttpNetworkTransaction::DoCreateStream() {
         response_.login_request_info = new AuthChallengeInfo;
         response_.login_request_info->host_and_port =
             UTF8ToWide(net::GetHostAndPort(request_->url));
-        response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
+        response_.login_request_info->scheme = ASCIIToWide(net::kTLSSRPScheme);
+        response_.login_request_info->over_protocol = AUTH_OVER_TLS;
         return ERR_TLS_CLIENT_LOGIN_NEEDED;
       }
     }
@@ -1149,7 +1150,8 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
       response_.login_request_info = new AuthChallengeInfo;
       response_.login_request_info->host_and_port =
           UTF8ToWide(GetHostAndPort(request_->url));
-      response_.login_request_info->scheme = ASCIIToWide("TLS-SRP");
+      response_.login_request_info->scheme = ASCIIToWide(net::kTLSSRPScheme);
+      response_.login_request_info->over_protocol = AUTH_OVER_TLS;
       return error;
     }
   }

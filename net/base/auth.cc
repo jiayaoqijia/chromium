@@ -6,7 +6,11 @@
 
 namespace net {
 
-AuthChallengeInfo::AuthChallengeInfo() : is_proxy(false) {
+const char kTLSSRPScheme[] = "tls-srp";
+
+AuthChallengeInfo::AuthChallengeInfo() :
+    is_proxy(false),
+    over_protocol(AUTH_OVER_HTTP) {
 }
 
 bool AuthChallengeInfo::operator==(const AuthChallengeInfo& that) const {
@@ -26,7 +30,9 @@ void AuthChallengeInfo::Reset() {
 AuthChallengeInfo::~AuthChallengeInfo() {
 }
 
-AuthData::AuthData() : state(AUTH_STATE_NEED_AUTH) {
+AuthData::AuthData() :
+    state(AUTH_STATE_NEED_AUTH),
+    over_protocol(AUTH_OVER_HTTP) {
 }
 
 AuthData::~AuthData() {
