@@ -6209,7 +6209,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
 
       <message name="IDS_PAGE_INFO_TLS_USER_IDENTITY" desc="The text of the user identity section when the page's security derives from TLS client login authentication.">
         You are mutually authenticated to <ph name="DOMAIN_NAME">$1<ex>www.google.com</ex></ph> as <ph name="TLS_USERNAME">$2<ex>user</ex></ph>.
-      </message>      
+      </message>
 
       <message name="IDS_PAGE_INFO_EV_IDENTITY_TITLE" desc="The title of the identity section when the page is secure with an EV cert.">
         <ph name="ORGANIZATION_NAME">$1<ex>Google Inc</ex></ph> (<ph name="DOMAIN_NAME">$2<ex>www.google.com</ex></ph>)
