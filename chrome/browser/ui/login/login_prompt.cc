@@ -448,7 +448,7 @@ class LoginDialogTask : public Task {
       dialog_form.scheme = PasswordForm::SCHEME_BASIC;
     } else if (LowerCaseEqualsASCII(auth_info_->scheme, "digest")) {
       dialog_form.scheme = PasswordForm::SCHEME_DIGEST;
-    } else if (LowerCaseEqualsASCII(auth_info_->scheme, "tls-srp")) {
+    } else if (LowerCaseEqualsASCII(auth_info_->scheme, net::kTLSSRPScheme)) {
       dialog_form.scheme = PasswordForm::SCHEME_TLS_SRP;
     } else {
       dialog_form.scheme = PasswordForm::SCHEME_OTHER;
