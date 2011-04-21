@@ -21,9 +21,9 @@ static bool HandleViewSource(GURL* url, Profile* profile) {
     // Bug 26129: limit view-source to view the content and not any
     // other kind of 'active' url scheme like 'javascript' or 'data'.
     static const char* const allowed_sub_schemes[] = {
-      chrome::kHttpScheme, chrome::kHttpsScheme, chrome::kHttpsvScheme,
-      chrome::kFtpScheme, chrome::kChromeDevToolsScheme,
-      chrome::kChromeUIScheme, chrome::kFileScheme
+      chrome::kHttpScheme, chrome::kHttpsScheme, chrome::kFtpScheme,
+      chrome::kChromeDevToolsScheme, chrome::kChromeUIScheme,
+      chrome::kFileScheme
     };
 
     bool is_sub_scheme_allowed = false;

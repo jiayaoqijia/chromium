@@ -492,7 +492,7 @@ void HttpNetworkTransaction::OnHttpsProxyTunnelResponse(
 }
 
 bool HttpNetworkTransaction::is_https_request() const {
-  return request_->url.SchemeIs("https") || request_->url.SchemeIs("httpsv");
+  return request_->url.SchemeIs("https");
 }
 
 void HttpNetworkTransaction::DoCallback(int rv) {
@@ -600,8 +600,8 @@ int HttpNetworkTransaction::DoCreateStream() {
 
   // Set TLS login, if available.
   if (ssl_config_.use_tls_auth) {
-    if (request_->url.SchemeIs("httpsv"))
-      ssl_config_.require_tls_auth = true;
+    // TODO(sqs): implement some way of forcing TLS auth (as right below)
+    // if (...) ssl_config_.require_tls_auth = true;
     if (ssl_config_.tls_username.empty()) {
       scoped_refptr<AuthData> tls_auth_data;
       bool found_login = session_->tls_client_login_cache()->Lookup(

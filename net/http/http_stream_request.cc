@@ -496,7 +496,6 @@ int HttpStreamRequest::DoInitConnection() {
       alternate_protocol_mode_ == kUsingAlternateProtocol &&
       alternate_protocol_ == HttpAlternateProtocols::NPN_SPDY_2;
   using_ssl_ = request_info().url.SchemeIs("https") ||
-      request_info().url.SchemeIs("httpsv") ||
       ShouldForceSpdySSL() || want_spdy_over_npn;
   using_spdy_ = false;
 
@@ -561,8 +560,7 @@ int HttpStreamRequest::DoInitConnection() {
 
     if (proxy_info()->is_http() || proxy_info()->is_https()) {
       GURL authentication_url = request_info().url;
-      if (using_ssl_ && !authentication_url.SchemeIs("https") &&
-          !authentication_url.SchemeIs("httpsv")) {
+      if (using_ssl_ && !authentication_url.SchemeIs("https")) {
         // If a proxy tunnel connection needs to be established due to
         // an Alternate-Protocol, the URL needs to be changed to indicate
         // https or digest authentication attempts will fail.

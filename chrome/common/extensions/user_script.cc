@@ -39,8 +39,7 @@ const char UserScript::kFileExtension[] = ".user.js";
 // static
 const int UserScript::kValidUserScriptSchemes =
     URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS |
-    URLPattern::SCHEME_HTTPSV | URLPattern::SCHEME_FILE |
-    URLPattern::SCHEME_FTP;
+    URLPattern::SCHEME_FILE | URLPattern::SCHEME_FTP;
 
 bool UserScript::HasUserScriptFileExtension(const GURL& url) {
   return EndsWith(url.ExtractFileName(), kFileExtension, false);

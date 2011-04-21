@@ -892,8 +892,7 @@ void URLRequestJob::RecordCompressionHistograms() {
 
   // Only record for http or https urls.
   bool is_http = request_->url().SchemeIs("http");
-  bool is_https = request_->url().SchemeIs("https") ||
-      request_->url().SchemeIs("httpsv");
+  bool is_https = request_->url().SchemeIs("https");
   if (!is_http && !is_https)
     return;
 

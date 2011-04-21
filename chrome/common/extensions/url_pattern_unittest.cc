@@ -1,4 +1,3 @@
-// TODO(sqs): add httpsv
 // Copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -13,7 +12,6 @@
 static const int kAllSchemes =
     URLPattern::SCHEME_HTTP |
     URLPattern::SCHEME_HTTPS |
-    URLPattern::SCHEME_HTTPSV |
     URLPattern::SCHEME_FILE |
     URLPattern::SCHEME_FTP |
     URLPattern::SCHEME_CHROMEUI;
@@ -56,7 +54,6 @@ TEST(ExtensionURLPatternTest, Match1) {
   EXPECT_TRUE(pattern.MatchesUrl(GURL("http://yahoo.com")));
   EXPECT_TRUE(pattern.MatchesUrl(GURL("http://google.com/foo")));
   EXPECT_FALSE(pattern.MatchesUrl(GURL("https://google.com")));
-  EXPECT_FALSE(pattern.MatchesUrl(GURL("httpsv://google.com")));
   EXPECT_TRUE(pattern.MatchesUrl(GURL("http://74.125.127.100/search")));
 }
 
@@ -70,11 +67,9 @@ TEST(ExtensionURLPatternTest, Match2) {
   EXPECT_FALSE(pattern.match_all_urls());
   EXPECT_EQ("/foo*", pattern.path());
   EXPECT_TRUE(pattern.MatchesUrl(GURL("https://www.google.com/foo")));
-  EXPECT_TRUE(pattern.MatchesUrl(GURL("httpsv://www.google.com/foo")));
   EXPECT_TRUE(pattern.MatchesUrl(GURL("https://www.google.com/foobar")));
   EXPECT_FALSE(pattern.MatchesUrl(GURL("http://www.google.com/foo")));
   EXPECT_FALSE(pattern.MatchesUrl(GURL("https://www.google.com/")));
-  EXPECT_FALSE(pattern.MatchesUrl(GURL("httpsv://www.google.com/")));
 }
 
 // subdomains
@@ -174,7 +169,6 @@ TEST(ExtensionURLPatternTest, Match10) {
   EXPECT_EQ(URLPattern::PARSE_SUCCESS, pattern.Parse("*://*/*"));
   EXPECT_TRUE(pattern.MatchesScheme("http"));
   EXPECT_TRUE(pattern.MatchesScheme("https"));
-  EXPECT_TRUE(pattern.MatchesScheme("httpsv"));
   EXPECT_FALSE(pattern.MatchesScheme("chrome"));
   EXPECT_FALSE(pattern.MatchesScheme("file"));
   EXPECT_FALSE(pattern.MatchesScheme("ftp"));
@@ -193,7 +187,6 @@ TEST(ExtensionURLPatternTest, Match11) {
   EXPECT_TRUE(pattern.MatchesScheme("chrome"));
   EXPECT_TRUE(pattern.MatchesScheme("http"));
   EXPECT_TRUE(pattern.MatchesScheme("https"));
-  EXPECT_TRUE(pattern.MatchesScheme("httpsv"));
   EXPECT_TRUE(pattern.MatchesScheme("file"));
   EXPECT_TRUE(pattern.match_subdomains());
   EXPECT_TRUE(pattern.match_all_urls());
@@ -210,7 +203,6 @@ TEST(ExtensionURLPatternTest, Match12) {
   EXPECT_TRUE(pattern.MatchesScheme("chrome"));
   EXPECT_TRUE(pattern.MatchesScheme("http"));
   EXPECT_TRUE(pattern.MatchesScheme("https"));
-  EXPECT_TRUE(pattern.MatchesScheme("httpsv"));
   EXPECT_TRUE(pattern.MatchesScheme("file"));
   EXPECT_TRUE(pattern.MatchesScheme("javascript"));
   EXPECT_TRUE(pattern.MatchesScheme("data"));
@@ -306,11 +298,9 @@ TEST(ExtensionURLPatternTest, OverlapsWith) {
   URLPattern pattern8(kAllSchemes, "*://*/*");
   URLPattern pattern9(URLPattern::SCHEME_HTTPS, "*://*/*");
   URLPattern pattern10(kAllSchemes, "<all_urls>");
-  URLPattern pattern11(kAllSchemes, "httpsv://www.google.com/foo/*");
 
   TestPatternOverlap(pattern1, pattern1, true);
   TestPatternOverlap(pattern1, pattern2, false);
-  TestPatternOverlap(pattern1, pattern11, false);
   TestPatternOverlap(pattern1, pattern3, true);
   TestPatternOverlap(pattern1, pattern4, false);
   TestPatternOverlap(pattern3, pattern4, false);
@@ -321,7 +311,6 @@ TEST(ExtensionURLPatternTest, OverlapsWith) {
   TestPatternOverlap(pattern1, pattern8, true);
   TestPatternOverlap(pattern1, pattern9, false);
   TestPatternOverlap(pattern1, pattern10, true);
-  TestPatternOverlap(pattern2, pattern11, false);
 
   // Test that '<all_urls>' includes file URLs, while scheme '*' does not.
   TestPatternOverlap(pattern7, pattern8, false);

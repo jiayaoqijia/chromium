@@ -35,8 +35,6 @@ static URLPattern::SchemeMasks GetSupportedSchemeType(const GURL& url) {
     return URLPattern::SCHEME_HTTP;
   else if (url.SchemeIs("https"))
     return URLPattern::SCHEME_HTTPS;
-  else if (url.SchemeIs("httpsv"))
-    return URLPattern::SCHEME_HTTPSV;
   return static_cast<URLPattern::SchemeMasks>(0);
 }
 
@@ -598,8 +596,7 @@ void PageLoadHistograms::Dump(WebFrame* frame) {
       // Histograms to determine if SPDY has an impact for https traffic.
       // TODO(mbelshe): After we've seen the difference between BeginToFinish
       //                and StartToFinish, consider removing one or the other.
-      if ((scheme_type == URLPattern::SCHEME_HTTPS ||
-           scheme_type == URLPattern::SCHEME_HTTPSV) &&
+      if (scheme_type == URLPattern::SCHEME_HTTPS &&
           navigation_state->was_npn_negotiated()) {
         UMA_HISTOGRAM_ENUMERATION(
             base::FieldTrial::MakeName("PLT.Abandoned", "SpdyImpact"),
@@ -717,8 +714,7 @@ void PageLoadHistograms::Dump(WebFrame* frame) {
 
   // Record page load time and abandonment rates for proxy cases.
   if (navigation_state->was_fetched_via_proxy()) {
-    if (scheme_type == URLPattern::SCHEME_HTTPS ||
-        scheme_type == URLPattern::SCHEME_HTTPSV) {
+    if (scheme_type == URLPattern::SCHEME_HTTPS) {
       PLT_HISTOGRAM("PLT.StartToFinish.Proxy.https", start_to_finish_all_loads);
       UMA_HISTOGRAM_ENUMERATION("PLT.Abandoned.Proxy.https",
                                 abandoned_page ? 1 : 0, 2);
@@ -729,8 +725,7 @@ void PageLoadHistograms::Dump(WebFrame* frame) {
                                 abandoned_page ? 1 : 0, 2);
     }
   } else {
-    if (scheme_type == URLPattern::SCHEME_HTTPS ||
-        scheme_type == URLPattern::SCHEME_HTTPSV) {
+    if (scheme_type == URLPattern::SCHEME_HTTPS) {
       PLT_HISTOGRAM("PLT.StartToFinish.NoProxy.https",
                     start_to_finish_all_loads);
       UMA_HISTOGRAM_ENUMERATION("PLT.Abandoned.NoProxy.https",

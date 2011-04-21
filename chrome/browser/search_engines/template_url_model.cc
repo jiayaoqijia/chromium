@@ -158,16 +158,13 @@ string16 TemplateURLModel::CleanUserInputKeyword(const string16& keyword) {
   if (url_parse::ExtractScheme(UTF16ToUTF8(keyword).c_str(),
                                static_cast<int>(keyword.length()),
                                &scheme_component)) {
-    // If the scheme isn't "http", "https", or "httpsv", bail.  The user isn't
-    // trying to type a web address, but rather an FTP, file:, or other scheme
-    // URL, or a search query with some sort of initial operator
-    // (e.g. "site:").
+    // If the scheme isn't "http" or "https", bail.  The user isn't trying to
+    // type a web address, but rather an FTP, file:, or other scheme URL, or a
+    // search query with some sort of initial operator (e.g. "site:").
     if (result.compare(0, scheme_component.end(),
                        ASCIIToUTF16(chrome::kHttpScheme)) &&
         result.compare(0, scheme_component.end(),
-                       ASCIIToUTF16(chrome::kHttpsScheme)) &&
-        result.compare(0, scheme_component.end(),
-                       ASCIIToUTF16(chrome::kHttpsvScheme)))
+                       ASCIIToUTF16(chrome::kHttpsScheme)))
       return string16();
 
     // Include trailing ':'.

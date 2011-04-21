@@ -423,7 +423,7 @@ const wchar_t* ShellUtil::kChromeHTMLProgIdDesc = L"Chromium HTML Document";
 const wchar_t* ShellUtil::kFileAssociations[] = {L".htm", L".html", L".shtml",
     L".xht", L".xhtml", NULL};
 const wchar_t* ShellUtil::kProtocolAssociations[] = {L"ftp", L"http", L"https",
-    L"httpsv", NULL};
+    NULL};
 const wchar_t* ShellUtil::kRegUrlProtocol = L"URL Protocol";
 
 bool ShellUtil::AdminNeededForRegistryCleanup(BrowserDistribution* dist,

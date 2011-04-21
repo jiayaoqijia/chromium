@@ -246,7 +246,7 @@ void InitialObserver::Append(const GURL& url) {
   if (kStartupResolutionCount <= first_navigations_.size())
     return;
 
-  if (url.SchemeIs("http") || url.SchemeIs("https") || url.SchemeIs("httpsv")) {
+  if (url.SchemeIs("http") || url.SchemeIs("https")) {
     const GURL url_without_path(Predictor::CanonicalizeUrl(url));
     if (first_navigations_.find(url_without_path) == first_navigations_.end())
       first_navigations_[url_without_path] = base::TimeTicks::Now();

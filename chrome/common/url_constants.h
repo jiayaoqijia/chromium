@@ -24,7 +24,6 @@ extern const char kFtpScheme[];
 extern const char kGearsScheme[];
 extern const char kHttpScheme[];
 extern const char kHttpsScheme[];
-extern const char kHttpsvScheme[];
 extern const char kJavaScriptScheme[];
 extern const char kMailToScheme[];
 extern const char kMetadataScheme[];

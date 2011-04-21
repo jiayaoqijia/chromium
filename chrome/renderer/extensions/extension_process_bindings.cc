@@ -637,7 +637,6 @@ void ExtensionProcessBindings::SetHostPermissions(
     const char* schemes[] = {
       chrome::kHttpScheme,
       chrome::kHttpsScheme,
-      chrome::kHttpsvScheme,
       chrome::kFileScheme,
       chrome::kChromeUIScheme,
     };

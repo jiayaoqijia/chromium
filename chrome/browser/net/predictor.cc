@@ -679,7 +679,7 @@ GURL Predictor::CanonicalizeUrl(const GURL& url) {
   std::string scheme;
   if (url.has_scheme()) {
     scheme = url.scheme();
-    if (scheme != "http" && scheme != "https" && scheme != "httpsv")
+    if (scheme != "http" && scheme != "https")
       return GURL::EmptyGURL();
     if (url.has_port())
       return url.GetWithEmptyPath();

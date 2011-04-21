@@ -519,14 +519,13 @@ void CharactersImpl(void *ctx, const xmlChar *ch, int len) {
 }
 
 // Returns true if the ref is null, or the url wrapped by ref is
-// valid with a spec of http/https/httpsv.
+// valid with a spec of http/https.
 bool IsHTTPRef(const TemplateURLRef* ref) {
   if (ref == NULL)
     return true;
   GURL url(ref->url());
   return (url.is_valid() && (url.SchemeIs(chrome::kHttpScheme) ||
-                             url.SchemeIs(chrome::kHttpsScheme) ||
-                             url.SchemeIs(chrome::kHttpsvScheme)));
+                             url.SchemeIs(chrome::kHttpsScheme)));
 }
 
 // Returns true if the TemplateURL is legal. A legal TemplateURL is one
@@ -540,8 +539,7 @@ bool IsLegal(TemplateURL* url) {
     GURL image_url(image_refs[i].url);
     if (!image_url.is_valid() ||
         !(image_url.SchemeIs(chrome::kHttpScheme) ||
-          image_url.SchemeIs(chrome::kHttpsScheme) ||
-          image_url.SchemeIs(chrome::kHttpsvScheme))) {
+          image_url.SchemeIs(chrome::kHttpsScheme))) {
       return false;
     }
   }

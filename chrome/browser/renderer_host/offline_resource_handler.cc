@@ -124,8 +124,7 @@ void OfflineResourceHandler::ClearRequestInfo() {
 bool OfflineResourceHandler::IsRemote(const GURL& url) const {
   return url.SchemeIs(chrome::kFtpScheme) ||
          url.SchemeIs(chrome::kHttpScheme) ||
-         url.SchemeIs(chrome::kHttpsScheme) ||
-         url.SchemeIs(chrome::kHttpsvScheme);
+         url.SchemeIs(chrome::kHttpsScheme);
 }
 
 bool OfflineResourceHandler::ShouldShowOfflinePage(const GURL& url) const {

@@ -14,8 +14,7 @@ namespace net {
 
 // static
 std::string HttpUtil::PathForRequest(const GURL& url) {
-  DCHECK(url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https") ||
-                            url.SchemeIs("httpsv")));
+  DCHECK(url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https")));
   if (url.has_query())
     return url.path() + "?" + url.query();
   return url.path();
@@ -23,8 +22,7 @@ std::string HttpUtil::PathForRequest(const GURL& url) {
 
 // static
 std::string HttpUtil::SpecForRequest(const GURL& url) {
-  DCHECK(url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https") ||
-                            url.SchemeIs("httpsv")));
+  DCHECK(url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https")));
   return SimplifyUrlForRequest(url).spec();
 }
 

@@ -350,7 +350,7 @@ void LoginHandler::SetAuthDeferred(const std::wstring& username,
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (request_) {
-    if (auth_info->over_protocol == AUTH_OVER_TLS) {
+    if (auth_info_->over_protocol == net::AUTH_OVER_TLS) {
       DCHECK_EQ(ASCIIToWide(net::kTLSSRPScheme), auth_info_->scheme);
       request_->SetTLSLogin(WideToUTF16Hack(username),
                             WideToUTF16Hack(password));
@@ -367,7 +367,7 @@ void LoginHandler::CancelAuthDeferred() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (request_) {
-    if (auth_info->over_protocol == AUTH_OVER_TLS) {
+    if (auth_info_->over_protocol == net::AUTH_OVER_TLS) {
       DCHECK_EQ(ASCIIToWide(net::kTLSSRPScheme), auth_info_->scheme);
       request_->CancelTLSLogin();
     } else {
@@ -457,8 +457,7 @@ class LoginDialogTask : public Task {
     if (auth_info_->is_proxy) {
       std::string origin = host_and_port;
       // We don't expect this to already start with http:// or https://.
-      DCHECK(origin.find("http://") != 0 && origin.find("https://") != 0 &&
-             origin.find("httpsv://") != 0);
+      DCHECK(origin.find("http://") != 0 && origin.find("https://") != 0);
       origin = std::string("http://") + origin;
       dialog_form.origin = GURL(origin);
     } else if (net::GetHostAndPort(request_url_) != host_and_port) {

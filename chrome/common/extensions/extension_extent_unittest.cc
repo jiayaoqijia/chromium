@@ -29,7 +29,6 @@ TEST(ExtensionExtentTest, One) {
   EXPECT_TRUE(extent.ContainsURL(GURL("http://www.google.com/monkey")));
   EXPECT_FALSE(extent.ContainsURL(GURL("https://www.google.com/")));
   EXPECT_FALSE(extent.ContainsURL(GURL("https://www.microsoft.com/")));
-  EXPECT_FALSE(extent.ContainsURL(GURL("httpsv://www.microsoft.com/")));
 }
 
 TEST(ExtensionExtentTest, Two) {
@@ -40,14 +39,6 @@ TEST(ExtensionExtentTest, Two) {
   EXPECT_TRUE(extent.ContainsURL(GURL("http://www.google.com/monkey")));
   EXPECT_TRUE(extent.ContainsURL(GURL("http://www.yahoo.com/monkey")));
   EXPECT_FALSE(extent.ContainsURL(GURL("https://www.apple.com/monkey")));
-  EXPECT_FALSE(extent.ContainsURL(GURL("httpsv://www.apple.com/monkey")));
-}
-
-TEST(ExtensionExtentTest, SeparateHTTPSAndHTTPSV) {
-  ExtensionExtent extent;
-  extent.AddPattern(URLPattern(kAllSchemes, "https://www.google.com/*"));
-
-  EXPECT_FALSE(extent.ContainsURL(GURL("httpsv://www.google.com/")));
 }
 
 TEST(ExtensionExtentTest, OverlapsWith) {

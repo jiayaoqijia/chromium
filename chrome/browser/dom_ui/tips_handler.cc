@@ -106,6 +106,5 @@ void TipsHandler::RegisterUserPrefs(PrefService* prefs) {
 bool TipsHandler::IsValidURL(const std::wstring& url_string) {
   GURL url(WideToUTF8(url_string));
   return !url.is_empty() && (url.SchemeIs(chrome::kHttpScheme) ||
-                             url.SchemeIs(chrome::kHttpsScheme) ||
-                             url.SchemeIs(chrome::kHttpsvScheme));
+                             url.SchemeIs(chrome::kHttpsScheme));
 }

@@ -180,7 +180,7 @@ void HistoryURLProvider::DoAutocomplete(history::HistoryBackend* backend,
   // care:
   // * Their input can be opened as a URL, and
   // * They hit ctrl-enter, or we parsed the input as a URL, or it starts with
-  //   an explicit "http:", "https:", or "httpsv:".
+  //   an explicit "http:" or "https:".
   // Otherwise, this is just low-quality noise.  In the cases where we've parsed
   // as UNKNOWN, we'll still show an accidental search infobar if need be.
   bool have_what_you_typed_match =
@@ -189,9 +189,7 @@ void HistoryURLProvider::DoAutocomplete(history::HistoryBackend* backend,
       ((params->input.type() != AutocompleteInput::UNKNOWN) ||
           !params->trim_http ||
           url_util::FindAndCompareScheme(UTF16ToUTF8(params->input.text()),
-                                         chrome::kHttpsScheme, NULL) ||
-          url_util::FindAndCompareScheme(UTF16ToUTF8(params->input.text()),
-                                         chrome::kHttpsvScheme, NULL));
+                                         chrome::kHttpsScheme, NULL));
   AutocompleteMatch what_you_typed_match(SuggestExactInput(params->input,
                                                            params->trim_http));
 

@@ -152,8 +152,7 @@ void SafeBrowsingService::ShutDown() {
 bool SafeBrowsingService::CanCheckUrl(const GURL& url) const {
   return url.SchemeIs(chrome::kFtpScheme) ||
          url.SchemeIs(chrome::kHttpScheme) ||
-         url.SchemeIs(chrome::kHttpsScheme) ||
-         url.SchemeIs(chrome::kHttpsvScheme);
+         url.SchemeIs(chrome::kHttpsScheme);
 }
 
 // Only report SafeBrowsing related stats when UMA is enabled and

@@ -139,7 +139,7 @@ string16 ToolbarModel::GetSiteAccount() const {
   NavigationEntry* entry = GetNavigationController()->GetActiveEntry();
   if (!entry->ssl().tls_username().empty())
     return entry->ssl().tls_username();
-  else if (entry->url().SchemeIs("httpsv"))
+  else if (0) // TODO(sqs): find if logging in
     return ASCIIToUTF16("Logging in...");
   else
     return string16();

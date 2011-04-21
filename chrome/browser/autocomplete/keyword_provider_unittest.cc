@@ -106,8 +106,8 @@ TEST_F(KeywordProviderTest, Edit) {
     {ASCIIToUTF16("aaaa foo"),        1, {ASCIIToUTF16("aaaa foo")}},
     {ASCIIToUTF16("www.aaaa foo"),    1, {ASCIIToUTF16("aaaa foo")}},
 
-    // Clean up keyword input properly.  "http", "https", and "httpsv" are the
-    // only allowed schemes.
+    // Clean up keyword input properly.  "http" and "https" are the only
+    // allowed schemes.
     {ASCIIToUTF16("www"),             1, {ASCIIToUTF16("www ")}},
     {ASCIIToUTF16("www."),            0, {}},
     {ASCIIToUTF16("www.w w"),         2, {ASCIIToUTF16("www w"),
@@ -118,7 +118,6 @@ TEST_F(KeywordProviderTest, Edit) {
     {ASCIIToUTF16("mailto:z"),        0, {}},
     {ASCIIToUTF16("ftp://z"),         0, {}},
     {ASCIIToUTF16("https://z"),       1, {ASCIIToUTF16("z ")}},
-    {ASCIIToUTF16("httpsv://z"),       1, {ASCIIToUTF16("z ")}},
   };
 
   RunTest<string16>(edit_cases, arraysize(edit_cases),

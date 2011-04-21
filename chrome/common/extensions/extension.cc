@@ -1,4 +1,3 @@
-// TODO(sqs): add httpsv?
 // Copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -252,8 +251,7 @@ const size_t Extension::kNumHostedAppPermissions =
 const char Extension::kOldUnlimitedStoragePermission[] = "unlimited_storage";
 
 const int Extension::kValidWebExtentSchemes =
-    URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS |
-    URLPattern::SCHEME_HTTPSV;
+    URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS;
 
 const int Extension::kValidHostPermissionSchemes =
     (UserScript::kValidUserScriptSchemes |
@@ -998,8 +996,7 @@ bool Extension::LoadLaunchURL(const DictionaryValue* manifest,
     if (gallery_url.is_valid()) {
       launch_web_url_ = gallery_url.spec();
 
-      URLPattern pattern(URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS |
-                         URLPattern::SCHEME_HTTPSV);
+      URLPattern pattern(URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS);
       pattern.Parse(gallery_url.spec());
       pattern.set_path(pattern.path() + '*');
       extent_.AddPattern(pattern);

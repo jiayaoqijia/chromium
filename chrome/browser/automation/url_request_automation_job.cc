@@ -94,8 +94,7 @@ net::URLRequestJob* URLRequestAutomationJob::Factory(
     net::URLRequest* request,
     const std::string& scheme) {
   bool scheme_is_http = request->url().SchemeIs("http");
-  bool scheme_is_https = request->url().SchemeIs("https") ||
-                         request->url().SchemeIs("httpsv");
+  bool scheme_is_https = request->url().SchemeIs("https");
 
   // Returning null here just means that the built-in handler will be used.
   if (scheme_is_http || scheme_is_https) {

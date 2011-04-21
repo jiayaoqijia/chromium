@@ -142,7 +142,7 @@ PageInfoModel::PageInfoModel(Profile* profile,
     }
   } else if (ssl.tls_username().empty() ||
              (!ssl.tls_username().empty() && ssl.cert_id())) {
-    // HTTP, HTTPS, or HTTPSV with errors (not warnings).
+    // HTTP or HTTPS with errors (not warnings).
     description.assign(l10n_util::GetStringUTF16(
         ssl.cert_id() && !ssl.tls_username().empty() ?
         IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_BAD_CERT_OK_SHARED_SECRET :

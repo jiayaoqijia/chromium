@@ -211,8 +211,7 @@ void IEImporter::ImportPasswordsIE6() {
 
     GURL url(ac_list[i].key.c_str());
     if (!(LowerCaseEqualsASCII(url.scheme(), chrome::kHttpScheme) ||
-        LowerCaseEqualsASCII(url.scheme(), chrome::kHttpsScheme) ||
-        LowerCaseEqualsASCII(url.scheme(), chrome::kHttpsvScheme))) {
+        LowerCaseEqualsASCII(url.scheme(), chrome::kHttpsScheme))) {
       continue;
     }
 
@@ -290,7 +289,6 @@ void IEImporter::ImportPasswordsIE7() {
 void IEImporter::ImportHistory() {
   const std::string kSchemes[] = {chrome::kHttpScheme,
                                   chrome::kHttpsScheme,
-                                  chrome::kHttpsvScheme,
                                   chrome::kFtpScheme,
                                   chrome::kFileScheme};
   int total_schemes = arraysize(kSchemes);

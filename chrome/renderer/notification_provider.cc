@@ -107,7 +107,6 @@ bool NotificationProvider::ShowHTML(const WebNotification& notification,
   GURL url = notification.url();
   if (!url.SchemeIs(chrome::kHttpScheme) &&
       !url.SchemeIs(chrome::kHttpsScheme) &&
-      !url.SchemeIs(chrome::kHttpsvScheme) &&
       !url.SchemeIs(chrome::kExtensionScheme) &&
       !url.SchemeIs(chrome::kDataScheme))
     return false;

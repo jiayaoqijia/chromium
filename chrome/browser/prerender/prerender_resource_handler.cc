@@ -20,8 +20,7 @@ bool ShouldPrerender(const GURL& url, const ResourceResponse* response) {
     return false;
   if (!rrh.headers)
     return false;
-  if (!(url.SchemeIs("http") || url.SchemeIs("https") ||
-        url.SchemeIs("httpsv")))
+  if (!(url.SchemeIs("http") || url.SchemeIs("https")))
     return false;
   if (rrh.mime_type != "text/html")
     return false;

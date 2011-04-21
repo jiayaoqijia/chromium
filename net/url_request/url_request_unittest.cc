@@ -437,9 +437,9 @@ class SSLClientAuthTestDelegate : public TestDelegate {
   int on_certificate_requested_count_;
 };
 
-class HTTPSVClientSRPLoginTestDelegate : public TestDelegate {
+class TLSSRPClientLoginTestDelegate : public TestDelegate {
  public:
-  HTTPSVClientSRPLoginTestDelegate() :
+  TLSSRPClientLoginTestDelegate() :
       on_tls_login_required_count_(0),
       last_login_request_info_(NULL) {
   }
@@ -502,65 +502,59 @@ TEST_F(HTTPSRequestTest, ClientAuthTest) {
 }
 
 TEST_F(HTTPSRequestTest, HTTPSSRPLoginTest) {
-  bool only_tls_srp = false;
-  for (int i = 0; i < 2; i++, only_tls_srp = !only_tls_srp) {
-    net::TestServer::HTTPSOptions https_options;
-    https_options.use_tls_srp = true;
-    https_options.only_tls_srp = only_tls_srp;
-    net::TestServer test_server(https_options, FilePath());
-    ASSERT_TRUE(test_server.Start());
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = true;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
 
-    TestDelegate d;
-    {
-      TestURLRequest r(test_server.GetURL("tlslogininfo"), &d);
-      r.SetTLSLogin(kUser, kSecret);
+  TestDelegate d;
+  {
+    TestURLRequest r(test_server.GetURL("tlslogininfo"), &d);
+    r.SetTLSLogin(kUser, kSecret);
 
-      r.Start();
-      EXPECT_TRUE(r.is_pending());
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
 
-      MessageLoop::current()->Run();
+    MessageLoop::current()->Run();
 
-      EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
-                  std::string::npos);
-      EXPECT_FALSE(d.received_data_before_response());
-    }
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
   }
 }
 
 // Provide no TLS login credentials at first; wait to be prompted by the
 // server, and then provide them.
 TEST_F(HTTPSRequestTest, HTTPSSRPLoginContinueTest) {
-  bool only_tls_srp = false;
-  for (int i = 0; i < 2; i++, only_tls_srp = !only_tls_srp) {
-    net::TestServer::HTTPSOptions https_options;
-    https_options.use_tls_srp = true;
-    https_options.only_tls_srp = only_tls_srp;
-    net::TestServer test_server(https_options, FilePath());
-    ASSERT_TRUE(test_server.Start());
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = true;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
 
-    HTTPSVClientSRPLoginTestDelegate d;
-    {
-      GURL https_url = test_server.GetURL("tlslogininfo");
-      TestURLRequest r(https_url, &d);
+  TLSSRPClientLoginTestDelegate d;
+  {
+    GURL https_url = test_server.GetURL("tlslogininfo");
+    TestURLRequest r(https_url, &d);
 
-      r.Start();
-      EXPECT_TRUE(r.is_pending());
-      MessageLoop::current()->Run();
-      EXPECT_EQ(0, d.bytes_received());
-      EXPECT_FALSE(d.received_data_before_response());
-      EXPECT_EQ(1, d.on_tls_login_required_count());
-      CheckTLSAuthChallengeInfo(d.last_login_request_info(), https_url);
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+    MessageLoop::current()->Run();
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(1, d.on_tls_login_required_count());
+    CheckTLSAuthChallengeInfo(d.last_login_request_info(), https_url);
 
-      r.SetTLSLogin(kUser, kSecret);
-      r.ContinueWithTLSLogin();
-      MessageLoop::current()->Run();
+    r.SetTLSLogin(kUser, kSecret);
+    r.ContinueWithTLSLogin();
+    MessageLoop::current()->Run();
 
-      EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
-                  std::string::npos);
-      EXPECT_FALSE(d.received_data_before_response());
-    }
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
   }
 }
 
@@ -580,9 +574,6 @@ TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
   ASSERT_TRUE(test_server.Start());
 
   GURL https_url = test_server.GetURL("tlslogininfo");
-  GURL::Replacements replacements;
-  replacements.SetSchemeStr("httpsv");
-  GURL httpsv_url = https_url.ReplaceComponents(replacements);
 
   {
     TestDelegate d_https;
@@ -602,8 +593,8 @@ TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
     EXPECT_NE(0, d_https.bytes_received());
     CheckSSLInfo(r_https.ssl_info());
 
-    HTTPSVClientSRPLoginTestDelegate d;
-    TestURLRequest r(httpsv_url, &d);
+    TLSSRPClientLoginTestDelegate d;
+    TestURLRequest r(https_url, &d);
     r.Start();
     EXPECT_TRUE(r.is_pending());
 
@@ -611,7 +602,7 @@ TEST_F(HTTPSRequestTest, DISABLED_SSLCertThenWantUpgradeToSRP) {
     EXPECT_EQ(0, d.bytes_received());
     EXPECT_FALSE(d.received_data_before_response());
     EXPECT_EQ(1, d.on_tls_login_required_count());
-    CheckTLSAuthChallengeInfo(d.last_login_request_info(), httpsv_url);
+    CheckTLSAuthChallengeInfo(d.last_login_request_info(), https_url);
 
     r.SetTLSLogin(kUser, kSecret);
     r.ContinueWithTLSLogin();
@@ -631,17 +622,14 @@ TEST_F(HTTPSRequestTest, TLSLoginCredentialsRemainCached) {
   ASSERT_TRUE(test_server.Start());
 
   GURL https_url = test_server.GetURL("");
-  GURL::Replacements replacements;
-  replacements.SetSchemeStr("httpsv");
-  GURL httpsv_url = https_url.ReplaceComponents(replacements);
 
   GURL::Replacements replacements2;
   replacements2.SetPathStr("tlslogininfo");
   GURL https_url2 = https_url.ReplaceComponents(replacements2);
 
   {
-    HTTPSVClientSRPLoginTestDelegate d;
-    TestURLRequest r(httpsv_url, &d);
+    TLSSRPClientLoginTestDelegate d;
+    TestURLRequest r(https_url, &d);
     r.Start();
     EXPECT_TRUE(r.is_pending());
 
@@ -649,7 +637,7 @@ TEST_F(HTTPSRequestTest, TLSLoginCredentialsRemainCached) {
     EXPECT_EQ(0, d.bytes_received());
     EXPECT_FALSE(d.received_data_before_response());
     EXPECT_EQ(1, d.on_tls_login_required_count());
-    CheckTLSAuthChallengeInfo(d.last_login_request_info(), httpsv_url);
+    CheckTLSAuthChallengeInfo(d.last_login_request_info(), https_url);
 
     r.SetTLSLogin(kUser, kSecret);
     r.ContinueWithTLSLogin();
@@ -659,7 +647,7 @@ TEST_F(HTTPSRequestTest, TLSLoginCredentialsRemainCached) {
     EXPECT_FALSE(d.received_data_before_response());
 
     // Don't specify credentials for this request.
-    HTTPSVClientSRPLoginTestDelegate d2;
+    TLSSRPClientLoginTestDelegate d2;
     TestURLRequest r2(https_url2, &d2);
     r2.Start();
     EXPECT_TRUE(r2.is_pending());
@@ -672,45 +660,39 @@ TEST_F(HTTPSRequestTest, TLSLoginCredentialsRemainCached) {
   }
 }
 
-TEST_F(HTTPSRequestTest, HTTPSVLoginTest) {
-  bool only_tls_srp = false;
-  for (int i = 0; i < 2; i++, only_tls_srp = !only_tls_srp) {
-    net::TestServer::HTTPSOptions https_options;
-    https_options.use_tls_srp = true;
-    https_options.only_tls_srp = only_tls_srp;
-    net::TestServer test_server(https_options, FilePath());
-    ASSERT_TRUE(test_server.Start());
+TEST_F(HTTPSRequestTest, TLSSRPLoginTest) {
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = true;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
 
-    GURL https_url = test_server.GetURL("tlslogininfo");
-    GURL::Replacements replacements;
-    replacements.SetSchemeStr("httpsv");
-    GURL httpsv_url = https_url.ReplaceComponents(replacements);
+  GURL https_url = test_server.GetURL("tlslogininfo");
 
-    {
-      HTTPSVClientSRPLoginTestDelegate d;
-      TestURLRequest r(httpsv_url, &d);
-      r.Start();
-      EXPECT_TRUE(r.is_pending());
+  {
+    TLSSRPClientLoginTestDelegate d;
+    TestURLRequest r(https_url, &d);
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
 
-      MessageLoop::current()->Run();
-      EXPECT_EQ(0, d.bytes_received());
-      EXPECT_FALSE(d.received_data_before_response());
-      EXPECT_EQ(1, d.on_tls_login_required_count());
-      CheckTLSAuthChallengeInfo(d.last_login_request_info(), httpsv_url);
+    MessageLoop::current()->Run();
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(1, d.on_tls_login_required_count());
+    CheckTLSAuthChallengeInfo(d.last_login_request_info(), https_url);
 
-      r.SetTLSLogin(kUser, kSecret);
-      r.ContinueWithTLSLogin();
+    r.SetTLSLogin(kUser, kSecret);
+    r.ContinueWithTLSLogin();
 
-      MessageLoop::current()->Run();
-      EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
-                  std::string::npos);
-      EXPECT_FALSE(d.received_data_before_response());
-    }
+    MessageLoop::current()->Run();
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
   }
 }
 
-TEST_F(HTTPSRequestTest, HTTPSVSRPLoginWithCertTest) {
+TEST_F(HTTPSRequestTest, TLSSRPSRPLoginWithCertTest) {
   net::TestServer::HTTPSOptions https_options(
       net::TestServer::HTTPSOptions::CERT_OK);
   https_options.use_tls_srp = true;
@@ -719,13 +701,10 @@ TEST_F(HTTPSRequestTest, HTTPSVSRPLoginWithCertTest) {
   ASSERT_TRUE(test_server.Start());
 
   GURL https_url = test_server.GetURL("tlslogininfo");
-  GURL::Replacements replacements;
-  replacements.SetSchemeStr("httpsv");
-  GURL httpsv_url = https_url.ReplaceComponents(replacements);
 
   TestDelegate d;
   {
-    TestURLRequest r(httpsv_url, &d);
+    TestURLRequest r(https_url, &d);
     r.SetTLSLogin(kUser, kSecret);
 
     r.Start();
@@ -746,7 +725,7 @@ TEST_F(HTTPSRequestTest, HTTPSVSRPLoginWithCertTest) {
 }
 
 // Check that we still validate certs on SRP cipher suites that use certs.
-TEST_F(HTTPSRequestTest, HTTPSVSRPBadCertFailureTest) {
+TEST_F(HTTPSRequestTest, TLSSRPSRPBadCertFailureTest) {
   bool cert_err_allowed = false;
   for (int i = 0; i < 2; i++, cert_err_allowed = !cert_err_allowed) {
     net::TestServer::HTTPSOptions https_options(
@@ -757,14 +736,11 @@ TEST_F(HTTPSRequestTest, HTTPSVSRPBadCertFailureTest) {
     ASSERT_TRUE(test_server.Start());
 
     GURL https_url = test_server.GetURL("tlslogininfo");
-    GURL::Replacements replacements;
-    replacements.SetSchemeStr("httpsv");
-    GURL httpsv_url = https_url.ReplaceComponents(replacements);
 
     TestDelegate d;
     {
       d.set_allow_certificate_errors(cert_err_allowed);
-      TestURLRequest r(httpsv_url, &d);
+      TestURLRequest r(https_url, &d);
       r.SetTLSLogin(kUser, kSecret);
 
       r.Start();
@@ -787,90 +763,76 @@ TEST_F(HTTPSRequestTest, HTTPSVSRPBadCertFailureTest) {
   }
 }
 
-TEST_F(HTTPSRequestTest, HTTPSVBadSecretFailureTest) {
-  bool only_tls_srp = false;
-  for (int i = 0; i < 2; i++, only_tls_srp = !only_tls_srp) {
-    net::TestServer::HTTPSOptions https_options;
-    https_options.use_tls_srp = true;
-    https_options.only_tls_srp = only_tls_srp;
-    net::TestServer test_server(https_options, FilePath());
-    ASSERT_TRUE(test_server.Start());
+TEST_F(HTTPSRequestTest, TLSSRPBadSecretFailureTest) {
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = true;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
 
-    GURL https_url = test_server.GetURL("tlslogininfo");
-    GURL::Replacements replacements;
-    replacements.SetSchemeStr("httpsv");
-    GURL httpsv_url = https_url.ReplaceComponents(replacements);
+  GURL https_url = test_server.GetURL("tlslogininfo");
 
-    {
-      HTTPSVClientSRPLoginTestDelegate d;
+  {
+    TLSSRPClientLoginTestDelegate d;
 
-      TestURLRequest r(httpsv_url, &d);
-      // Try wrong password. Since this is an httpsv URL, even when the server
-      // also offers certificate-based cipher suites, we will fail to connect.
-      r.SetTLSLogin(kUser, kWrongSecret);
-      r.Start();
-      EXPECT_TRUE(r.is_pending());
-      MessageLoop::current()->Run();
-      EXPECT_EQ(0, d.bytes_received());
-      EXPECT_EQ(1, d.on_tls_login_required_count());
-      EXPECT_FALSE(d.received_data_before_response());
+    TestURLRequest r(https_url, &d);
+    // Try wrong password.
+    r.SetTLSLogin(kUser, kWrongSecret);
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+    MessageLoop::current()->Run();
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_EQ(1, d.on_tls_login_required_count());
+    EXPECT_FALSE(d.received_data_before_response());
 
-      // Now continue with the correct password.
-      r.SetTLSLogin(kUser, kSecret);
-      r.ContinueWithTLSLogin();
+    // Now continue with the correct password.
+    r.SetTLSLogin(kUser, kSecret);
+    r.ContinueWithTLSLogin();
 
-      MessageLoop::current()->Run();
-      EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
-                  std::string::npos);
-      EXPECT_FALSE(d.received_data_before_response());
-    }
+    MessageLoop::current()->Run();
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
   }
 }
 
-TEST_F(HTTPSRequestTest, HTTPSVBadUsernameTest) {
-  bool only_tls_srp = false;
-  for (int i = 0; i < 2; i++, only_tls_srp = !only_tls_srp) {
-    net::TestServer::HTTPSOptions https_options;
-    https_options.use_tls_srp = true;
-    https_options.only_tls_srp = only_tls_srp;
-    net::TestServer test_server(https_options, FilePath());
-    ASSERT_TRUE(test_server.Start());
+TEST_F(HTTPSRequestTest, TLSSRPBadUsernameTest) {
+  net::TestServer::HTTPSOptions https_options;
+  https_options.use_tls_srp = true;
+  https_options.only_tls_srp = true;
+  net::TestServer test_server(https_options, FilePath());
+  ASSERT_TRUE(test_server.Start());
 
-    GURL https_url = test_server.GetURL("tlslogininfo");
-    GURL::Replacements replacements;
-    replacements.SetSchemeStr("httpsv");
-    GURL httpsv_url = https_url.ReplaceComponents(replacements);
+  GURL https_url = test_server.GetURL("tlslogininfo");
 
-    {
-      HTTPSVClientSRPLoginTestDelegate d;
+  {
+    TLSSRPClientLoginTestDelegate d;
 
-      TestURLRequest r(httpsv_url, &d);
-      // Try wrong password. Since this is an httpsv URL, even when the server
-      // also offers certificate-based cipher suites, we will fail to connect.
-      r.SetTLSLogin(kWrongUser, kSecret);
-      r.Start();
-      EXPECT_TRUE(r.is_pending());
-      MessageLoop::current()->Run();
-      EXPECT_EQ(0, d.bytes_received());
-      EXPECT_FALSE(d.received_data_before_response());
-      EXPECT_EQ(1, d.on_tls_login_required_count());
-      CheckTLSAuthChallengeInfo(d.last_login_request_info(), httpsv_url);
+    TestURLRequest r(https_url, &d);
+    // Try wrong password.
+    r.SetTLSLogin(kWrongUser, kSecret);
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+    MessageLoop::current()->Run();
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(1, d.on_tls_login_required_count());
+    CheckTLSAuthChallengeInfo(d.last_login_request_info(), https_url);
 
-      // Now continue with the correct password.
-      r.SetTLSLogin(kUser, kSecret);
-      r.ContinueWithTLSLogin();
+    // Now continue with the correct password.
+    r.SetTLSLogin(kUser, kSecret);
+    r.ContinueWithTLSLogin();
 
-      MessageLoop::current()->Run();
-      EXPECT_NE(0, d.bytes_received());
-      EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
-                  std::string::npos);
-      EXPECT_FALSE(d.received_data_before_response());
-    }
+    MessageLoop::current()->Run();
+    EXPECT_NE(0, d.bytes_received());
+    EXPECT_TRUE(d.data_received().find(UTF16ToUTF8(kUser)) !=
+                std::string::npos);
+    EXPECT_FALSE(d.received_data_before_response());
   }
 }
 
-TEST_F(HTTPSRequestTest, HTTPSVCancelLoginTest) {
+TEST_F(HTTPSRequestTest, TLSSRPCancelLoginTest) {
   net::TestServer::HTTPSOptions https_options;
   https_options.use_tls_srp = true;
   https_options.only_tls_srp = true;
@@ -878,14 +840,11 @@ TEST_F(HTTPSRequestTest, HTTPSVCancelLoginTest) {
   ASSERT_TRUE(test_server.Start());
 
   GURL https_url = test_server.GetURL("");
-  GURL::Replacements replacements;
-  replacements.SetSchemeStr("httpsv");
-  GURL httpsv_url = https_url.ReplaceComponents(replacements);
 
   {
-    HTTPSVClientSRPLoginTestDelegate d;
+    TLSSRPClientLoginTestDelegate d;
 
-    TestURLRequest r(httpsv_url, &d);
+    TestURLRequest r(https_url, &d);
     r.Start();
     EXPECT_TRUE(r.is_pending());
     MessageLoop::current()->Run();

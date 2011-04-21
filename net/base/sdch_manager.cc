@@ -346,7 +346,7 @@ bool SdchManager::CanFetchDictionary(const GURL& referring_url,
     SdchErrorRecovery(DICTIONARY_LOAD_ATTEMPT_FROM_DIFFERENT_HOST);
     return false;
   }
-  if (referring_url.SchemeIs("https") || referring_url.SchemeIs("httpsv")) {
+  if (referring_url.SchemeIs("https")) {
     SdchErrorRecovery(DICTIONARY_SELECTED_FOR_SSL);
     return false;
   }

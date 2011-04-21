@@ -175,7 +175,7 @@ namespace internal_keychain_helpers {
 GURL URLFromComponents(bool is_secure, const std::string& host, int port,
                        const std::string& path) {
   GURL::Replacements url_components;
-  std::string scheme(is_secure ? "https" : "http"); // TODO(sqs): add httpsv
+  std::string scheme(is_secure ? "https" : "http");
   url_components.SetSchemeStr(scheme);
   url_components.SetHostStr(host);
   std::string port_string;  // Must remain in scope until after we do replacing.

@@ -37,7 +37,6 @@ const char* kTopLevelDomainPlus2Secure = "https://www.math.harvard.edu";
 const char* kTopLevelDomainPlus3 =
     "http://www.bourbaki.math.harvard.edu";
 const char* kOtherDomain = "http://www.mit.edu";
-const char* kHTTPSVDomain = "httpsv://stanford.edu";
 
 void PopulateCmForDeleteAllForHost(scoped_refptr<net::CookieMonster> cm) {
   GURL url_top_level_domain_plus_1(kTopLevelDomainPlus1);
@@ -45,7 +44,6 @@ void PopulateCmForDeleteAllForHost(scoped_refptr<net::CookieMonster> cm) {
   GURL url_top_level_domain_plus_2_secure(kTopLevelDomainPlus2Secure);
   GURL url_top_level_domain_plus_3(kTopLevelDomainPlus3);
   GURL url_other(kOtherDomain);
-  GURL url_httpsv(kHTTPSVDomain);
 
   cm->DeleteAll(true);
 
@@ -92,9 +90,6 @@ void PopulateCmForDeleteAllForHost(scoped_refptr<net::CookieMonster> cm) {
   EXPECT_TRUE(cm->SetCookieWithDetails(url_top_level_domain_plus_2_secure,
                                        "sec_host", "X", "", "/",
                                        base::Time(), true, false));
-  EXPECT_TRUE(cm->SetCookieWithDetails(url_httpsv,
-                                       "httpsv_host", "X", "", "/",
-                                       base::Time(), true, false));
 
   // Domain path cookies
   EXPECT_TRUE(cm->SetCookieWithDetails(url_top_level_domain_plus_2,
@@ -116,7 +111,7 @@ void PopulateCmForDeleteAllForHost(scoped_refptr<net::CookieMonster> cm) {
                                        "", "/dir1/dir2",
                                        base::Time(), false, false));
 
-  EXPECT_EQ(14U, cm->GetAllCookies().size());
+  EXPECT_EQ(13U, cm->GetAllCookies().size());
 }
 
 }  // namespace
@@ -1696,7 +1691,7 @@ TEST(CookieMonsterTest, DeleteAllForHost) {
                                 std::string("/dir1/dir2/xxx"))));
 
   EXPECT_EQ(5, cm->DeleteAllForHost(GURL(kTopLevelDomainPlus2)));
-  EXPECT_EQ(9U, cm->GetAllCookies().size());
+  EXPECT_EQ(8U, cm->GetAllCookies().size());
 
   EXPECT_EQ("dom_1=X; dom_2=X; dom_3=X; host_3=X",
             cm->GetCookies(GURL(kTopLevelDomainPlus3)));
@@ -1709,7 +1704,7 @@ TEST(CookieMonsterTest, DeleteAllForHost) {
 
   PopulateCmForDeleteAllForHost(cm);
   EXPECT_EQ(5, cm->DeleteAllForHost(GURL(kTopLevelDomainPlus2Secure)));
-  EXPECT_EQ(9U, cm->GetAllCookies().size());
+  EXPECT_EQ(8U, cm->GetAllCookies().size());
 
   EXPECT_EQ("dom_1=X; dom_2=X; dom_3=X; host_3=X",
             cm->GetCookies(GURL(kTopLevelDomainPlus3)));
@@ -1723,7 +1718,7 @@ TEST(CookieMonsterTest, DeleteAllForHost) {
   PopulateCmForDeleteAllForHost(cm);
   EXPECT_EQ(5, cm->DeleteAllForHost(GURL(kTopLevelDomainPlus2Secure +
                                          std::string("/dir1/xxx"))));
-  EXPECT_EQ(9U, cm->GetAllCookies().size());
+  EXPECT_EQ(8U, cm->GetAllCookies().size());
 
   EXPECT_EQ("dom_1=X; dom_2=X; dom_3=X; host_3=X",
             cm->GetCookies(GURL(kTopLevelDomainPlus3)));

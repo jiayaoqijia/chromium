@@ -149,16 +149,15 @@ AutocompleteInput::Type AutocompleteInput::Parse(
     return URL;
   }
 
-  // If the user typed a scheme, and it's HTTP, HTTPS, or HTTPSV we know how to
-  // parse it well enough that we can fall through to the heuristics below.  If
-  // it's something else, we can just determine our action based on what we do
-  // with any input of this scheme.  In theory we could do better with some
-  // schemes (e.g. "ftp" or "view-source") but I'll wait to spend the effort on
-  // that until I run into some cases that really need it.
+  // If the user typed a scheme, and it's HTTP or HTTPS, we know how to parse it
+  // well enough that we can fall through to the heuristics below.  If it's
+  // something else, we can just determine our action based on what we do with
+  // any input of this scheme.  In theory we could do better with some schemes
+  // (e.g. "ftp" or "view-source") but I'll wait to spend the effort on that
+  // until I run into some cases that really need it.
   if (parts->scheme.is_nonempty() &&
       !LowerCaseEqualsASCII(parsed_scheme, chrome::kHttpScheme) &&
-      !LowerCaseEqualsASCII(parsed_scheme, chrome::kHttpsScheme) &&
-      !LowerCaseEqualsASCII(parsed_scheme, chrome::kHttpsvScheme)) {
+      !LowerCaseEqualsASCII(parsed_scheme, chrome::kHttpsScheme)) {
     // See if we know how to handle the URL internally.
     if (net::URLRequest::IsHandledProtocol(UTF16ToASCII(parsed_scheme)))
       return URL;
