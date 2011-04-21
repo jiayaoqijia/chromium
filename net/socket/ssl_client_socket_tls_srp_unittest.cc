@@ -289,12 +289,7 @@ TEST_F(SSLClientSocketTLSSRPTest, NoCredentials) {
 
 TEST_F(SSLClientSocketTLSSRPTest, GoodCredentials) {
   StartTLSSRPServer(NULL);
-  PerformConnection("jsmith", "asdf");
-}
-
-TEST_F(SSLClientSocketTLSSRPTest, GoodCredentials2) {
-  StartTLSSRPServer(NULL);
-  PerformConnection("alice", "1234");
+  PerformConnection("user", "secret");
 }
 
 // TODO(sqs): The current openssl_helper terminates the connection upon seeing
@@ -303,14 +298,14 @@ TEST_F(SSLClientSocketTLSSRPTest, GoodCredentials2) {
 // below will need to change.
 TEST_F(SSLClientSocketTLSSRPTest, BadCredentials) {
   StartTLSSRPServer(NULL);
-  PerformConnection("baduser", "badpw", true,
+  PerformConnection("baduser", "secret", true,
                     ERR_SSL_UNKNOWN_PSK_IDENTITY_ALERT);
   expected_exit_code_ = 1;
 }
 
 TEST_F(SSLClientSocketTLSSRPTest, GoodUsernameBadPassword) {
   StartTLSSRPServer(NULL);
-  PerformConnection("jsmith", "badpw", true, ERR_SSL_BAD_RECORD_MAC_ALERT);
+  PerformConnection("user", "badsecret", true, ERR_SSL_BAD_RECORD_MAC_ALERT);
   expected_exit_code_ = 1;
 }
 
