@@ -124,7 +124,11 @@
           ],
           'libraries': [
             '<!@(<(pkg-config) --libs-only-l nss | sed -e "s/-lssl3//")',
-            '-lnssdbm3', # TODO(sqs): still needed?
+             # TODO(sqs): -lsoftokn3 is necessary because SRP_ClientDerive,
+             # etc., are called from the NSS SSL code. When I separate the
+             # SRP additions to NSS softokn from the additions to NSS ssl,
+             # this should no longer be necessary.
+            '-lsoftokn3'
           ],
         }],
         [ 'OS == "mac" or OS == "win"', {
