@@ -29,7 +29,7 @@ static int sni_cb(SSL *s, int *ad, void *arg) {
 
 // Client certificate verification callback from OpenSSL
 static int verify_cb(int preverify_ok, X509_STORE_CTX *ctx) {
-  return preverify_ok;
+  return 1;
 }
 
 // Next Protocol Negotiation callback from OpenSSL
