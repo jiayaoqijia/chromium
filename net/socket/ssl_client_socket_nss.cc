@@ -1030,8 +1030,8 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
   }
 
   if (ssl_config_.use_tls_auth) {
-    // Enable SRP ciphers, and disable non-SRP ciphers if we *require* TLS auth.
-    rv = SetCiphersForTLSAuth(true, ssl_config_.require_tls_auth);
+    // Enable SRP ciphers.
+    rv = SetCiphersForTLSAuth(true);
     if (rv != OK)
       return rv;
 
@@ -1053,7 +1053,7 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
     // Disable SRP ciphers.
     // TODO(sqs): this disable step should only be called if the SRP cipher
     // suites are on by default.
-    rv = SetCiphersForTLSAuth(false, false);
+    rv = SetCiphersForTLSAuth(false);
     if (rv != OK)
       return rv;
   }
@@ -1084,8 +1084,7 @@ int SSLClientSocketNSS::InitializeSSLOptions() {
 // Enables SRP ciphers if |set_srp_ciphers| is true; otherwise, disables SRP
 // ciphers. If |disable_non_srp_ciphers| is true, then disable non-SRP ciphers;
 // otherwise, leave them alone.
-int SSLClientSocketNSS::SetCiphersForTLSAuth(bool set_srp_ciphers,
-                                             bool disable_non_srp_ciphers) {
+int SSLClientSocketNSS::SetCiphersForTLSAuth(bool set_srp_ciphers) {
   int rv;
   const PRUint16 *cipherSuites = SSL_GetImplementedCiphers();
   int numCiphers = SSL_GetNumImplementedCiphers();
@@ -1099,12 +1098,10 @@ int SSLClientSocketNSS::SetCiphersForTLSAuth(bool set_srp_ciphers,
     }
     if (IsNSSCipherKEATypeSRP(info.keaType)) {
       rv = SSL_CipherPrefSet(nss_fd_, suite, set_srp_ciphers);
-    } else if (disable_non_srp_ciphers) {
-      rv = SSL_CipherPrefSet(nss_fd_, suite, PR_FALSE);
-    }
-    if (rv != SECSuccess) {
-      LogFailedNSSFunction(net_log_, "SSL_CipherPrefSet", "");
-      return ERR_UNEXPECTED;
+      if (rv != SECSuccess) {
+        LogFailedNSSFunction(net_log_, "SSL_CipherPrefSet", "");
+        return ERR_UNEXPECTED;
+      }
     }
   }
   return OK;

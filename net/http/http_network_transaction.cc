@@ -612,13 +612,6 @@ int HttpNetworkTransaction::DoCreateStream() {
         SetTLSLoginAuthData(tls_auth_data);
         DCHECK(!ssl_config_.tls_username.empty());
         DCHECK(!ssl_config_.tls_password.empty());
-      } else if (ssl_config_.require_tls_auth) {
-        response_.login_request_info = new AuthChallengeInfo;
-        response_.login_request_info->host_and_port =
-            UTF8ToWide(net::GetHostAndPort(request_->url));
-        response_.login_request_info->scheme = ASCIIToWide(net::kTLSSRPScheme);
-        response_.login_request_info->over_protocol = AUTH_OVER_TLS;
-        return ERR_TLS_CLIENT_LOGIN_NEEDED;
       }
     }
   }
@@ -1163,7 +1156,7 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
     case ERR_SSL_BAD_RECORD_MAC_ALERT:
       if (ssl_config_.tls1_enabled &&
           !SSLConfigService::IsKnownStrictTLSServer(request_->url.host()) &&
-          !ssl_config_.require_tls_auth) {
+          ssl_config_.tls_username.empty()) {
         // This could be a TLS-intolerant server, an SSL 3.0 server that
         // chose a TLS-only cipher suite or a server with buggy DEFLATE
         // support. Turn off TLS 1.0, DEFLATE support and retry.

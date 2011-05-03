@@ -92,7 +92,6 @@ struct SSLConfig {
                        // needs to clear tls1_enabled).
 
   bool use_tls_auth; // True if we should allow the use of SRP cipher suites.
-  bool require_tls_auth; // True if we should only use SRP cipher suites.
   std::string tls_username;
   std::string tls_password;
 
